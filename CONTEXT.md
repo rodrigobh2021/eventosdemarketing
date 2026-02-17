@@ -5,9 +5,11 @@
 **eventosdemarketing.com.br** é uma plataforma web que centraliza eventos de marketing no Brasil. Permite que profissionais da área descubram conferências, workshops, meetups e outros eventos — filtrando por cidade, tema, data, formato e preço. Organizadores podem cadastrar seus eventos, e um agente de scraping com IA auxilia na extração automática de dados de sites de eventos.
 
 ### Proposta de valor
+
 > "Nunca mais perca um evento de marketing. Descubra conferências, workshops e meetups da sua cidade — filtrados por tema, data e preço."
 
 ### Público-alvo
+
 - **Usuários**: Profissionais de marketing, growth, conteúdo, mídia paga, SEO, branding, CRM, dados, produto e áreas correlatas
 - **Organizadores**: Empresas e pessoas que organizam eventos de marketing (conferências, workshops, cursos, meetups, webinars)
 
@@ -15,19 +17,19 @@
 
 ## Stack Tecnológica
 
-| Camada | Tecnologia | Versão |
-|--------|-----------|--------|
-| Framework | Next.js (App Router) | 14+ |
-| Linguagem | TypeScript | 5+ |
-| Estilização | Tailwind CSS | 3+ |
-| Banco de dados | PostgreSQL | via Supabase ou Neon |
-| ORM | Prisma | latest |
-| Autenticação | NextAuth.js (Auth.js) | v5 |
-| Email | Resend | latest |
-| Mapas | Google Maps Embed API | — |
-| Calendário (.ics) | ical-generator | latest |
-| Agente de scraping | Claude API + Playwright | — |
-| Deploy | Vercel | — |
+| Camada             | Tecnologia              | Versão               |
+| ------------------ | ----------------------- | -------------------- |
+| Framework          | Next.js (App Router)    | 14+                  |
+| Linguagem          | TypeScript              | 5+                   |
+| Estilização        | Tailwind CSS            | 3+                   |
+| Banco de dados     | PostgreSQL              | via Supabase ou Neon |
+| ORM                | Prisma                  | latest               |
+| Autenticação       | NextAuth.js (Auth.js)   | v5                   |
+| Email              | Resend                  | latest               |
+| Mapas              | Google Maps Embed API   | —                    |
+| Calendário (.ics)  | ical-generator          | latest               |
+| Agente de scraping | Claude API + Playwright | —                    |
+| Deploy             | Vercel                  | —                    |
 
 ---
 
@@ -131,143 +133,151 @@ eventosdemarketing/
 ## Modelagem do Banco de Dados
 
 ### Event
-| Campo | Tipo | Notas |
-|-------|------|-------|
-| id | UUID | PK, auto-generated |
-| slug | String | Único, gerado a partir do título + cidade |
-| title | String | Obrigatório |
-| description | Text | Rich text (HTML) |
-| start_date | DateTime | Obrigatório |
-| end_date | DateTime? | Opcional |
-| start_time | String? | "09:00" |
-| end_time | String? | "18:00" |
-| city | String | Obrigatório |
-| state | String | UF (2 chars) |
-| address | String? | Endereço completo |
-| latitude | Float? | Para mapa |
-| longitude | Float? | Para mapa |
-| venue_name | String? | Nome do local |
-| category | Enum | conferencia, workshop, meetup, webinar, curso, palestra, hackathon |
-| topics | String[] | Array: growth, branding, midia-paga, seo, conteudo, dados, crm, ia, social-media, produto |
-| is_free | Boolean | Default false |
-| price_info | String? | Texto livre: "a partir de R$97" |
-| ticket_url | String? | Link para compra |
-| event_url | String? | Site oficial do evento |
-| image_url | String? | Banner/capa |
-| organizer_name | String | Obrigatório |
-| organizer_url | String? | Site do organizador |
-| format | Enum | presencial, online, hibrido |
-| status | Enum | rascunho, publicado, cancelado, encerrado |
-| is_verified | Boolean | Default false |
-| source_url | String? | URL de onde o agente extraiu |
-| interest_count | Int | Default 0 |
-| created_at | DateTime | Auto |
-| updated_at | DateTime | Auto |
+
+| Campo          | Tipo      | Notas                                                                                     |
+| -------------- | --------- | ----------------------------------------------------------------------------------------- |
+| id             | UUID      | PK, auto-generated                                                                        |
+| slug           | String    | Único, gerado a partir do título + cidade                                                 |
+| title          | String    | Obrigatório                                                                               |
+| description    | Text      | Rich text (HTML)                                                                          |
+| start_date     | DateTime  | Obrigatório                                                                               |
+| end_date       | DateTime? | Opcional                                                                                  |
+| start_time     | String?   | "09:00"                                                                                   |
+| end_time       | String?   | "18:00"                                                                                   |
+| city           | String    | Obrigatório                                                                               |
+| state          | String    | UF (2 chars)                                                                              |
+| address        | String?   | Endereço completo                                                                         |
+| latitude       | Float?    | Para mapa                                                                                 |
+| longitude      | Float?    | Para mapa                                                                                 |
+| venue_name     | String?   | Nome do local                                                                             |
+| category       | Enum      | conferencia, workshop, meetup, webinar, curso, palestra, hackathon                        |
+| topics         | String[]  | Array: growth, branding, midia-paga, seo, conteudo, dados, crm, ia, social-media, produto |
+| is_free        | Boolean   | Default false                                                                             |
+| price_info     | String?   | Texto livre: "a partir de R$97"                                                           |
+| ticket_url     | String?   | Link para compra                                                                          |
+| event_url      | String?   | Site oficial do evento                                                                    |
+| image_url      | String?   | Banner/capa                                                                               |
+| organizer_name | String    | Obrigatório                                                                               |
+| organizer_url  | String?   | Site do organizador                                                                       |
+| format         | Enum      | presencial, online, hibrido                                                               |
+| status         | Enum      | rascunho, publicado, cancelado, encerrado                                                 |
+| is_verified    | Boolean   | Default false                                                                             |
+| source_url     | String?   | URL de onde o agente extraiu                                                              |
+| interest_count | Int       | Default 0                                                                                 |
+| created_at     | DateTime  | Auto                                                                                      |
+| updated_at     | DateTime  | Auto                                                                                      |
 
 ### User (subscriber)
-| Campo | Tipo | Notas |
-|-------|------|-------|
-| id | UUID | PK |
-| email | String | Único, obrigatório |
-| name | String? | |
-| cities_of_interest | String[] | Array de cidades |
-| topics_of_interest | String[] | Array de temas |
-| notify_free_only | Boolean | Default false |
-| email_verified | Boolean | Default false |
-| verification_token | String? | Para double opt-in |
-| unsubscribe_token | String | Único, para link de descadastro |
-| created_at | DateTime | Auto |
+
+| Campo              | Tipo     | Notas                           |
+| ------------------ | -------- | ------------------------------- |
+| id                 | UUID     | PK                              |
+| email              | String   | Único, obrigatório              |
+| name               | String?  |                                 |
+| cities_of_interest | String[] | Array de cidades                |
+| topics_of_interest | String[] | Array de temas                  |
+| notify_free_only   | Boolean  | Default false                   |
+| email_verified     | Boolean  | Default false                   |
+| verification_token | String?  | Para double opt-in              |
+| unsubscribe_token  | String   | Único, para link de descadastro |
+| created_at         | DateTime | Auto                            |
 
 ### Organizer
-| Campo | Tipo | Notas |
-|-------|------|-------|
-| id | UUID | PK |
-| name | String | Obrigatório |
-| email | String | Único |
-| company | String? | |
-| website | String? | |
-| logo_url | String? | |
-| is_approved | Boolean | Default false |
-| auth_provider | String? | google, email |
-| created_at | DateTime | Auto |
+
+| Campo         | Tipo     | Notas         |
+| ------------- | -------- | ------------- |
+| id            | UUID     | PK            |
+| name          | String   | Obrigatório   |
+| email         | String   | Único         |
+| company       | String?  |               |
+| website       | String?  |               |
+| logo_url      | String?  |               |
+| is_approved   | Boolean  | Default false |
+| auth_provider | String?  | google, email |
+| created_at    | DateTime | Auto          |
 
 ### EventSubmission
-| Campo | Tipo | Notas |
-|-------|------|-------|
-| id | UUID | PK |
-| organizer_id | UUID? | FK → Organizer (null se via agente) |
-| event_data | JSON | Dados do evento antes de aprovação |
-| status | Enum | pendente, aprovado, rejeitado |
-| reviewer_notes | String? | |
-| source | Enum | organizador, agente, admin |
-| reviewed_at | DateTime? | |
-| created_at | DateTime | Auto |
+
+| Campo          | Tipo      | Notas                               |
+| -------------- | --------- | ----------------------------------- |
+| id             | UUID      | PK                                  |
+| organizer_id   | UUID?     | FK → Organizer (null se via agente) |
+| event_data     | JSON      | Dados do evento antes de aprovação  |
+| status         | Enum      | pendente, aprovado, rejeitado       |
+| reviewer_notes | String?   |                                     |
+| source         | Enum      | organizador, agente, admin          |
+| reviewed_at    | DateTime? |                                     |
+| created_at     | DateTime  | Auto                                |
 
 ---
 
 ## Enums e Constantes
 
 ### Categorias de evento
+
 ```typescript
 enum EventCategory {
-  CONFERENCIA = "conferencia",
-  WORKSHOP = "workshop",
-  MEETUP = "meetup",
-  WEBINAR = "webinar",
-  CURSO = "curso",
-  PALESTRA = "palestra",
-  HACKATHON = "hackathon",
+  CONFERENCIA = 'conferencia',
+  WORKSHOP = 'workshop',
+  MEETUP = 'meetup',
+  WEBINAR = 'webinar',
+  CURSO = 'curso',
+  PALESTRA = 'palestra',
+  HACKATHON = 'hackathon',
 }
 ```
 
 ### Temas / Tópicos
+
 ```typescript
 const EVENT_TOPICS = [
-  "growth",
-  "branding",
-  "midia-paga",
-  "seo",
-  "conteudo",
-  "dados-e-analytics",
-  "crm",
-  "inteligencia-artificial",
-  "social-media",
-  "produto",
-  "email-marketing",
-  "inbound-marketing",
-  "performance",
-  "ux-e-design",
-  "ecommerce",
-  "video-e-streaming",
-  "comunidade",
-  "lideranca-em-marketing",
+  'growth',
+  'branding',
+  'midia-paga',
+  'seo',
+  'conteudo',
+  'dados-e-analytics',
+  'crm',
+  'inteligencia-artificial',
+  'social-media',
+  'produto',
+  'email-marketing',
+  'inbound-marketing',
+  'performance',
+  'ux-e-design',
+  'ecommerce',
+  'video-e-streaming',
+  'comunidade',
+  'lideranca-em-marketing',
 ] as const;
 ```
 
 ### Formatos
+
 ```typescript
 enum EventFormat {
-  PRESENCIAL = "presencial",
-  ONLINE = "online",
-  HIBRIDO = "hibrido",
+  PRESENCIAL = 'presencial',
+  ONLINE = 'online',
+  HIBRIDO = 'hibrido',
 }
 ```
 
 ### Cidades principais (para filtros e landing pages)
+
 ```typescript
 const MAIN_CITIES = [
-  { slug: "sao-paulo", name: "São Paulo", state: "SP" },
-  { slug: "rio-de-janeiro", name: "Rio de Janeiro", state: "RJ" },
-  { slug: "belo-horizonte", name: "Belo Horizonte", state: "MG" },
-  { slug: "curitiba", name: "Curitiba", state: "PR" },
-  { slug: "porto-alegre", name: "Porto Alegre", state: "RS" },
-  { slug: "brasilia", name: "Brasília", state: "DF" },
-  { slug: "recife", name: "Recife", state: "PE" },
-  { slug: "florianopolis", name: "Florianópolis", state: "SC" },
-  { slug: "salvador", name: "Salvador", state: "BA" },
-  { slug: "fortaleza", name: "Fortaleza", state: "CE" },
-  { slug: "goiania", name: "Goiânia", state: "GO" },
-  { slug: "campinas", name: "Campinas", state: "SP" },
+  { slug: 'sao-paulo', name: 'São Paulo', state: 'SP' },
+  { slug: 'rio-de-janeiro', name: 'Rio de Janeiro', state: 'RJ' },
+  { slug: 'belo-horizonte', name: 'Belo Horizonte', state: 'MG' },
+  { slug: 'curitiba', name: 'Curitiba', state: 'PR' },
+  { slug: 'porto-alegre', name: 'Porto Alegre', state: 'RS' },
+  { slug: 'brasilia', name: 'Brasília', state: 'DF' },
+  { slug: 'recife', name: 'Recife', state: 'PE' },
+  { slug: 'florianopolis', name: 'Florianópolis', state: 'SC' },
+  { slug: 'salvador', name: 'Salvador', state: 'BA' },
+  { slug: 'fortaleza', name: 'Fortaleza', state: 'CE' },
+  { slug: 'goiania', name: 'Goiânia', state: 'GO' },
+  { slug: 'campinas', name: 'Campinas', state: 'SP' },
 ] as const;
 ```
 
@@ -276,6 +286,7 @@ const MAIN_CITIES = [
 ## Funcionalidades por Fase
 
 ### ✅ v1 (MVP)
+
 - [x] Página do evento completa com dados estruturados (JSON-LD)
 - [x] Adicionar ao calendário (Google Calendar, Outlook, .ics)
 - [x] Listagem com filtros (cidade, tema, categoria, formato, gratuito, data)
@@ -292,6 +303,7 @@ const MAIN_CITIES = [
 - [x] Painel admin para aprovação de eventos
 
 ### ⏳ v2 (futuro)
+
 - [ ] Login para usuário final (favoritos, histórico)
 - [ ] Sistema de avaliações/reviews pós-evento
 - [ ] Blog com conteúdo sobre marketing

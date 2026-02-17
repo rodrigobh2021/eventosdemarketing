@@ -37,16 +37,16 @@ Porém, recomendo que você afile a comunicação da proposta de valor para o us
 
 ### O que considerar além do código
 
-| Aspecto | Detalhes |
-|---------|----------|
-| **Domínio e hosting** | Registrar eventosdemarketing.com.br. Considerar Vercel, Cloudflare Pages ou um VPS para deploy. |
-| **LGPD** | Coleta de email para notificações exige consentimento explícito, política de privacidade e opção de descadastro fácil. Obrigatório desde o dia 1. |
-| **Termos de uso** | Especialmente para organizadores que cadastram eventos. Quem é responsável pela veracidade? |
-| **Curadoria vs. plataforma aberta** | Definir se qualquer evento entra ou se há um processo de aprovação. Recomendo aprovação manual no início para garantir qualidade. |
-| **Cold start** | O site precisa ter eventos antes de ter usuários. Planeje alimentar o catálogo com pelo menos 50-100 eventos antes do lançamento, usando o agente de scraping. |
-| **Fonte de eventos para o agente** | Mapear de onde o agente vai coletar: Sympla, Eventbrite, Even3, Meetup, sites de empresas organizadoras, LinkedIn Events. |
-| **Modelo de receita futuro** | Ainda não precisa monetizar, mas pense desde já: destaque pago para eventos? Leads qualificados para organizadores? Mídia? |
-| **Monitoramento e analytics** | Google Analytics 4, Google Search Console e Plausible/Umami para métricas de uso desde o lançamento. |
+| Aspecto                             | Detalhes                                                                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Domínio e hosting**               | Registrar eventosdemarketing.com.br. Considerar Vercel, Cloudflare Pages ou um VPS para deploy.                                                                |
+| **LGPD**                            | Coleta de email para notificações exige consentimento explícito, política de privacidade e opção de descadastro fácil. Obrigatório desde o dia 1.              |
+| **Termos de uso**                   | Especialmente para organizadores que cadastram eventos. Quem é responsável pela veracidade?                                                                    |
+| **Curadoria vs. plataforma aberta** | Definir se qualquer evento entra ou se há um processo de aprovação. Recomendo aprovação manual no início para garantir qualidade.                              |
+| **Cold start**                      | O site precisa ter eventos antes de ter usuários. Planeje alimentar o catálogo com pelo menos 50-100 eventos antes do lançamento, usando o agente de scraping. |
+| **Fonte de eventos para o agente**  | Mapear de onde o agente vai coletar: Sympla, Eventbrite, Even3, Meetup, sites de empresas organizadoras, LinkedIn Events.                                      |
+| **Modelo de receita futuro**        | Ainda não precisa monetizar, mas pense desde já: destaque pago para eventos? Leads qualificados para organizadores? Mídia?                                     |
+| **Monitoramento e analytics**       | Google Analytics 4, Google Search Console e Plausible/Umami para métricas de uso desde o lançamento.                                                           |
 
 ---
 
@@ -54,20 +54,20 @@ Porém, recomendo que você afile a comunicação da proposta de valor para o us
 
 Para um projeto que prioriza SEO, performance e velocidade de desenvolvimento com Claude Code:
 
-| Camada | Tecnologia | Justificativa |
-|--------|-----------|---------------|
-| **Framework** | Next.js 14+ (App Router) | SSR/SSG para SEO, API routes integradas, excelente DX |
-| **Linguagem** | TypeScript | Segurança de tipos, melhor experiência com Claude Code |
-| **Estilização** | Tailwind CSS | Rápido para prototipar, responsivo, fácil de iterar |
-| **Banco de dados** | PostgreSQL (via Supabase ou Neon) | Robusto, suporte a full-text search em PT-BR, geolocalização |
-| **ORM** | Prisma ou Drizzle | Type-safe, migrations automáticas |
-| **Autenticação** | NextAuth.js (Auth.js) | Login social (Google), magic link por email |
-| **Email** | Resend ou SendGrid | Notificações e newsletter |
-| **Mapas** | Google Maps Embed ou Leaflet + OpenStreetMap | Para a página do evento |
-| **Calendário (.ics)** | ical-generator (npm) | Gera arquivos .ics compatíveis com todos os calendários |
-| **Agente de scraping** | Claude API + Playwright/Puppeteer | Navega, extrai e estrutura dados de sites de eventos |
-| **Deploy** | Vercel | Deploy automático, edge functions, analytics integrado |
-| **CMS para eventos** | Admin custom ou Payload CMS | Para gerenciar aprovações de eventos |
+| Camada                 | Tecnologia                                   | Justificativa                                                |
+| ---------------------- | -------------------------------------------- | ------------------------------------------------------------ |
+| **Framework**          | Next.js 14+ (App Router)                     | SSR/SSG para SEO, API routes integradas, excelente DX        |
+| **Linguagem**          | TypeScript                                   | Segurança de tipos, melhor experiência com Claude Code       |
+| **Estilização**        | Tailwind CSS                                 | Rápido para prototipar, responsivo, fácil de iterar          |
+| **Banco de dados**     | PostgreSQL (via Supabase ou Neon)            | Robusto, suporte a full-text search em PT-BR, geolocalização |
+| **ORM**                | Prisma ou Drizzle                            | Type-safe, migrations automáticas                            |
+| **Autenticação**       | NextAuth.js (Auth.js)                        | Login social (Google), magic link por email                  |
+| **Email**              | Resend ou SendGrid                           | Notificações e newsletter                                    |
+| **Mapas**              | Google Maps Embed ou Leaflet + OpenStreetMap | Para a página do evento                                      |
+| **Calendário (.ics)**  | ical-generator (npm)                         | Gera arquivos .ics compatíveis com todos os calendários      |
+| **Agente de scraping** | Claude API + Playwright/Puppeteer            | Navega, extrai e estrutura dados de sites de eventos         |
+| **Deploy**             | Vercel                                       | Deploy automático, edge functions, analytics integrado       |
+| **CMS para eventos**   | Admin custom ou Payload CMS                  | Para gerenciar aprovações de eventos                         |
 
 ---
 
@@ -120,7 +120,7 @@ Para um projeto que prioriza SEO, performance e velocidade de desenvolvimento co
 
 □ 1.2  Modelar tabela User:
        - id, email, name
-       - cities_of_interest[] 
+       - cities_of_interest[]
        - topics_of_interest[]
        - notify_free_only (boolean)
        - email_verified (boolean)
@@ -313,7 +313,7 @@ Para um projeto que prioriza SEO, performance e velocidade de desenvolvimento co
        - Prompt system com as instruções de extração
        - Definir exatamente os campos esperados
        - Lidar com dados ausentes (marcar como "não encontrado")
-       - Extrair: título, data, horário, local, descrição, preço, 
+       - Extrair: título, data, horário, local, descrição, preço,
          link de ingresso, organizador, formato, temas
        - Normalizar datas para ISO 8601
        - Inferir categoria e temas a partir da descrição
@@ -414,16 +414,16 @@ Para um projeto que prioriza SEO, performance e velocidade de desenvolvimento co
 
 ## 5. Cronograma Resumido
 
-| Fase | Duração | Entregável |
-|------|---------|------------|
-| 0 — Setup | 3 dias | Projeto rodando local + deploy vazio |
-| 1 — Banco de dados | 2 dias | Schema completo com migrations |
-| 2 — Páginas públicas | 10 dias | Home, listagem, página do evento, SEO |
-| 3 — Notificações | 5 dias | Cadastro, emails, matching |
-| 4 — Portal organizador | 7 dias | Formulário, dashboard, admin |
-| 5 — Agente scraping | 8 dias | Extração automática funcionando |
-| 6 — Polimento | 7 dias | Testes, performance, LGPD, launch |
-| **Total** | **~6 semanas** | **Site no ar com catálogo inicial** |
+| Fase                   | Duração        | Entregável                            |
+| ---------------------- | -------------- | ------------------------------------- |
+| 0 — Setup              | 3 dias         | Projeto rodando local + deploy vazio  |
+| 1 — Banco de dados     | 2 dias         | Schema completo com migrations        |
+| 2 — Páginas públicas   | 10 dias        | Home, listagem, página do evento, SEO |
+| 3 — Notificações       | 5 dias         | Cadastro, emails, matching            |
+| 4 — Portal organizador | 7 dias         | Formulário, dashboard, admin          |
+| 5 — Agente scraping    | 8 dias         | Extração automática funcionando       |
+| 6 — Polimento          | 7 dias         | Testes, performance, LGPD, launch     |
+| **Total**              | **~6 semanas** | **Site no ar com catálogo inicial**   |
 
 ---
 
@@ -445,11 +445,11 @@ Para um projeto que prioriza SEO, performance e velocidade de desenvolvimento co
 
 ## 7. Riscos e Mitigações
 
-| Risco | Impacto | Mitigação |
-|-------|---------|-----------|
-| Catálogo vazio no lançamento | Usuários não voltam | Usar agente para popular 50-100 eventos antes de lançar |
-| Scraping bloqueado por sites | Não consegue extrair eventos | Ter múltiplas fontes; fallback para cadastro manual |
-| Baixo tráfego orgânico inicial | Pouca visibilidade | SEO técnico desde o dia 1; páginas de cidade; conteúdo de blog |
-| Organizadores não usam | Poucos eventos novos | Outreach ativo; facilitar ao máximo o cadastro; agente de scraping supre gap |
-| LGPD não cumprida | Risco legal | Implementar consentimento e política desde o primeiro formulário |
-| Eventos desatualizados | Perda de credibilidade | Cron que marca eventos passados como "encerrado"; alerta para revisar eventos sem atualização |
+| Risco                          | Impacto                      | Mitigação                                                                                     |
+| ------------------------------ | ---------------------------- | --------------------------------------------------------------------------------------------- |
+| Catálogo vazio no lançamento   | Usuários não voltam          | Usar agente para popular 50-100 eventos antes de lançar                                       |
+| Scraping bloqueado por sites   | Não consegue extrair eventos | Ter múltiplas fontes; fallback para cadastro manual                                           |
+| Baixo tráfego orgânico inicial | Pouca visibilidade           | SEO técnico desde o dia 1; páginas de cidade; conteúdo de blog                                |
+| Organizadores não usam         | Poucos eventos novos         | Outreach ativo; facilitar ao máximo o cadastro; agente de scraping supre gap                  |
+| LGPD não cumprida              | Risco legal                  | Implementar consentimento e política desde o primeiro formulário                              |
+| Eventos desatualizados         | Perda de credibilidade       | Cron que marca eventos passados como "encerrado"; alerta para revisar eventos sem atualização |

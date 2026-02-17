@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────
+
+enum EventCategory {
+  CONFERENCIA
+  WORKSHOP
+  MEETUP
+  WEBINAR
+  CURSO
+  PALESTRA
+  HACKATHON
+}
+
+enum EventFormat {
+  PRESENCIAL
+  ONLINE
+  HIBRIDO
+}
+
+enum EventStatus {
+  RASCUNHO
+  PUBLICADO
+  CANCELADO
+  ENCERRADO
+}
+
+enum SubmissionStatus {
+  PENDENTE
+  APROVADO
+  REJEITADO
+}
+
+enum SubmissionSource {
+  ORGANIZADOR
+  AGENTE
+  ADMIN
+}
+
+// ─── Models ──────────────────────────────────────────────────────────
+
+model Event {
+  id             String        @id @default(uuid())
+  slug           String        @unique
+  title          String
+  description    String
+  start_date     DateTime
+  end_date       DateTime?
+  start_time     String?
+  end_time       String?
+  city           String
+  state          String        @db.Char(2)
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  venue_name     String?
+  category       EventCategory
+  topics         String[]
+  is_free        Boolean       @default(false)
+  price_info     String?
+  ticket_url     String?
+  event_url      String?
+  image_url      String?
+  organizer_name String
+  organizer_url  String?
+  format         EventFormat
+  status         EventStatus   @default(RASCUNHO)
+  is_verified    Boolean       @default(false)
+  source_url     String?
+  interest_count Int           @default(0)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  @@index([city])
+  @@index([state])
+  @@index([category])
+  @@index([format])
+  @@index([is_free])
+  @@index([status])
+  @@index([start_date])
+  @@map("events")
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  name               String?
+  cities_of_interest String[]
+  topics_of_interest String[]
+  notify_free_only   Boolean  @default(false)
+  email_verified     Boolean  @default(false)
+  verification_token String?
+  unsubscribe_token  String   @unique
+  created_at         DateTime @default(now())
+
+  @@index([email])
+  @@map("users")
+}
+
+model Organizer {
+  id            String            @id @default(uuid())
+  name          String
+  email         String            @unique
+  company       String?
+  website       String?
+  logo_url      String?
+  is_approved   Boolean           @default(false)
+  auth_provider String?
+  created_at    DateTime          @default(now())
+  submissions   EventSubmission[]
+
+  @@map("organizers")
+}
+
+model EventSubmission {
+  id             String           @id @default(uuid())
+  organizer_id   String?
+  organizer      Organizer?       @relation(fields: [organizer_id], references: [id])
+  event_data     Json
+  status         SubmissionStatus @default(PENDENTE)
+  reviewer_notes String?
+  source         SubmissionSource
+  reviewed_at    DateTime?
+  created_at     DateTime         @default(now())
+
+  @@map("event_submissions")
+}

@@ -21,9 +21,9 @@ Acesse [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Comando          | Descrição                  |
-| ---------------- | -------------------------- |
-| `npm run dev`    | Servidor de desenvolvimento |
-| `npm run build`  | Build de produção          |
-| `npm start`      | Servidor de produção       |
-| `npm run lint`   | Executar ESLint            |
+| Comando         | Descrição                   |
+| --------------- | --------------------------- |
+| `npm run dev`   | Servidor de desenvolvimento |
+| `npm run build` | Build de produção           |
+| `npm start`     | Servidor de produção        |
+| `npm run lint`  | Executar ESLint             |
