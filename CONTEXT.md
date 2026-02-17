@@ -377,7 +377,7 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 
 > Atualize esta seção conforme avança no projeto.
 
-- [ ] **Fase 0** — Setup e Fundação
+- [x] **Fase 0** — Setup e Fundação
 - [ ] **Fase 1** — Modelagem de Dados
 - [ ] **Fase 2** — Páginas Públicas Core
 - [ ] **Fase 3** — Sistema de Notificações

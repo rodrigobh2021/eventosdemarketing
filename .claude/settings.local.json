@@ -3,7 +3,24 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth status:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(npx prisma:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npx tsx:*)",
+      "Bash(node --import tsx:*)",
+      "Bash(node -e:*)",
+      "Bash(node --experimental-strip-types --experimental-transform-types --no-warnings:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }
