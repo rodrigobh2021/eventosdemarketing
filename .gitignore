@@ -54,4 +54,7 @@ prisma/*.db-journal
 # OS
 Thumbs.db
 
+# playwright MCP logs
+.playwright-mcp/
+
 /src/generated/prisma

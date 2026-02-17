@@ -20,7 +20,21 @@
       "Bash(node --import tsx:*)",
       "Bash(node -e:*)",
       "Bash(node --experimental-strip-types --experimental-transform-types --no-warnings:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(npx next build:*)",
+      "Bash(ls:*)",
+      "Bash(npx next dev:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_select_option",
+      "mcp__playwright__browser_wait_for",
+      "Bash(npx tsc:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
