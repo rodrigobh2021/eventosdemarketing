@@ -74,60 +74,68 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const temaLabel = tema ? getTemaLabel(tema) : null;
   const catLabel = categoria ? getCategoriaLabel(categoria) : null;
   const cidadeLabel = cidade ? getCidadeLabel(cidade) : null;
+  const canonical = `https://www.eventosdemarketing.com.br${buildEventUrl({ tema, categoria, cidade })}`;
 
   // /eventos
   if (!tema && !categoria && !cidade) {
     return {
-      title: 'Eventos de Marketing 2026 | Conferências, Workshops e Meetups',
+      title: 'Eventos de Marketing 2026 | Conferencias, Workshops e Meetups',
       description:
-        'Encontre os melhores eventos de marketing do Brasil. Conferências, workshops, meetups e webinars sobre growth, SEO, mídia paga, branding e muito mais.',
+        'Encontre os melhores eventos de marketing do Brasil. Conferencias, workshops, meetups e webinars sobre growth, SEO, midia paga, branding e muito mais.',
+      alternates: { canonical },
     };
   }
 
   // /eventos/[categoria]
   if (catLabel && !temaLabel && !cidadeLabel) {
     return {
-      title: `${catLabel} de Marketing 2026 | eventosdemarketing.com.br`,
+      title: `${catLabel} de Marketing 2026`,
       description: `Encontre ${catLabel.toLowerCase()} de marketing no Brasil. Veja a agenda completa e inscreva-se.`,
+      alternates: { canonical },
     };
   }
 
   // /eventos/[categoria]/[cidade]
   if (catLabel && !temaLabel && cidadeLabel) {
     return {
-      title: `${catLabel} de Marketing em ${cidadeLabel} 2026 | eventosdemarketing.com.br`,
+      title: `${catLabel} de Marketing em ${cidadeLabel} 2026`,
       description: `${catLabel} de marketing em ${cidadeLabel} em 2026. Veja a agenda completa e inscreva-se.`,
+      alternates: { canonical },
     };
   }
 
   // /eventos/[tema]
   if (temaLabel && !catLabel && !cidadeLabel) {
     return {
-      title: `Eventos de ${temaLabel} 2026 - Conferências, Workshops e Meetups`,
-      description: `Encontre eventos de ${temaLabel} no Brasil. Conferências, workshops e meetups para profissionais de ${temaLabel}. Veja agenda completa e inscreva-se.`,
+      title: `Eventos de ${temaLabel} 2026 - Conferencias, Workshops e Meetups`,
+      description: `Encontre eventos de ${temaLabel} no Brasil. Conferencias, workshops e meetups para profissionais de ${temaLabel}. Veja agenda completa e inscreva-se.`,
+      alternates: { canonical },
     };
   }
 
   // /eventos/[tema]/[categoria]
   if (temaLabel && catLabel && !cidadeLabel) {
     return {
-      title: `${catLabel} de ${temaLabel} 2026 | eventosdemarketing.com.br`,
+      title: `${catLabel} de ${temaLabel} 2026`,
       description: `${catLabel} de ${temaLabel} no Brasil em 2026. Veja a agenda completa e inscreva-se nos melhores ${catLabel.toLowerCase()} de ${temaLabel}.`,
+      alternates: { canonical },
     };
   }
 
   // /eventos/[tema]/[cidade]
   if (temaLabel && !catLabel && cidadeLabel) {
     return {
-      title: `Eventos de ${temaLabel} em ${cidadeLabel} 2026 | eventosdemarketing.com.br`,
-      description: `Eventos de ${temaLabel} em ${cidadeLabel} em 2026. Veja a agenda completa de conferências, workshops e meetups de ${temaLabel} em ${cidadeLabel}. Encontre o próximo evento e inscreva-se.`,
+      title: `Eventos de ${temaLabel} em ${cidadeLabel} 2026`,
+      description: `Eventos de ${temaLabel} em ${cidadeLabel} em 2026. Veja a agenda completa de conferencias, workshops e meetups de ${temaLabel} em ${cidadeLabel}. Encontre o proximo evento e inscreva-se.`,
+      alternates: { canonical },
     };
   }
 
   // /eventos/[tema]/[categoria]/[cidade]
   return {
-    title: `${catLabel} de ${temaLabel} em ${cidadeLabel} 2026 | eventosdemarketing.com.br`,
+    title: `${catLabel} de ${temaLabel} em ${cidadeLabel} 2026`,
     description: `${catLabel} de ${temaLabel} em ${cidadeLabel} em 2026. Encontre os melhores ${catLabel?.toLowerCase()} de ${temaLabel} em ${cidadeLabel} e inscreva-se.`,
+    alternates: { canonical },
   };
 }
 

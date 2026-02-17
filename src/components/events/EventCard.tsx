@@ -44,7 +44,7 @@ export default function EventCard({ event }: { event: Event }) {
 
   return (
     <Link
-      href={`/eventos/${event.slug}`}
+      href={`/evento/${event.slug}`}
       className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-gray-200 bg-white transition-shadow hover:shadow-lg"
     >
       {/* Image */}

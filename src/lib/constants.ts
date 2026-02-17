@@ -71,11 +71,25 @@ export const CITY_SLUG_TO_NAME: Record<string, string> = Object.fromEntries(
   MAIN_CITIES.map((c) => [c.slug, c.name]),
 );
 
+export const CITY_SLUG_TO_STATE: Record<string, string> = Object.fromEntries(
+  MAIN_CITIES.map((c) => [c.slug, c.state]),
+);
+
 export const TOPIC_SLUG_TO_LABEL: Record<string, string> = Object.fromEntries(
   EVENT_TOPICS.map((t) => [t.slug, t.label]),
 );
 
 export const TOPIC_SLUGS: Set<string> = new Set(EVENT_TOPICS.map((t) => t.slug));
 export const CITY_SLUGS: Set<string> = new Set(MAIN_CITIES.map((c) => c.slug));
+
+export const CITY_NAME_TO_SLUG: Record<string, string> = Object.fromEntries(
+  MAIN_CITIES.map((c) => [c.name, c.slug]),
+);
+
+/** Base URL used for canonical links, sitemap, JSON-LD, etc. */
+export const SITE_URL = 'https://www.eventosdemarketing.com.br';
+
+/** Update this date on each significant deploy */
+export const SITE_LAST_UPDATED = '2026-02-17';
 
 export const ITEMS_PER_PAGE = 10;

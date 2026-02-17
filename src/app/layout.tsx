@@ -11,18 +11,39 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.eventosdemarketing.com.br'),
   title: {
-    default: 'Eventos de Marketing — Conferências, Workshops e Meetups no Brasil',
-    template: '%s | Eventos de Marketing',
+    default: 'Eventos de Marketing 2026 | Conferencias, Workshops e Meetups',
+    template: '%s | eventosdemarketing.com.br',
   },
   description:
-    'Descubra os melhores eventos de marketing do Brasil. Conferências, workshops, meetups e webinars filtrados por cidade, tema, data e preço.',
-  metadataBase: new URL(process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://eventosdemarketing.com.br'),
+    'Descubra os melhores eventos de marketing do Brasil. Conferencias, workshops, meetups e webinars filtrados por cidade, tema, data e preco.',
+  keywords: [
+    'eventos de marketing',
+    'conferencias de marketing',
+    'workshops de marketing',
+    'meetups de marketing',
+    'eventos de marketing digital',
+    'marketing digital brasil',
+  ],
   openGraph: {
-    siteName: 'Eventos de Marketing',
-    locale: 'pt_BR',
     type: 'website',
+    locale: 'pt_BR',
+    siteName: 'Eventos de Marketing',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    'max-image-preview': 'large' as const,
+    'max-snippet': -1,
+    'max-video-preview': -1,
+  },
+  alternates: { canonical: 'https://www.eventosdemarketing.com.br' },
 };
 
 export default function RootLayout({

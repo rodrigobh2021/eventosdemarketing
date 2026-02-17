@@ -34,7 +34,9 @@
       "mcp__playwright__browser_select_option",
       "mcp__playwright__browser_wait_for",
       "Bash(npx tsc:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(python -m json.tool:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
