@@ -36,7 +36,12 @@
       "Bash(npx tsc:*)",
       "Bash(git restore:*)",
       "Bash(python -m json.tool:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npx playwright install:*)",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_run_code",
+      "Bash(node --input-type=module:*)",
+      "Bash(npx dotenv:*)"
     ]
   }
 }
