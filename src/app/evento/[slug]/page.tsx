@@ -100,16 +100,17 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   if (!event) return {};
 
-  const description = stripHtml(event.description).slice(0, 160);
+  const title = event.meta_title ?? event.title;
+  const description = event.meta_description ?? stripHtml(event.description).slice(0, 160);
 
   const canonicalUrl = `https://www.eventosdemarketing.com.br/evento/${slug}`;
   const ogImage = event.image_url ?? '/og-image.png';
 
   return {
-    title: event.title,
+    title,
     description,
     openGraph: {
-      title: event.title,
+      title,
       description,
       type: 'website',
       url: canonicalUrl,
@@ -117,7 +118,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     },
     twitter: {
       card: 'summary_large_image',
-      title: event.title,
+      title,
       description,
       images: [ogImage],
     },

@@ -15,6 +15,9 @@ import {
   getCategoriaLabel,
 } from '@/lib/utils';
 
+// Revalidate at most every 24h, and on-demand via revalidatePath from admin
+export const revalidate = 86400;
+
 // ─── Static Params ────────────────────────────────────────────────────
 
 export function generateStaticParams() {

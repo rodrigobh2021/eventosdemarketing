@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -20,6 +21,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
       }
     }
 
+    const oldSlug = page.slug;
+
     const updated = await prisma.topicPage.update({
       where: { id },
       data: {
@@ -30,6 +33,9 @@ export async function PUT(req: Request, { params }: RouteParams) {
         meta_description: body.meta_description || null,
       },
     });
+
+    revalidatePath(`/eventos/${updated.slug}`);
+    if (updated.slug !== oldSlug) revalidatePath(`/eventos/${oldSlug}`);
 
     return NextResponse.json({ page: updated });
   } catch (err) {

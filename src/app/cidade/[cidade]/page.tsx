@@ -21,11 +21,8 @@ const CATEGORY_PILLS = [
   { slug: 'palestras', label: 'Palestras' },
 ] as const;
 
-// ─── Static Params ────────────────────────────────────────────────────
-
-export function generateStaticParams() {
-  return MAIN_CITIES.map((c) => ({ cidade: c.slug }));
-}
+// Force SSR so meta changes in admin reflect immediately
+export const dynamic = 'force-dynamic';
 
 // ─── Metadata ─────────────────────────────────────────────────────────
 

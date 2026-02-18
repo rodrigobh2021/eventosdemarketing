@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import type { EventCategory, EventFormat, EventStatus } from '@/generated/prisma/client';
 
@@ -22,6 +23,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
         return NextResponse.json({ error: 'Slug já está em uso por outro evento' }, { status: 409 });
       }
     }
+
+    const oldSlug = event.slug;
 
     await prisma.event.update({
       where: { id },
@@ -56,6 +59,9 @@ export async function PUT(req: Request, { params }: RouteParams) {
         meta_description: body.meta_description || null,
       },
     });
+
+    revalidatePath(`/evento/${newSlug}`);
+    if (newSlug !== oldSlug) revalidatePath(`/evento/${oldSlug}`);
 
     return NextResponse.json({ success: true });
   } catch (err) {

@@ -14,6 +14,10 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface EventData {
@@ -1693,8 +1697,8 @@ export default function AdminPage() {
                     slug: ev.slug,
                     status: ev.status,
                     is_verified: ev.is_verified,
-                    meta_title: ev.meta_title ?? '',
-                    meta_description: ev.meta_description ?? '',
+                    meta_title: ev.meta_title ?? ev.title,
+                    meta_description: ev.meta_description ?? stripHtml(ev.description).slice(0, 160),
                     data: {
                       title: ev.title,
                       category: ev.category,
@@ -1769,8 +1773,8 @@ export default function AdminPage() {
                         slug: cat.slug,
                         title: cat.title,
                         description: cat.description ?? '',
-                        meta_title: cat.meta_title ?? '',
-                        meta_description: cat.meta_description ?? '',
+                        meta_title: cat.meta_title ?? `${categoryLabel(cat.category)} de Marketing 2026`,
+                        meta_description: cat.meta_description ?? `Encontre ${categoryLabel(cat.category).toLowerCase()} de marketing no Brasil. Veja a agenda completa e inscreva-se.`,
                       },
                     })}
                     onDelete={() => setDeleteCategoryModal({ id: cat.id, title: cat.title })}
@@ -1819,8 +1823,8 @@ export default function AdminPage() {
                         slug: city.slug,
                         title: city.title,
                         description: city.description ?? '',
-                        meta_title: city.meta_title ?? '',
-                        meta_description: city.meta_description ?? '',
+                        meta_title: city.meta_title ?? `Eventos de Marketing em ${city.city} 2026`,
+                        meta_description: city.meta_description ?? `Encontre eventos de marketing em ${city.city}, ${city.state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
                       },
                     })}
                     onDelete={() => setDeleteCityModal({ id: city.id, title: city.title })}
@@ -1868,8 +1872,8 @@ export default function AdminPage() {
                         slug: tp.slug,
                         title: tp.title,
                         description: tp.description ?? '',
-                        meta_title: tp.meta_title ?? '',
-                        meta_description: tp.meta_description ?? '',
+                        meta_title: tp.meta_title ?? `${tp.title} 2026 - Conferencias, Workshops e Meetups`,
+                        meta_description: tp.meta_description ?? `Encontre eventos de ${tp.title.replace(/^Eventos de /, '')} no Brasil. Conferencias, workshops e meetups. Veja a agenda completa e inscreva-se.`,
                       },
                     })}
                     onDelete={() => setDeleteTopicModal({ id: tp.id, title: tp.title })}
