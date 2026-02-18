@@ -57,7 +57,7 @@ interface Submission {
 }
 
 type TabStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO';
-type ActiveTab = TabStatus | 'EVENTOS' | 'CATEGORIAS' | 'CIDADES';
+type ActiveTab = TabStatus | 'EVENTOS' | 'CATEGORIAS' | 'CIDADES' | 'TEMAS';
 
 interface EventRecord {
   id: string;
@@ -110,6 +110,18 @@ interface CityPageRecord {
   id: string;
   city: string;
   state: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface TopicPageRecord {
+  id: string;
+  topic: string;
   slug: string;
   title: string;
   description: string | null;
@@ -808,6 +820,55 @@ function EventCard({
   );
 }
 
+// ─── Topic Page Card ──────────────────────────────────────────────────────────
+
+function TopicCard({
+  page,
+  onEdit,
+  onDelete,
+}: {
+  page: TopicPageRecord;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const topicData = EVENT_TOPICS.find(t => t.slug === page.topic);
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 flex items-start gap-4">
+        <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center text-xl shrink-0">
+          {topicData?.emoji ?? '🏷️'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-900">{page.title}</p>
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-medium">
+              {topicData?.label ?? page.topic}
+            </span>
+            <span className="font-mono text-gray-400">/eventos/{page.slug}</span>
+          </div>
+          {page.meta_title && (
+            <p className="mt-1 text-xs text-gray-400 truncate">Meta: {page.meta_title}</p>
+          )}
+        </div>
+        <div className="flex gap-2 shrink-0 mt-0.5">
+          <button
+            onClick={onEdit}
+            className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            ✏️ Editar
+          </button>
+          <button
+            onClick={onDelete}
+            className="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
+          >
+            🗑️ Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Category Page Card ───────────────────────────────────────────────────────
 
 function CategoryCard({
@@ -1063,6 +1124,18 @@ export default function AdminPage() {
     id: string; title: string;
   } | null>(null);
 
+  // Topics tab state
+  const [topicPages, setTopicPages] = useState<TopicPageRecord[]>([]);
+  const [topicsLoading, setTopicsLoading] = useState(false);
+  const [topicModal, setTopicModal] = useState<{
+    id: string | null;
+    topic: string;
+    seo: SeoFields;
+  } | null>(null);
+  const [deleteTopicModal, setDeleteTopicModal] = useState<{
+    id: string; title: string;
+  } | null>(null);
+
   // ── Load submissions ───────────────────────────────────────────────────────
 
   const load = useCallback(async () => {
@@ -1137,6 +1210,25 @@ export default function AdminPage() {
   useEffect(() => {
     if (activeTab === 'CIDADES') loadCities();
   }, [activeTab, loadCities]);
+
+  // ── Load topics ────────────────────────────────────────────────────────────
+
+  const loadTopics = useCallback(async () => {
+    setTopicsLoading(true);
+    try {
+      const res = await fetch('/api/admin/topics');
+      const json = await res.json();
+      setTopicPages(json.pages ?? []);
+    } catch {
+      addToast('Erro ao carregar temas', 'error');
+    } finally {
+      setTopicsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'TEMAS') loadTopics();
+  }, [activeTab, loadTopics]);
 
   // ── Toasts ────────────────────────────────────────────────────────────────
 
@@ -1395,6 +1487,60 @@ export default function AdminPage() {
     }
   }
 
+  // ── Save topic ─────────────────────────────────────────────────────────────
+
+  async function handleSaveTopic() {
+    if (!topicModal) return;
+    if (!topicModal.topic || !topicModal.seo.slug || !topicModal.seo.title) {
+      addToast('Preencha: tema, slug e título', 'error');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const isEdit = Boolean(topicModal.id);
+      const url = isEdit ? `/api/admin/topics/${topicModal.id}` : '/api/admin/topics';
+      const method = isEdit ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: topicModal.topic,
+          slug: topicModal.seo.slug,
+          title: topicModal.seo.title,
+          description: topicModal.seo.description || null,
+          meta_title: topicModal.seo.meta_title || null,
+          meta_description: topicModal.seo.meta_description || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setTopicModal(null);
+      await loadTopics();
+      addToast(isEdit ? 'Tema atualizado.' : 'Tema criado.', 'success');
+    } catch (err) {
+      addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteTopic() {
+    if (!deleteTopicModal) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/admin/topics/${deleteTopicModal.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setDeleteTopicModal(null);
+      await loadTopics();
+      addToast('Tema excluído.', 'success');
+    } catch (err) {
+      addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleDeleteCity() {
     if (!deleteCityModal) return;
     setSubmitting(true);
@@ -1414,7 +1560,7 @@ export default function AdminPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  const filtered = activeTab !== 'EVENTOS' && activeTab !== 'CATEGORIAS' && activeTab !== 'CIDADES'
+  const filtered = activeTab !== 'EVENTOS' && activeTab !== 'CATEGORIAS' && activeTab !== 'CIDADES' && activeTab !== 'TEMAS'
     ? submissions.filter(s => s.status === (activeTab as TabStatus))
     : [];
 
@@ -1499,10 +1645,19 @@ export default function AdminPage() {
               Cidades ({activeTab === 'CIDADES' ? cities.length : '…'})
             </button>
             <button
+              onClick={() => setActiveTab('TEMAS')}
+              className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
+                activeTab === 'TEMAS' ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Temas ({activeTab === 'TEMAS' ? topicPages.length : '…'})
+            </button>
+            <button
               onClick={() => {
                 if (activeTab === 'EVENTOS') loadEvents();
                 else if (activeTab === 'CATEGORIAS') loadCategories();
                 else if (activeTab === 'CIDADES') loadCities();
+                else if (activeTab === 'TEMAS') loadTopics();
                 else load();
               }}
               className="ml-auto text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100"
@@ -1676,8 +1831,57 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* ── Topics Tab ─────────────────────────────────────────────────── */}
+        {activeTab === 'TEMAS' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                Páginas de landing por tema de marketing (ex: /eventos/seo, /eventos/growth).
+              </p>
+              <button
+                onClick={() => setTopicModal({ id: null, topic: EVENT_TOPICS[0].slug, seo: { ...EMPTY_SEO, slug: EVENT_TOPICS[0].slug } })}
+                className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors"
+              >
+                + Novo Tema
+              </button>
+            </div>
+            {topicsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-200 h-20 animate-pulse" />)}
+              </div>
+            ) : topicPages.length === 0 ? (
+              <div className="text-center py-16 text-gray-400">
+                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-lg font-medium">Nenhuma página de tema</p>
+                <p className="text-sm mt-1">Crie páginas para melhorar o SEO por tema.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topicPages.map(tp => (
+                  <TopicCard
+                    key={tp.id}
+                    page={tp}
+                    onEdit={() => setTopicModal({
+                      id: tp.id,
+                      topic: tp.topic,
+                      seo: {
+                        slug: tp.slug,
+                        title: tp.title,
+                        description: tp.description ?? '',
+                        meta_title: tp.meta_title ?? '',
+                        meta_description: tp.meta_description ?? '',
+                      },
+                    })}
+                    onDelete={() => setDeleteTopicModal({ id: tp.id, title: tp.title })}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Submissions Tab ───────────────────────────────────────────── */}
-        {activeTab !== 'EVENTOS' && activeTab !== 'CATEGORIAS' && activeTab !== 'CIDADES' && (
+        {activeTab !== 'EVENTOS' && activeTab !== 'CATEGORIAS' && activeTab !== 'CIDADES' && activeTab !== 'TEMAS' && (
           loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-200 h-24 animate-pulse" />)}
@@ -2080,6 +2284,87 @@ export default function AdminPage() {
                 {submitting ? 'Salvando…' : cityModal.id ? '💾 Salvar' : '➕ Criar'}
               </button>
               <button onClick={() => !submitting && setCityModal(null)}
+                className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Topic Create/Edit Modal ───────────────────────────────────────────── */}
+      {topicModal && (
+        <Modal
+          title={topicModal.id ? '✏️ Editar Tema' : '➕ Novo Tema'}
+          onClose={() => !submitting && setTopicModal(null)}
+        >
+          <div className="space-y-5">
+            {!topicModal.id && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tema</label>
+                <select
+                  className={INPUT}
+                  value={topicModal.topic}
+                  onChange={e => {
+                    const topic = e.target.value;
+                    const topicData = EVENT_TOPICS.find(t => t.slug === topic);
+                    setCityModal(null);
+                    setTopicModal(prev => prev
+                      ? { ...prev, topic, seo: { ...prev.seo, slug: topic, title: topicData ? `Eventos de ${topicData.label} - Marketing` : prev.seo.title } }
+                      : prev
+                    );
+                  }}
+                >
+                  {EVENT_TOPICS.map(t => (
+                    <option key={t.slug} value={t.slug}>{t.emoji} {t.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {topicModal.id && (
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-600">
+                Tema: <strong>{EVENT_TOPICS.find(t => t.slug === topicModal.topic)?.emoji} {EVENT_TOPICS.find(t => t.slug === topicModal.topic)?.label ?? topicModal.topic}</strong>
+              </div>
+            )}
+
+            <SeoForm
+              data={topicModal.seo}
+              onChange={seo => setTopicModal(prev => prev ? { ...prev, seo } : prev)}
+            />
+
+            <div className="flex gap-2 pt-2 border-t border-gray-100">
+              <button onClick={handleSaveTopic} disabled={submitting}
+                className="flex-1 py-2.5 rounded-lg bg-orange-500 text-white font-medium hover:bg-orange-600 disabled:opacity-60 transition-colors">
+                {submitting ? 'Salvando…' : topicModal.id ? '💾 Salvar' : '➕ Criar'}
+              </button>
+              <button onClick={() => !submitting && setTopicModal(null)}
+                className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Delete Topic Modal ─────────────────────────────────────────────────── */}
+      {deleteTopicModal && (
+        <Modal title="🗑️ Excluir Tema" onClose={() => !submitting && setDeleteTopicModal(null)}>
+          <div className="space-y-5">
+            <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <span className="text-red-600 text-lg">⚠️</span>
+              <div>
+                <p className="text-sm font-medium text-red-800">Esta ação é irreversível.</p>
+                <p className="text-sm text-red-700 mt-1">
+                  A página <strong>&quot;{deleteTopicModal.title}&quot;</strong> será removida.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button onClick={handleDeleteTopic} disabled={submitting}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-60 transition-colors">
+                {submitting ? 'Excluindo…' : 'Confirmar Exclusão'}
+              </button>
+              <button onClick={() => !submitting && setDeleteTopicModal(null)}
                 className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
                 Cancelar
               </button>

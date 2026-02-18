@@ -124,6 +124,20 @@ model Organizer {
   @@map("organizers")
 }
 
+model TopicPage {
+  id               String   @id @default(uuid())
+  topic            String   @unique
+  slug             String   @unique
+  title            String
+  description      String?
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@map("topic_pages")
+}
+
 model CategoryPage {
   id               String        @id @default(uuid())
   category         EventCategory @unique

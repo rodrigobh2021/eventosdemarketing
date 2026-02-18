@@ -111,9 +111,10 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   // /eventos/[tema]
   if (temaLabel && !catLabel && !cidadeLabel) {
+    const topicPage = await prisma.topicPage.findUnique({ where: { slug: tema! } });
     return {
-      title: `Eventos de ${temaLabel} 2026 - Conferencias, Workshops e Meetups`,
-      description: `Encontre eventos de ${temaLabel} no Brasil. Conferencias, workshops e meetups para profissionais de ${temaLabel}. Veja agenda completa e inscreva-se.`,
+      title: topicPage?.meta_title ?? `Eventos de ${temaLabel} 2026 - Conferencias, Workshops e Meetups`,
+      description: topicPage?.meta_description ?? `Encontre eventos de ${temaLabel} no Brasil. Conferencias, workshops e meetups para profissionais de ${temaLabel}. Veja agenda completa e inscreva-se.`,
       alternates: { canonical },
     };
   }
