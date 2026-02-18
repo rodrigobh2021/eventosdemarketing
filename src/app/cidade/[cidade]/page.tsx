@@ -37,10 +37,11 @@ export async function generateMetadata({ params }: MetadataProps) {
   if (!cidadeLabel) return {};
 
   const state = CITY_SLUG_TO_STATE[cidade];
+  const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
 
   return {
-    title: `Eventos de Marketing em ${cidadeLabel} 2026`,
-    description: `Encontre eventos de marketing em ${cidadeLabel}, ${state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
+    title: pageData?.meta_title ?? `Eventos de Marketing em ${cidadeLabel} 2026`,
+    description: pageData?.meta_description ?? `Encontre eventos de marketing em ${cidadeLabel}, ${state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
     alternates: { canonical: `https://www.eventosdemarketing.com.br/eventos-marketing-${cidade}` },
   };
 }
@@ -59,7 +60,8 @@ export default async function CidadePage({ params }: Props) {
   const cidadeLabel = CITY_SLUG_TO_NAME[cidade]!;
   const state = CITY_SLUG_TO_STATE[cidade]!;
 
-  // Fetch events for this city
+  // Fetch page data + events for this city
+  const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
   const dbCityName = cidadeLabel;
   const [events, count] = await Promise.all([
     prisma.event.findMany({
@@ -112,10 +114,10 @@ export default async function CidadePage({ params }: Props) {
           </nav>
 
           <h1 className="text-3xl font-bold text-text sm:text-4xl lg:text-5xl">
-            Eventos de Marketing em {cidadeLabel}
+            {pageData?.title ?? `Eventos de Marketing em ${cidadeLabel}`}
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-text-secondary">
-            Encontre conferencias, workshops, meetups e webinars de marketing em {cidadeLabel}, {state}.
+            {pageData?.description ?? `Encontre conferencias, workshops, meetups e webinars de marketing em ${cidadeLabel}, ${state}.`}
           </p>
           <p className="mt-4 inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

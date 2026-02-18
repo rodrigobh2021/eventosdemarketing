@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import EventListingPage from '@/components/events/EventListingPage';
+import { prisma } from '@/lib/prisma';
 import {
   EVENT_TOPICS,
   MAIN_CITIES,
@@ -88,18 +89,22 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   // /eventos/[categoria]
   if (catLabel && !temaLabel && !cidadeLabel) {
+    const catPage = await prisma.categoryPage.findUnique({ where: { slug: categoria! } });
     return {
-      title: `${catLabel} de Marketing 2026`,
-      description: `Encontre ${catLabel.toLowerCase()} de marketing no Brasil. Veja a agenda completa e inscreva-se.`,
+      title: catPage?.meta_title ?? `${catLabel} de Marketing 2026`,
+      description: catPage?.meta_description ?? `Encontre ${catLabel.toLowerCase()} de marketing no Brasil. Veja a agenda completa e inscreva-se.`,
       alternates: { canonical },
     };
   }
 
   // /eventos/[categoria]/[cidade]
   if (catLabel && !temaLabel && cidadeLabel) {
+    const cityPage = await prisma.cityPage.findUnique({ where: { slug: cidade! } });
     return {
-      title: `${catLabel} de Marketing em ${cidadeLabel} 2026`,
-      description: `${catLabel} de marketing em ${cidadeLabel} em 2026. Veja a agenda completa e inscreva-se.`,
+      title: cityPage?.meta_title
+        ? `${catLabel} | ${cityPage.meta_title}`
+        : `${catLabel} de Marketing em ${cidadeLabel} 2026`,
+      description: cityPage?.meta_description ?? `${catLabel} de marketing em ${cidadeLabel} em 2026. Veja a agenda completa e inscreva-se.`,
       alternates: { canonical },
     };
   }

@@ -75,11 +75,13 @@ model Event {
   organizer_url  String?
   format         EventFormat
   status         EventStatus   @default(RASCUNHO)
-  is_verified    Boolean       @default(false)
-  source_url     String?
-  interest_count Int           @default(0)
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  is_verified      Boolean       @default(false)
+  source_url       String?
+  interest_count   Int           @default(0)
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
 
   @@index([city])
   @@index([state])
@@ -120,6 +122,36 @@ model Organizer {
   submissions   EventSubmission[]
 
   @@map("organizers")
+}
+
+model CategoryPage {
+  id               String        @id @default(uuid())
+  category         EventCategory @unique
+  slug             String        @unique
+  title            String
+  description      String?
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+
+  @@map("category_pages")
+}
+
+model CityPage {
+  id               String   @id @default(uuid())
+  city             String
+  state            String   @db.Char(2)
+  slug             String   @unique
+  title            String
+  description      String?
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([city, state])
+  @@map("city_pages")
 }
 
 model EventSubmission {
