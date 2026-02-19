@@ -11,6 +11,8 @@ import EventCard from '@/components/events/EventCard';
 import ShareButton from '@/components/shared/ShareButton';
 import CalendarButton from '@/components/shared/CalendarButton';
 import ExpandableDescription from '@/components/shared/ExpandableDescription';
+import Tooltip from '@/components/shared/Tooltip';
+import { Info } from 'lucide-react';
 
 // ─── Constants ────────────────────────────────────────────────────────
 
@@ -288,12 +290,18 @@ export default async function EventoPage({ params }: Props) {
                 {FORMAT_LABELS[event.format] ?? event.format}
               </span>
               {event.is_verified && (
-                <span className="flex items-center gap-1 rounded-[var(--radius-pill)] bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                  Evento Verificado
-                </span>
+                <Tooltip
+                  text="Este evento foi verificado diretamente com o organizador. As informações de data, local e ingressos foram confirmadas."
+                  position="bottom"
+                >
+                  <span className="flex cursor-default items-center gap-1.5 rounded-[var(--radius-pill)] bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    Evento Verificado
+                    <Info className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                  </span>
+                </Tooltip>
               )}
             </div>
 
