@@ -861,12 +861,6 @@ function TopicCard({
           >
             ✏️ Editar
           </button>
-          <button
-            onClick={onDelete}
-            className="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
-          >
-            🗑️ Excluir
-          </button>
         </div>
       </div>
     </div>
@@ -908,12 +902,6 @@ function CategoryCard({
             className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
           >
             ✏️ Editar
-          </button>
-          <button
-            onClick={onDelete}
-            className="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
-          >
-            🗑️ Excluir
           </button>
         </div>
       </div>
@@ -1743,12 +1731,6 @@ export default function AdminPage() {
               <p className="text-sm text-gray-500">
                 Páginas de landing por categoria de evento (usadas para SEO programático).
               </p>
-              <button
-                onClick={() => setCategoryModal({ id: null, category: EVENT_CATEGORIES[0].value, seo: { ...EMPTY_SEO } })}
-                className="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors"
-              >
-                + Nova Categoria
-              </button>
             </div>
             {categoriesLoading ? (
               <div className="space-y-3">
@@ -1842,12 +1824,6 @@ export default function AdminPage() {
               <p className="text-sm text-gray-500">
                 Páginas de landing por tema de marketing (ex: /eventos/seo, /eventos/growth).
               </p>
-              <button
-                onClick={() => setTopicModal({ id: null, topic: EVENT_TOPICS[0].slug, seo: { ...EMPTY_SEO, slug: EVENT_TOPICS[0].slug } })}
-                className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors"
-              >
-                + Novo Tema
-              </button>
             </div>
             {topicsLoading ? (
               <div className="space-y-3">

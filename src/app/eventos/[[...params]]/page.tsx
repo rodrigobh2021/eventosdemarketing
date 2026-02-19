@@ -6,6 +6,7 @@ import {
   EVENT_TOPICS,
   MAIN_CITIES,
   CATEGORY_SLUG_MAP,
+  CITY_SLUGS,
 } from '@/lib/constants';
 import {
   parseEventParams,
@@ -67,9 +68,23 @@ export function generateStaticParams() {
 
 type MetadataProps = { params: Promise<{ params?: string[] }> };
 
+async function getExtraCities(): Promise<Set<string>> {
+  const pages = await prisma.cityPage.findMany({ select: { slug: true } });
+  return new Set(pages.map((p) => p.slug).filter((s) => !CITY_SLUGS.has(s)));
+}
+
+// Helper: city name from slug — falls back to DB for dynamic cities
+async function resolveCidadeLabel(slug: string): Promise<string> {
+  const staticLabel = getCidadeLabel(slug);
+  if (staticLabel !== slug) return staticLabel; // found in CITY_SLUG_TO_NAME
+  const page = await prisma.cityPage.findUnique({ where: { slug } });
+  return page?.city ?? slug;
+}
+
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { params: segments } = await params;
-  const parsed = parseEventParams(segments);
+  const extraCities = await getExtraCities();
+  const parsed = parseEventParams(segments, extraCities);
 
   if (!parsed.valid) return {};
 
@@ -77,7 +92,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   const temaLabel = tema ? getTemaLabel(tema) : null;
   const catLabel = categoria ? getCategoriaLabel(categoria) : null;
-  const cidadeLabel = cidade ? getCidadeLabel(cidade) : null;
+  const cidadeLabel = cidade ? await resolveCidadeLabel(cidade) : null;
   const canonical = `https://www.eventosdemarketing.com.br${buildEventUrl({ tema, categoria, cidade })}`;
 
   // /eventos
@@ -193,7 +208,8 @@ type Props = {
 
 export default async function EventosCatchAllPage({ params, searchParams }: Props) {
   const { params: segments } = await params;
-  const parsed = parseEventParams(segments);
+  const extraCities = await getExtraCities();
+  const parsed = parseEventParams(segments, extraCities);
 
   if (!parsed.valid) notFound();
 

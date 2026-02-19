@@ -30,11 +30,11 @@ type MetadataProps = { params: Promise<{ cidade: string }> };
 
 export async function generateMetadata({ params }: MetadataProps) {
   const { cidade } = await params;
-  const cidadeLabel = CITY_SLUG_TO_NAME[cidade];
+  const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
+  const cidadeLabel = CITY_SLUG_TO_NAME[cidade] ?? pageData?.city;
   if (!cidadeLabel) return {};
 
-  const state = CITY_SLUG_TO_STATE[cidade];
-  const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
+  const state = CITY_SLUG_TO_STATE[cidade] ?? pageData?.state ?? '';
 
   return {
     title: pageData?.meta_title ?? `Eventos de Marketing em ${cidadeLabel} 2026`,
@@ -52,13 +52,13 @@ type Props = {
 export default async function CidadePage({ params }: Props) {
   const { cidade } = await params;
 
-  if (!CITY_SLUGS.has(cidade)) notFound();
-
-  const cidadeLabel = CITY_SLUG_TO_NAME[cidade]!;
-  const state = CITY_SLUG_TO_STATE[cidade]!;
-
-  // Fetch page data + events for this city
+  // Support both static MAIN_CITIES and DB-registered dynamic cities
   const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
+  if (!CITY_SLUGS.has(cidade) && !pageData) notFound();
+
+  const cidadeLabel = CITY_SLUG_TO_NAME[cidade] ?? pageData?.city ?? cidade;
+  const state = CITY_SLUG_TO_STATE[cidade] ?? pageData?.state ?? '';
+
   const dbCityName = cidadeLabel;
   const [events, count] = await Promise.all([
     prisma.event.findMany({

@@ -40,9 +40,12 @@ export type ListingProps = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
-function citySlugToDbName(slug: string): string | null {
+async function citySlugToDbName(slug: string): Promise<string | null> {
   if (slug === 'online') return 'Online';
-  return CITY_SLUG_TO_NAME[slug] ?? null;
+  if (CITY_SLUG_TO_NAME[slug]) return CITY_SLUG_TO_NAME[slug];
+  // Fallback: look up DB-registered dynamic city
+  const cityPage = await prisma.cityPage.findUnique({ where: { slug } });
+  return cityPage?.city ?? null;
 }
 
 function buildDateRange(periodo: string | null): { gte: Date; lte?: Date } | null {
@@ -150,7 +153,7 @@ export default async function EventListingPage({
 
   // City
   if (activeCidade) {
-    const dbCity = citySlugToDbName(activeCidade);
+    const dbCity = await citySlugToDbName(activeCidade);
     if (dbCity) where.city = dbCity;
   }
 

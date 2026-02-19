@@ -25,12 +25,14 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 function buildISODate(date: Date, time: string | null): string {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
+  // Use UTC components: dates are stored as UTC midnight (e.g. 2026-12-10T00:00:00Z)
+  // so getDate() in a UTC-3 timezone would return the day before.
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
 
   if (time) {
-    // time is "HH:mm" or "HH:mm:ss"
+    // time is "HH:mm" or "HH:mm:ss" in BRT (UTC-3)
     const parts = time.split(':');
     const hh = parts[0].padStart(2, '0');
     const min = parts[1]?.padStart(2, '0') ?? '00';

@@ -15,7 +15,10 @@ const BASE = SITE_URL;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const topics = EVENT_TOPICS.map((t) => t.slug);
   const categories = Object.keys(CATEGORY_SLUG_MAP);
-  const cities = MAIN_CITIES.map((c) => c.slug);
+  // Merge static MAIN_CITIES with DB-registered dynamic city slugs
+  const staticCities = MAIN_CITIES.map((c) => c.slug);
+  const dbCityPages = await prisma.cityPage.findMany({ select: { slug: true } });
+  const cities = [...new Set([...staticCities, ...dbCityPages.map((p) => p.slug)])];
 
   // ── Single query: all published events with fields needed for lastmod ──
   const events = await prisma.event.findMany({

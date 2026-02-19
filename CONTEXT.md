@@ -377,10 +377,12 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 
 > Atualize esta seção conforme avança no projeto.
 
-- [x] **Fase 0** — Setup e Fundação
-- [ ] **Fase 1** — Modelagem de Dados
-- [ ] **Fase 2** — Páginas Públicas Core
-- [ ] **Fase 3** — Sistema de Notificações
-- [ ] **Fase 4** — Portal do Organizador
-- [ ] **Fase 5** — Agente de Scraping
-- [ ] **Fase 6** — Polimento e Lançamento
+- [x] **Fase 0** — Setup e Fundação — concluída
+- [x] **Fase 1** — Modelagem de Dados — concluída
+- [x] **Fase 2** — Páginas Públicas Core — concluída
+- [ ] **Fase 3** — Sistema de Notificações — pendente
+- [~] **Fase 4** — Portal do Organizador — parcialmente coberta (formulário de cadastro `/cadastrar-evento` já existe)
+- [~] **Fase 5** — Agente de Scraping — em andamento (antecipada: agente Playwright + Claude, formulário unificado e painel admin prontos; falta popular o catálogo com eventos reais)
+- [ ] **Fase 6** — Polimento e Lançamento — pendente
+
+> ⚠️ **PENDÊNCIA**: verificar erros de deploy na Vercel.

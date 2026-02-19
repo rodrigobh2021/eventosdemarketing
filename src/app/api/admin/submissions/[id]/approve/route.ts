@@ -86,6 +86,27 @@ export async function POST(req: Request, { params }: RouteParams) {
       },
     });
 
+    // Auto-create CityPage for cities not already registered (skips Online events)
+    if (event.city && event.city !== 'Online') {
+      const citySlug = slugify(event.city);
+      const existingCityPage = await prisma.cityPage.findFirst({
+        where: { OR: [{ slug: citySlug }, { city: event.city, state: event.state }] },
+      });
+      if (!existingCityPage) {
+        await prisma.cityPage.create({
+          data: {
+            city: event.city,
+            state: event.state,
+            slug: citySlug,
+            title: `Eventos de Marketing em ${event.city}`,
+            description: `Encontre conferências, workshops, meetups e webinars de marketing em ${event.city}, ${event.state}.`,
+            meta_title: `Eventos de Marketing em ${event.city} 2026 | eventosdemarketing.com.br`,
+            meta_description: `Encontre os melhores eventos de marketing em ${event.city}, ${event.state}. Conferências, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
+          },
+        }).catch(() => {/* ignore duplicate errors */});
+      }
+    }
+
     return NextResponse.json({ success: true, slug: event.slug });
   } catch (err) {
     console.error('[admin/submissions/[id]/approve] POST error:', err);

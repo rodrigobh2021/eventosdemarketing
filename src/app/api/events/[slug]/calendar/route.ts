@@ -9,9 +9,16 @@ function stripHtml(html: string): string {
 function buildDate(date: Date, time: string | null): Date {
   if (!time) return date;
   const [h, m] = time.split(':').map(Number);
-  const d = new Date(date);
-  d.setHours(h, m, 0, 0);
-  return d;
+  // Dates are stored as UTC midnight (e.g. 2026-12-10T00:00:00Z).
+  // setHours() uses local time which in UTC-3 rolls back to the previous day.
+  // Instead, build the ISO string from UTC date components + BRT (UTC-3) offset
+  // so the resulting Date correctly represents the intended local time.
+  const yr = date.getUTCFullYear();
+  const mo = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dy = String(date.getUTCDate()).padStart(2, '0');
+  const hr = String(h).padStart(2, '0');
+  const mn = String(m).padStart(2, '0');
+  return new Date(`${yr}-${mo}-${dy}T${hr}:${mn}:00-03:00`);
 }
 
 function buildLocation(event: {

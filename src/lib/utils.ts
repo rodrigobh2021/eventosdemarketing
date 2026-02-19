@@ -66,11 +66,15 @@ export type ParsedEventParams = {
  *   [categoriaSlug, cidadeSlug]       → /eventos/cursos/sao-paulo
  *   [tema, categoriaSlug, cidadeSlug] → /eventos/seo/cursos/sao-paulo
  */
-export function parseEventParams(params: string[] = []): ParsedEventParams {
+export function parseEventParams(
+  params: string[] = [],
+  extraCities: Set<string> = new Set(),
+): ParsedEventParams {
   if (params.length === 0) return { valid: true };
   if (params.length > 3) return { valid: false };
 
   const [first, second, third] = params;
+  const isCity = (s: string) => CITY_SLUGS.has(s) || extraCities.has(s);
 
   // ── 1 segment ──────────────────────────────────────────────────────
   if (params.length === 1) {
@@ -92,11 +96,11 @@ export function parseEventParams(params: string[] = []): ParsedEventParams {
       return { tema: first, categoria: second, categoriaSingular: cat.singular, valid: true };
     }
     // tema + cidade
-    if (TOPIC_SLUGS.has(first) && CITY_SLUGS.has(second)) {
+    if (TOPIC_SLUGS.has(first) && isCity(second)) {
       return { tema: first, cidade: second, valid: true };
     }
     // categoria + cidade
-    if (CATEGORY_SLUGS.has(first) && CITY_SLUGS.has(second)) {
+    if (CATEGORY_SLUGS.has(first) && isCity(second)) {
       const cat = CATEGORY_SLUG_MAP[first];
       return { categoria: first, categoriaSingular: cat.singular, cidade: second, valid: true };
     }
@@ -104,7 +108,7 @@ export function parseEventParams(params: string[] = []): ParsedEventParams {
   }
 
   // ── 3 segments: tema + categoria + cidade ──────────────────────────
-  if (!TOPIC_SLUGS.has(first) || !CATEGORY_SLUGS.has(second) || !CITY_SLUGS.has(third)) {
+  if (!TOPIC_SLUGS.has(first) || !CATEGORY_SLUGS.has(second) || !isCity(third)) {
     return { valid: false };
   }
 

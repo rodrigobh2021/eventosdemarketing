@@ -36,12 +36,11 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['/og-image.png'],
   },
+  // TEMPORÁRIO — noindex até o lançamento público
+  // Reverter para: index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1
   robots: {
-    index: true,
-    follow: true,
-    'max-image-preview': 'large' as const,
-    'max-snippet': -1,
-    'max-video-preview': -1,
+    index: false,
+    follow: false,
   },
   alternates: { canonical: 'https://www.eventosdemarketing.com.br' },
 };

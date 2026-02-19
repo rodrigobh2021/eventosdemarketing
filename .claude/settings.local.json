@@ -41,7 +41,17 @@
       "mcp__playwright__browser_type",
       "mcp__playwright__browser_run_code",
       "Bash(node --input-type=module:*)",
-      "Bash(npx dotenv:*)"
+      "Bash(npx dotenv:*)",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(npm run lint:*)",
+      "Bash(ss:*)",
+      "Bash(python3:*)",
+      "Bash(dir:*)",
+      "Bash(cmd /c:*)",
+      "Bash(node node_modules/playwright/cli.js install:*)",
+      "Bash(node tests/test1-exclusao-evento.js:*)",
+      "Bash(node:*)"
     ]
   }
 }
