@@ -4,12 +4,33 @@ import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
 import { EVENT_TOPICS } from '@/lib/constants';
 import HeroCarousel from '@/components/home/HeroCarousel';
+import {
+  Bot,
+  Share2,
+  BarChart3,
+  UserCheck,
+  Palette,
+  ShoppingCart,
+  Search,
+  Megaphone,
+} from 'lucide-react';
 
 export const revalidate = 60;
 
 // ─── Data ─────────────────────────────────────────────────────────────
 
 const HOME_TOPICS = EVENT_TOPICS.slice(0, 11);
+
+const THEME_GRID = [
+  { slug: 'inteligencia-artificial', label: 'IA',                Icon: Bot          },
+  { slug: 'social-media',            label: 'Social Media',      Icon: Share2        },
+  { slug: 'dados-e-analytics',       label: 'Dados & Analytics', Icon: BarChart3     },
+  { slug: 'crm',                     label: 'CRM',               Icon: UserCheck     },
+  { slug: 'branding',                label: 'Branding',          Icon: Palette       },
+  { slug: 'ecommerce',               label: 'E-commerce',        Icon: ShoppingCart  },
+  { slug: 'seo',                     label: 'SEO',               Icon: Search        },
+  { slug: 'midia-paga',              label: 'Mídia Paga',        Icon: Megaphone     },
+] as const;
 
 const CITIES = [
   { slug: 'sao-paulo',      name: 'São Paulo',      state: 'SP', image: '/images/cidades/sao-paulo.jpg'      },
@@ -37,18 +58,22 @@ export default async function Home() {
       {/* ── 1. Hero ────────────────────────────────────────────────── */}
       <HeroCarousel />
 
-      {/* ── 2. Categories ──────────────────────────────────────────── */}
-      <section className="border-b border-gray-100 bg-white py-6">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-2 scrollbar-none sm:flex-wrap sm:justify-center sm:overflow-visible">
-            {HOME_TOPICS.map((topic) => (
+      {/* ── 2. Themes ──────────────────────────────────────────────── */}
+      <section className="border-b border-gray-100 bg-white py-8 sm:py-10">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-2">
+            {THEME_GRID.map(({ slug, label, Icon }) => (
               <Link
-                key={topic.slug}
-                href={`/eventos/${topic.slug}`}
-                className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-pill)] border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
+                key={slug}
+                href={`/eventos/${slug}`}
+                className="group flex flex-col items-center gap-2 text-center"
               >
-                <span>{topic.emoji}</span>
-                {topic.label}
+                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gray-200 bg-white transition-transform duration-200 group-hover:scale-110 sm:h-[72px] sm:w-[72px]">
+                  <Icon className="h-7 w-7 text-gray-500 transition-colors duration-200 group-hover:text-accent sm:h-8 sm:w-8" strokeWidth={1.5} />
+                </div>
+                <span className="text-xs font-medium text-text-secondary transition-colors duration-200 group-hover:text-accent sm:text-sm">
+                  {label}
+                </span>
               </Link>
             ))}
           </div>
