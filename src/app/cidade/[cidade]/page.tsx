@@ -14,11 +14,12 @@ import {
 
 const CATEGORY_PILLS = [
   { slug: 'conferencias', label: 'Conferencias' },
-  { slug: 'workshops', label: 'Workshops' },
-  { slug: 'cursos', label: 'Cursos' },
-  { slug: 'meetups', label: 'Meetups' },
-  { slug: 'webinars', label: 'Webinars' },
-  { slug: 'palestras', label: 'Palestras' },
+  { slug: 'workshops',    label: 'Workshops'    },
+  { slug: 'cursos',       label: 'Cursos'       },
+  { slug: 'meetups',      label: 'Meetups'      },
+  { slug: 'webinars',     label: 'Webinars'     },
+  { slug: 'palestras',    label: 'Palestras'    },
+  { slug: 'hackathons',   label: 'Hackathons'   },
 ] as const;
 
 // Force SSR so meta changes in admin reflect immediately
@@ -135,18 +136,20 @@ export default async function CidadePage({ params }: Props) {
             >
               Todos ({count})
             </Link>
-            {CATEGORY_PILLS.map((cat) => {
-              const catCount = countByCategory[cat.slug] ?? 0;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/eventos/${cat.slug}/${cidade}`}
-                  className="rounded-[var(--radius-pill)] border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
-                >
-                  {cat.label} {catCount > 0 && `(${catCount})`}
-                </Link>
-              );
-            })}
+            {CATEGORY_PILLS
+              .filter((cat) => (countByCategory[cat.slug] ?? 0) > 0)
+              .map((cat) => {
+                const catCount = countByCategory[cat.slug]!;
+                return (
+                  <Link
+                    key={cat.slug}
+                    href={`/eventos/${cat.slug}/${cidade}`}
+                    className="rounded-[var(--radius-pill)] border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
+                  >
+                    {cat.label} ({catCount})
+                  </Link>
+                );
+              })}
           </div>
         </div>
       </section>

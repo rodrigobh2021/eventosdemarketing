@@ -51,7 +51,20 @@
       "Bash(cmd /c:*)",
       "Bash(node node_modules/playwright/cli.js install:*)",
       "Bash(node tests/test1-exclusao-evento.js:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(echo:*)",
+      "Bash(eventosdemarketing.com.br\"\\) e meta\n  description \\(auto: primeiros 155 chars da descrição\\)\n- Slug com validação inline de unicidade; erro 409 exibido\n  diretamente no campo sem fechar o modal\n- API POST /approve aceita slug/meta_title/meta_description;\n  usa slug fornecido pelo admin ou gera automaticamente\n- Campos meta_title e meta_description salvos no Event criado\n\nMELHORIA 2 — Editor Rich Text \\(Tiptap\\):\n- Instala @tiptap/react, starter-kit, underline, link,\n  text-align, placeholder + dompurify/@types/dompurify\n- Cria RichTextEditor.tsx: toolbar com B/I/U, H2/H3,\n  bullet/numbered list, link, align left/center, clear;\n  SSR-safe \\(immediatelyRender: false\\)\n- Substitui textarea de descrição em /cadastrar-evento\n  e em EditForm do admin \\(pendentes + edição de eventos\\)\n- ExpandableDescription: sanitização client-side com\n  DOMPurify \\(dynamic import\\) após montagem\n- globals.css: estilos do editor Tiptap \\(placeholder,\n  h2/h3, p, ul/ol, a, strong, em\\)\n- Validação de min 100 chars conta texto sem tags HTML\n- auditFields também usa stripHtml para checar descrição\n- Scraper: instrução de descrição atualizada para retornar\n  HTML estruturado \\(<p>, <ul>/<li>, <strong>, <h2>/<h3>\\)\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(powershell -Command \"cd 'C:\\\\Users\\\\Rodrigo\\\\eventos_mkt'; npm install lucide-react 2>&1 | Select-Object -Last 10\":*)",
+      "Bash(powershell -Command \"cd 'C:\\\\Users\\\\Rodrigo\\\\eventos_mkt'; cat package.json | Select-String 'lucide'\":*)",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; npx tsc --noEmit 2>&1 | Select-Object -Last 20\")",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; npx next build --no-lint 2>&1 | Select-String ''Compiled|error|Error'' | Select-Object -First 10\")",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; npx next build 2>&1 | Select-String ''Compiled|error TS|SyntaxError'' | Select-Object -First 15\")",
+      "Bash(powershell -Command \"cd 'C:\\\\Users\\\\Rodrigo\\\\eventos_mkt'; git add src/components/shared/Tooltip.tsx src/app/evento/slug/page.tsx package.json package-lock.json; git status\":*)",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; git add ''src/components/shared/Tooltip.tsx'' ''src/app/evento/[slug]/page.tsx'' package.json package-lock.json && git commit -m ''feat: tooltip explicativo no badge Evento Verificado\n\n- Instala lucide-react para ícone Info\n- Cria Tooltip.tsx: hover com delay 200ms \\(desktop\\), click/tap \\(mobile\\),\n  fechar ao clicar fora, animação scale+opacity, posição configurável\n- Badge Evento Verificado exibe ícone Info ao lado e envolve o Tooltip\n  com texto explicativo sobre a verificação\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>''\")",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; git add ''src/components/shared/Tooltip.tsx'' ''src/app/evento/[slug]/page.tsx'' package.json package-lock.json\")",
+      "Bash(powershell -Command @\"\ncd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''\ngit commit -m ''feat: tooltip explicativo no badge Evento Verificado''\n\"@)",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; git commit -m ''feat: tooltip explicativo no badge Evento Verificado''\")",
+      "Bash(powershell -Command:*)"
     ]
   }
 }
