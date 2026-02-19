@@ -68,9 +68,10 @@ export default async function Home() {
           <span className="text-[11px] text-white/70">{FEATURED_EVENT.date} · {FEATURED_EVENT.city}</span>
         </Link>
         {/* Title + search: bottom-left */}
-        <div className="absolute left-4 bottom-6 flex max-w-[58%] flex-col items-start text-left sm:hidden">
-          <h1 className="text-lg font-bold leading-snug tracking-tight text-white">
-            Descubra os melhores eventos<br />de marketing do Brasil
+        <div className="absolute left-4 right-4 bottom-6 flex flex-col items-start text-left sm:hidden">
+          <h1 className="text-xl font-bold leading-snug tracking-tight text-white">
+            <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
+            <span className="block">de marketing do Brasil</span>
           </h1>
           <div className="mt-4 flex w-full max-w-xs overflow-hidden rounded-[var(--radius-card)] bg-white shadow-xl">
             <div className="relative flex-1">
@@ -86,9 +87,10 @@ export default async function Home() {
         {/* ── DESKTOP layout ── */}
         {/* Title + search: left side, vertically centered */}
         <div className="relative hidden sm:flex sm:min-h-[480px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
-          <div className="flex max-w-md flex-col items-start text-left">
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-white lg:text-4xl">
-              Descubra os melhores eventos<br />de marketing do Brasil
+          <div className="flex max-w-lg flex-col items-start text-left">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-white">
+              <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
+              <span className="block">de marketing do Brasil</span>
             </h1>
             <div className="mt-8 flex w-full overflow-hidden rounded-[var(--radius-card)] bg-white shadow-xl">
               <div className="relative flex-1">
