@@ -697,10 +697,20 @@ function EditForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">UF</label>
-            <select className={INPUT} value={data.state} onChange={e => set('state', e.target.value)}>
-              <option value="">UF</option>
-              {BR_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
+            {cities.length > 0 ? (
+              <input
+                className={`${INPUT} bg-gray-100 cursor-not-allowed text-gray-500`}
+                value={data.state}
+                readOnly
+                tabIndex={-1}
+                title="Preenchido automaticamente pela cidade"
+              />
+            ) : (
+              <select className={INPUT} value={data.state} onChange={e => set('state', e.target.value)}>
+                <option value="">UF</option>
+                {BR_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            )}
           </div>
         </div>
       </div>

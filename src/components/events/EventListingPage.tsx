@@ -220,8 +220,10 @@ export default async function EventListingPage({
 
   // ── Dynamic subtitle ──────────────────────────────────────────────
 
+  // Only treat as "extra filters" things added via query params on top of the URL path.
+  // URL-path segments (tema, categoria, cidade) are the page identity, not user-applied filters.
   const hasQueryFilters =
-    activeTema || activeCidade || categoriaParam || formato || gratuito || periodo || dataInicio || dataFim;
+    (activeTema && !tema) || (activeCidade && !cidade) || categoriaParam || formato || gratuito || periodo || dataInicio || dataFim;
 
   let displaySubtitle = subtitle;
   if (hasQueryFilters) {
