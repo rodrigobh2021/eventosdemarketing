@@ -855,17 +855,17 @@ function EventCard({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 flex items-start gap-4">
+      <div className="p-4 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-start sm:gap-4">
         {event.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={event.image_url}
             alt=""
-            className="w-16 h-16 object-cover rounded-lg shrink-0"
+            className="w-full h-40 object-cover rounded-lg mb-3 sm:mb-0 sm:w-16 sm:h-16 shrink-0"
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         ) : (
-          <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-2xl shrink-0">
+          <div className="w-full h-24 rounded-lg bg-gray-100 flex items-center justify-center text-3xl mb-3 sm:mb-0 sm:w-16 sm:h-16 shrink-0">
             📅
           </div>
         )}
@@ -882,32 +882,34 @@ function EventCard({
             )}
             <span className="text-xs text-gray-500">{categoryLabel(event.category)} · {formatLabel(event.format)}</span>
           </div>
-          <p className="font-semibold text-gray-900 truncate">{event.title}</p>
+          <p className="font-semibold text-gray-900">{event.title}</p>
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-500">
             <span>📅 {formatDate(event.start_date)}</span>
             {event.city && <span>📍 {event.city}{event.state ? ` — ${event.state}` : ''}</span>}
-            <span className="font-mono text-gray-400">/evento/{event.slug}</span>
+          </div>
+          <div className="mt-0.5 flex items-center gap-3">
+            <span className="font-mono text-xs text-gray-400">/evento/{event.slug}</span>
             <a
               href={`/evento/${event.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline"
+              className="text-xs text-blue-600 underline"
             >
               🔗 ver no site
             </a>
           </div>
         </div>
 
-        <div className="flex gap-2 shrink-0 mt-0.5">
+        <div className="flex gap-2 mt-3 sm:mt-0.5 sm:shrink-0">
           <button
             onClick={onEdit}
-            className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
           >
             ✏️ Editar
           </button>
           <button
             onClick={onDelete}
-            className="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
+            className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
           >
             🗑️ Excluir
           </button>
