@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   EVENT_CATEGORIES,
   EVENT_FORMATS,
@@ -123,6 +123,84 @@ export function SortSelect() {
       <option value="recentes">Adicionados recentemente</option>
       <option value="nome">Nome (A-Z)</option>
     </select>
+  );
+}
+
+// ─── City Search Input ────────────────────────────────────────────────
+
+type CityResult = { slug: string; city: string; state: string };
+
+function CitySearchInput({ onSelect }: { onSelect: (slug: string) => void }) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<CityResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (query.length < 2) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/cities/search?q=${encodeURIComponent(query)}`);
+        const data: CityResult[] = await res.json();
+        setResults(data);
+        setOpen(true);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative mb-3">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Buscar cidade..."
+        className="w-full rounded-[var(--radius-btn)] border border-gray-200 bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
+      />
+      {open && (
+        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-[var(--radius-btn)] border border-gray-200 bg-white shadow-lg">
+          {loading ? (
+            <p className="px-3 py-2 text-sm text-text-secondary">Buscando...</p>
+          ) : results.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-text-secondary">Nenhuma cidade encontrada</p>
+          ) : (
+            results.map((c) => (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => {
+                  onSelect(c.slug);
+                  setQuery('');
+                  setOpen(false);
+                }}
+                className="w-full px-3 py-2 text-left text-sm text-text hover:bg-gray-50"
+              >
+                {c.city} ({c.state})
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -263,18 +341,20 @@ export default function EventFilters({
       {/* City — always visible */}
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-text">Cidade</legend>
-        <select
-          value={cidadeValue}
-          onChange={(e) => handleCityChange(e.target.value)}
-          className="w-full rounded-[var(--radius-btn)] border border-gray-200 bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
-        >
-          <option value="">Todas as cidades</option>
+        <CitySearchInput onSelect={handleCityChange} />
+        <div className="space-y-2">
           {MAIN_CITIES.map((c) => (
-            <option key={c.slug} value={c.slug}>
+            <label key={c.slug} className="flex items-center gap-2 text-sm text-text">
+              <input
+                type="checkbox"
+                checked={cidadeValue === c.slug}
+                onChange={(e) => handleCityChange(e.target.checked ? c.slug : '')}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20"
+              />
               {c.name} ({c.state})
-            </option>
+            </label>
           ))}
-        </select>
+        </div>
       </fieldset>
 
       {/* Topics — hidden when tema is locked in URL path */}
