@@ -65,8 +65,8 @@ function makeICO(png, size) {
 // ── Render the "e" icon ────────────────────────────────────────────────
 function renderIcon(size) {
   const pixels = new Uint8Array(size * size * 4);
-  const BG = [26, 26, 46];     // #1a1a2e
-  const FG = [232, 97, 45];    // #e8612d
+  const BG = [232, 97, 45];    // #e8612d
+  const FG = [26, 26, 46];     // #1a1a2e
 
   const cx = size * 0.5;
   const cy = size * 0.5;
