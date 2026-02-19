@@ -145,6 +145,7 @@ export default function HeroCarousel() {
       ))}
 
       {/* ── MOBILE: title + search, vertically centered ── */}
+      {/* ── MOBILE: title + search + dots, vertically centered ── */}
       <div className="absolute inset-x-4 top-[42%] z-[3] -translate-y-1/2 flex flex-col items-start text-left sm:hidden">
         <h1 className="text-xl font-bold leading-snug tracking-tight text-white">
           <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
@@ -159,21 +160,19 @@ export default function HeroCarousel() {
           </div>
           <button type="button" className="bg-accent px-4 text-xs font-semibold whitespace-nowrap text-white transition-colors hover:bg-accent/90">Buscar</button>
         </div>
+        {multi && (
+          <div className="mt-3 flex gap-2">
+            {FEATURED_EVENTS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                aria-label={`Slide ${i + 1}`}
+                className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* ── 6. MOBILE dots — above the callout ── */}
-      {multi && (
-        <div className="absolute bottom-[76px] left-1/2 z-[4] -translate-x-1/2 flex gap-2 sm:hidden">
-          {FEATURED_EVENTS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              aria-label={`Slide ${i + 1}`}
-              className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
-            />
-          ))}
-        </div>
-      )}
 
       {/* ── DESKTOP: title + search + dots, left-center ── */}
       <div className="relative z-[3] hidden sm:flex sm:min-h-[520px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
