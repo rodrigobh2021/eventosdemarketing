@@ -29,7 +29,7 @@ async function uniqueSlug(title: string, city: string): Promise<string> {
 export async function POST(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const { is_verified, notes } = await req.json();
+    const { is_verified, notes, slug: adminSlug, meta_title, meta_description } = await req.json();
 
     const submission = await prisma.eventSubmission.findUnique({ where: { id } });
     if (!submission) {
@@ -41,10 +41,18 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const d = submission.event_data as Record<string, unknown>;
 
-    const slug = await uniqueSlug(
-      String(d.title ?? ''),
-      String(d.city ?? ''),
-    );
+    // Use admin-provided slug if given, else auto-generate
+    let slug: string;
+    if (adminSlug && typeof adminSlug === 'string' && adminSlug.trim()) {
+      const candidate = adminSlug.trim();
+      const taken = await prisma.event.findUnique({ where: { slug: candidate } });
+      if (taken) {
+        return NextResponse.json({ error: `Slug "${candidate}" já está em uso. Escolha outro.` }, { status: 409 });
+      }
+      slug = candidate;
+    } else {
+      slug = await uniqueSlug(String(d.title ?? ''), String(d.city ?? ''));
+    }
 
     const event = await prisma.event.create({
       data: {
@@ -74,6 +82,8 @@ export async function POST(req: Request, { params }: RouteParams) {
         status: 'PUBLICADO',
         is_verified: Boolean(is_verified),
         source_url: d.source_url ? String(d.source_url) : null,
+        meta_title: meta_title ? String(meta_title) : null,
+        meta_description: meta_description ? String(meta_description) : null,
       },
     });
 

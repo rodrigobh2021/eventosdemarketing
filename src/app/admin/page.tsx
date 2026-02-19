@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS } from '@/lib/constants';
+import RichTextEditor from '@/components/shared/RichTextEditor';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -198,7 +199,7 @@ function auditFields(d: EventData, source: string): FieldCheck[] {
   return [
     { label: 'Imagem / banner',      ok: Boolean(d.image_url),                    severity: 'error' },
     { label: 'URL do evento',         ok: Boolean(d.event_url),                    severity: 'error' },
-    { label: 'Descrição (≥100 car.)', ok: (d.description?.length ?? 0) >= 100,    severity: 'error' },
+    { label: 'Descrição (≥100 car.)', ok: stripHtml(d.description ?? '').length >= 100, severity: 'error' },
     { label: 'Link de ingressos',     ok: d.is_free || Boolean(d.ticket_url),      severity: 'warn'  },
     { label: 'Preço',                 ok: d.is_free || Boolean(d.price_info),      severity: 'warn'  },
     { label: 'Horário de início',     ok: Boolean(d.start_time),                   severity: 'warn'  },
@@ -746,10 +747,10 @@ function EditForm({
       {/* Descrição */}
       <div className="space-y-3">
         <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Descrição</h4>
-        <textarea
-          className={`${INPUT} min-h-32 resize-y`}
+        <RichTextEditor
           value={data.description}
-          onChange={e => set('description', e.target.value)}
+          onChange={html => set('description', html)}
+          placeholder="Descreva o evento em detalhes..."
         />
       </div>
 
@@ -1143,6 +1144,8 @@ export default function AdminPage() {
 
   const [approveModal, setApproveModal] = useState<{
     id: string; isVerified: boolean; notes: string;
+    slug: string; meta_title: string; meta_description: string;
+    slugError: string;
   } | null>(null);
   const [rejectModal, setRejectModal] = useState<{
     id: string; reason: string;
@@ -1334,9 +1337,20 @@ export default function AdminPage() {
       const res = await fetch(`/api/admin/submissions/${approveModal.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_verified: approveModal.isVerified, notes: approveModal.notes }),
+        body: JSON.stringify({
+          is_verified: approveModal.isVerified,
+          notes: approveModal.notes,
+          slug: approveModal.slug.trim() || undefined,
+          meta_title: approveModal.meta_title.trim() || undefined,
+          meta_description: approveModal.meta_description.trim() || undefined,
+        }),
       });
       const json = await res.json();
+      if (res.status === 409) {
+        // Slug conflict — show inline error, keep modal open
+        setApproveModal(prev => prev ? { ...prev, slugError: json.error } : prev);
+        return;
+      }
       if (!res.ok) throw new Error(json.error);
       setApproveModal(null);
       await load();
@@ -1413,9 +1427,17 @@ export default function AdminPage() {
       if (!putRes.ok) throw new Error((await putRes.json()).error);
       await load();
       const savedId = editModal.id;
-      const savedIsOrganizer = editModal.data.is_organizer === true;
+      const d = editModal.data;
       setEditModal(null);
-      setApproveModal({ id: savedId, isVerified: savedIsOrganizer, notes: '' });
+      setApproveModal({
+        id: savedId,
+        isVerified: d.is_organizer === true,
+        notes: '',
+        slug: slugify(`${d.title} ${d.city ?? ''}`),
+        meta_title: `${d.title} | eventosdemarketing.com.br`,
+        meta_description: stripHtml(d.description).slice(0, 155),
+        slugError: '',
+      });
     } catch (err) {
       addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
     } finally {
@@ -2067,11 +2089,18 @@ export default function AdminPage() {
                   submission={sub}
                   expanded={expandedIds.has(sub.id)}
                   onToggle={() => toggleExpand(sub.id)}
-                  onApprove={() => setApproveModal({
-                    id: sub.id,
-                    isVerified: sub.event_data.is_organizer === true,
-                    notes: '',
-                  })}
+                  onApprove={() => {
+                    const d = sub.event_data;
+                    setApproveModal({
+                      id: sub.id,
+                      isVerified: d.is_organizer === true,
+                      notes: '',
+                      slug: slugify(`${d.title} ${d.city ?? ''}`),
+                      meta_title: `${d.title} | eventosdemarketing.com.br`,
+                      meta_description: stripHtml(d.description).slice(0, 155),
+                      slugError: '',
+                    });
+                  }}
                   onReject={() => setRejectModal({ id: sub.id, reason: '' })}
                   onEdit={() => setEditModal({ id: sub.id, data: { ...sub.event_data } })}
                 />
@@ -2083,13 +2112,74 @@ export default function AdminPage() {
 
       {/* ── Approve Modal ─────────────────────────────────────────────────────── */}
       {approveModal && (
-        <Modal title="✅ Aprovar e Publicar" onClose={() => !submitting && setApproveModal(null)}>
+        <Modal title="✅ Aprovar e Publicar" onClose={() => !submitting && setApproveModal(null)} wide>
           <div className="space-y-5">
             <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
               <span className="text-green-600 text-lg">✅</span>
               <p className="text-sm text-green-800">O evento será criado e publicado imediatamente no site.</p>
             </div>
 
+            {/* ── SEO & URL ── */}
+            <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200 space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-indigo-500">SEO & URL</h4>
+
+              {/* Slug */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Slug <span className="text-gray-400 font-normal">(URL da página)</span>
+                </label>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-gray-400 shrink-0">eventosdemarketing.com.br/evento/</span>
+                  <input
+                    className={`flex-1 rounded-lg border px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 ${approveModal.slugError ? 'border-red-400' : 'border-gray-300'}`}
+                    value={approveModal.slug}
+                    onChange={e => {
+                      const raw = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+                      setApproveModal(prev => prev ? { ...prev, slug: raw, slugError: '' } : prev);
+                    }}
+                    placeholder="meetup-seo-sao-paulo"
+                  />
+                </div>
+                {approveModal.slugError && (
+                  <p className="text-xs text-red-600 mt-1">{approveModal.slugError}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-1">Apenas letras minúsculas, números e hífens.</p>
+              </div>
+
+              {/* Meta title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meta Title{' '}
+                  <span className={`text-xs font-normal ${approveModal.meta_title.length > 60 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {approveModal.meta_title.length}/60
+                  </span>
+                </label>
+                <input
+                  className={INPUT}
+                  value={approveModal.meta_title}
+                  onChange={e => setApproveModal(prev => prev ? { ...prev, meta_title: e.target.value } : prev)}
+                  placeholder="Título para mecanismos de busca (50–60 chars)"
+                />
+              </div>
+
+              {/* Meta description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meta Description{' '}
+                  <span className={`text-xs font-normal ${approveModal.meta_description.length > 160 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {approveModal.meta_description.length}/160
+                  </span>
+                </label>
+                <textarea
+                  className={`${INPUT} min-h-16 resize-none`}
+                  value={approveModal.meta_description}
+                  onChange={e => setApproveModal(prev => prev ? { ...prev, meta_description: e.target.value } : prev)}
+                  placeholder="Descrição para resultados de busca (150–160 chars)"
+                />
+              </div>
+            </div>
+
+            {/* Verified */}
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -2103,6 +2193,7 @@ export default function AdminPage() {
               </div>
             </label>
 
+            {/* Internal notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Notas internas <span className="text-gray-400 font-normal">(opcional)</span>

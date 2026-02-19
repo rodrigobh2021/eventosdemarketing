@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS, MAIN_CITIES } from '@/lib/constants';
 import type { ScrapedEventData } from '@/types';
+import RichTextEditor from '@/components/shared/RichTextEditor';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -161,8 +162,9 @@ function validateForm(form: FormState): Record<string, string> {
     if (!city) e.citySelect = 'Cidade obrigatória';
     if (!form.state) e.state = 'Estado obrigatório';
   }
-  if (form.description.length < 100) {
-    e.description = `Descrição muito curta (${form.description.length}/100 caracteres mínimos)`;
+  const descText = form.description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (descText.length < 100) {
+    e.description = `Descrição muito curta (${descText.length}/100 caracteres mínimos)`;
   }
   if (!form.organizer_name.trim()) e.organizer_name = 'Nome do organizador obrigatório';
   if (!form.event_url.trim()) e.event_url = 'URL do site oficial obrigatória';
@@ -944,20 +946,26 @@ export default function CadastrarEventoPage() {
           {/* ── SEÇÃO E — Detalhes ─────────────────────────────────────── */}
           <SectionCard title="E — Detalhes">
             <div>
-              <div className="flex items-end justify-between mb-1">
-                <FieldLabel label="Descrição do evento" required aiActive={ai('description')} />
-                <span className={`text-xs ${form.description.length < 100 ? 'text-red-400' : 'text-gray-400'}`}>
-                  {form.description.length} / 100 mín.
-                </span>
-              </div>
-              <textarea
-                value={form.description}
-                onChange={(e) => set('description', e.target.value)}
-                placeholder="Descreva o evento: programação, palestrantes, público-alvo…"
-                rows={6}
-                className={`${inputCls('description')} resize-y`}
-              />
-              <FieldError msg={err('description')} />
+              {(() => {
+                const descText = form.description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+                return (
+                  <>
+                    <div className="flex items-end justify-between mb-1">
+                      <FieldLabel label="Descrição do evento" required aiActive={ai('description')} />
+                      <span className={`text-xs ${descText.length < 100 ? 'text-red-400' : 'text-gray-400'}`}>
+                        {descText.length} / 100 mín.
+                      </span>
+                    </div>
+                    <RichTextEditor
+                      value={form.description}
+                      onChange={(html) => set('description', html)}
+                      placeholder="Descreva o evento: programação, palestrantes, público-alvo…"
+                      className={ai('description') ? 'border-blue-300 bg-blue-50/40' : ''}
+                    />
+                    <FieldError msg={err('description')} />
+                  </>
+                );
+              })()}
             </div>
 
             <div>

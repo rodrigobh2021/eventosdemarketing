@@ -162,7 +162,7 @@ INSTRUÇÕES IMPORTANTES:
 - Para preços, busque o menor valor disponível para o price_info
 - Para ticket_url, priorize links de compra (Sympla, Eventbrite, etc.)
 - Se o evento tiver múltiplos dias, use start_date e end_date
-- Para a descrição, capture o máximo de detalhes sobre o evento (programação, palestrantes, público-alvo)
+- Para a descrição, retorne o conteúdo em HTML simples. Preserve a estrutura: parágrafos como <p>, listas como <ul>/<li>, negritos como <strong>, itálicos como <em>, headings como <h2>/<h3>. NÃO inclua tags <html>, <body>, <head> ou estilos inline. Capture o máximo de detalhes (programação, palestrantes, público-alvo)
 - Se alguma informação não estiver disponível, use null
 - NUNCA invente informações que não estejam na página
 
@@ -195,7 +195,7 @@ ${content.text}
 Extraia as informações no seguinte formato JSON:
 {
   "title": "string",
-  "description": "string (descrição completa do evento em HTML simples com <p> tags)",
+  "description": "string (descrição completa em HTML: <p>, <ul>/<li>, <strong>, <em>, <h2>/<h3> — sem <html>/<body>/<head> ou estilos inline)",
   "start_date": "YYYY-MM-DD",
   "end_date": "YYYY-MM-DD ou null",
   "start_time": "HH:MM ou null",

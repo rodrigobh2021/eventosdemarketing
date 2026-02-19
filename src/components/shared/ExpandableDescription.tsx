@@ -6,14 +6,31 @@ const COLLAPSED_HEIGHT = 200; // px
 
 export default function ExpandableDescription({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [safeHtml, setSafeHtml] = useState(html); // SSR: serve raw (trusted from DB)
   const [needsExpand, setNeedsExpand] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
+  // Client-side sanitization with DOMPurify
+  useEffect(() => {
+    import('dompurify').then(({ default: DOMPurify }) => {
+      setSafeHtml(
+        DOMPurify.sanitize(html, {
+          ALLOWED_TAGS: [
+            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
+            'h2', 'h3', 'ul', 'ol', 'li', 'a', 'blockquote',
+          ],
+          ALLOWED_ATTR: ['href', 'target', 'rel'],
+        }),
+      );
+    });
+  }, [html]);
+
+  // Check if content overflows after safeHtml is ready
   useEffect(() => {
     if (ref.current && ref.current.scrollHeight > COLLAPSED_HEIGHT + 40) {
       setNeedsExpand(true);
     }
-  }, []);
+  }, [safeHtml]);
 
   return (
     <div className="relative">
@@ -25,7 +42,7 @@ export default function ExpandableDescription({ html }: { html: string }) {
             ? { maxHeight: COLLAPSED_HEIGHT, overflow: 'hidden' }
             : undefined
         }
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
 
       {needsExpand && !expanded && (
