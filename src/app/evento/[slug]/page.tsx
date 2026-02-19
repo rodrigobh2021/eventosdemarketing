@@ -64,20 +64,30 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 }
 
+// Dates from Prisma arrive as UTC midnight (e.g. 2026-03-27T00:00:00.000Z).
+// date-fns format() uses local time, so UTC-3 would shift March 27 → March 26.
+// utcDay() re-interprets the UTC Y/M/D as a local-time date to prevent this shift.
+function utcDay(date: Date): Date {
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
 function formatDateRange(startDate: Date, endDate: Date | null): string {
-  if (!endDate || isSameDay(startDate, endDate)) {
-    return format(startDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const start = utcDay(startDate);
+  const end = endDate ? utcDay(endDate) : null;
+
+  if (!end || isSameDay(start, end)) {
+    return format(start, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   }
 
   const sameMonth =
-    startDate.getMonth() === endDate.getMonth() &&
-    startDate.getFullYear() === endDate.getFullYear();
+    start.getMonth() === end.getMonth() &&
+    start.getFullYear() === end.getFullYear();
 
   if (sameMonth) {
-    return `${format(startDate, 'dd', { locale: ptBR })} a ${format(endDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
+    return `${format(start, 'dd', { locale: ptBR })} a ${format(end, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
   }
 
-  return `${format(startDate, "dd 'de' MMMM", { locale: ptBR })} a ${format(endDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
+  return `${format(start, "dd 'de' MMMM", { locale: ptBR })} a ${format(end, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
 }
 
 function formatTimeRange(startTime: string | null, endTime: string | null): string | null {

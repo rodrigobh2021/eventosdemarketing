@@ -161,7 +161,12 @@ function timeAgo(iso: string): string {
 
 function formatDate(s: string | null): string {
   if (!s) return '—';
-  const d = s.length === 10 ? new Date(s + 'T00:00:00') : new Date(s);
+  // 10-char (YYYY-MM-DD from event_data JSON) → append local midnight, no shift needed.
+  // Full ISO (from DB via API) → UTC midnight; use UTC parts to avoid day shift in UTC-3.
+  const raw = s.length === 10 ? new Date(s + 'T00:00:00') : new Date(s);
+  const d = s.length === 10
+    ? raw
+    : new Date(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate());
   return d.toLocaleDateString('pt-BR', {
     day: '2-digit', month: 'short', year: 'numeric',
   });

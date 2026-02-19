@@ -35,9 +35,13 @@ function getPlaceholderGradient(slug: string) {
 export default function EventCard({ event }: { event: Event }) {
   const isCancelled = event.status === 'CANCELADO';
 
-  const formattedDate = format(new Date(event.start_date), "EEE, dd 'de' MMM", {
-    locale: ptBR,
-  });
+  // event.start_date is UTC midnight from Prisma; re-interpret as local date to avoid day shift
+  const _d = new Date(event.start_date);
+  const formattedDate = format(
+    new Date(_d.getUTCFullYear(), _d.getUTCMonth(), _d.getUTCDate()),
+    "EEE, dd 'de' MMM",
+    { locale: ptBR },
+  );
 
   const location =
     event.format === 'ONLINE'
