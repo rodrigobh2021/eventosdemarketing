@@ -186,6 +186,17 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 - [x] **Testes admin (1-11)** — 235 checks, 0 falhas (testes Playwright em `tests/`)
 - [x] **Proteção temporária** — Basic Auth (middleware), noindex/nofollow, robots Disallow:/
 - [x] **Banco limpo** — dados de seed removidos; 1 evento real (SEOCamp 2026, Santos)
+- [x] **Melhorias admin (6)** — filtros em Eventos e Cidades, remoção aba Aprovados, comportamento por status (RASCUNHO=404, CANCELADO/ENCERRADO=banner), contadores de eventos nas abas, bloqueio exclusão de cidades
+- [x] **Automação de encerramento** — cron `/api/cron/close-events` via vercel.json (diariamente às 03:00 UTC)
+
+### Comportamento por Status de Evento
+
+| Status     | Página pública | Listagens | Sitemap | Home | Comportamento especial |
+|------------|---------------|-----------|---------|------|------------------------|
+| PUBLICADO  | ✅            | ✅        | ✅      | ✅   | Normal                 |
+| RASCUNHO   | ❌ (404)      | ❌        | ❌      | ❌   | —                      |
+| CANCELADO  | ✅            | ❌        | ❌      | ❌   | Banner vermelho no topo; badge no EventCard |
+| ENCERRADO  | ✅            | ❌ (data passada) | ❌ | ❌ | Banner cinza no topo; auto-criado pelo cron |
 
 ### ⏳ Próximas Etapas
 
@@ -194,6 +205,7 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 - [ ] **Fase 3** — Sistema de notificações por email (subscribers + newsletter)
 - [ ] **Fase 4** — Autenticação real para `/admin` e `/api/admin/*` (substituir Basic Auth por JWT/session)
 - [ ] **Lançamento público** — remover proteção (Basic Auth, noindex, robots Disallow)
+- [ ] **Pendência futura** — notificação de interessados quando evento é cancelado ou nova edição disponível
 
 ### Avisos conhecidos
 

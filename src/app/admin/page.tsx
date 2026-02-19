@@ -60,7 +60,7 @@ interface Submission {
   event_data: EventData;
 }
 
-type TabStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO';
+type TabStatus = 'PENDENTE' | 'REJEITADO';
 type ActiveTab = TabStatus | 'EVENTOS' | 'CATEGORIAS' | 'CIDADES' | 'TEMAS';
 
 interface EventRecord {
@@ -108,6 +108,7 @@ interface CategoryPageRecord {
   meta_description: string | null;
   created_at: string;
   updated_at: string;
+  event_count?: number;
 }
 
 interface CityPageRecord {
@@ -121,6 +122,7 @@ interface CityPageRecord {
   meta_description: string | null;
   created_at: string;
   updated_at: string;
+  event_count?: number;
 }
 
 interface TopicPageRecord {
@@ -133,6 +135,7 @@ interface TopicPageRecord {
   meta_description: string | null;
   created_at: string;
   updated_at: string;
+  event_count?: number;
 }
 
 interface Toast {
@@ -898,6 +901,7 @@ function TopicCard({
   onDelete: () => void;
 }) {
   const topicData = EVENT_TOPICS.find(t => t.slug === page.topic);
+  const count = page.event_count ?? 0;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="px-5 py-4 flex items-start gap-4">
@@ -911,6 +915,9 @@ function TopicCard({
               {topicData?.label ?? page.topic}
             </span>
             <span className="font-mono text-gray-400">/eventos/{page.slug}</span>
+            <span className={count === 0 ? 'text-gray-300' : 'text-gray-500'}>
+              {count} evento{count !== 1 ? 's' : ''} publicado{count !== 1 ? 's' : ''}
+            </span>
           </div>
           {page.meta_title && (
             <p className="mt-1 text-xs text-gray-400 truncate">Meta: {page.meta_title}</p>
@@ -940,6 +947,7 @@ function CategoryCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const count = page.event_count ?? 0;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="px-5 py-4 flex items-start gap-4">
@@ -953,6 +961,9 @@ function CategoryCard({
               {categoryLabel(page.category)}
             </span>
             <span className="font-mono text-gray-400">/{page.slug}</span>
+            <span className={count === 0 ? 'text-gray-300' : 'text-gray-500'}>
+              {count} evento{count !== 1 ? 's' : ''} publicado{count !== 1 ? 's' : ''}
+            </span>
           </div>
           {page.meta_title && (
             <p className="mt-1 text-xs text-gray-400 truncate">Meta: {page.meta_title}</p>
@@ -976,12 +987,13 @@ function CategoryCard({
 function CityCard({
   page,
   onEdit,
-  onDelete,
+  onDelete, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: {
   page: CityPageRecord;
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const count = page.event_count ?? 0;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="px-5 py-4 flex items-start gap-4">
@@ -995,6 +1007,9 @@ function CityCard({
               {page.city} — {page.state}
             </span>
             <span className="font-mono text-gray-400">/{page.slug}</span>
+            <span className={count === 0 ? 'text-gray-300' : 'text-gray-500'}>
+              {count} evento{count !== 1 ? 's' : ''} publicado{count !== 1 ? 's' : ''}
+            </span>
           </div>
           {page.meta_title && (
             <p className="mt-1 text-xs text-gray-400 truncate">Meta: {page.meta_title}</p>
@@ -1007,12 +1022,7 @@ function CityCard({
           >
             ✏️ Editar
           </button>
-          <button
-            onClick={onDelete}
-            className="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
-          >
-            🗑️ Excluir
-          </button>
+          {/* Delete button removed — cities cannot be deleted (MELHORIA 6) */}
         </div>
       </div>
     </div>
@@ -1117,7 +1127,6 @@ function SeoForm({
 
 const TABS: { label: string; value: TabStatus }[] = [
   { label: 'Pendentes', value: 'PENDENTE' },
-  { label: 'Aprovados', value: 'APROVADO' },
   { label: 'Rejeitados', value: 'REJEITADO' },
 ];
 
@@ -1125,7 +1134,7 @@ const EMPTY_SEO: SeoFields = { slug: '', title: '', description: '', meta_title:
 
 export default function AdminPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [counts, setCounts] = useState({ PENDENTE: 0, APROVADO: 0, REJEITADO: 0 });
+  const [counts, setCounts] = useState({ PENDENTE: 0, APROVADO: 0, REJEITADO: 0 }); // APROVADO kept for API compat
   const [activeTab, setActiveTab] = useState<ActiveTab>('PENDENTE');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -1145,6 +1154,14 @@ export default function AdminPage() {
   // Events tab state
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [evFilters, setEvFilters] = useState({
+    search: '', status: '', city: '', state: '',
+    topic: '', category: '', format: '',
+    dateFrom: '', dateTo: '',
+  });
+
+  // Cities tab filters
+  const [cityFilters, setCityFilters] = useState({ search: '', state: '' });
   const [eventEditModal, setEventEditModal] = useState<{
     id: string;
     data: EventData;
@@ -1179,9 +1196,7 @@ export default function AdminPage() {
     state: string;
     seo: SeoFields;
   } | null>(null);
-  const [deleteCityModal, setDeleteCityModal] = useState<{
-    id: string; title: string;
-  } | null>(null);
+  // deleteCityModal removed (MELHORIA 6: cities cannot be deleted)
 
   // Topics tab state
   const [topicPages, setTopicPages] = useState<TopicPageRecord[]>([]);
@@ -1603,28 +1618,38 @@ export default function AdminPage() {
     }
   }
 
-  async function handleDeleteCity() {
-    if (!deleteCityModal) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/admin/cities/${deleteCityModal.id}`, { method: 'DELETE' });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-      setDeleteCityModal(null);
-      await loadCities();
-      addToast('Cidade excluída.', 'success');
-    } catch (err) {
-      addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  // handleDeleteCity removed (MELHORIA 6: cities cannot be deleted)
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   const filtered = activeTab !== 'EVENTOS' && activeTab !== 'CATEGORIAS' && activeTab !== 'CIDADES' && activeTab !== 'TEMAS'
     ? submissions.filter(s => s.status === (activeTab as TabStatus))
     : [];
+
+  // ── Event tab client-side filtering ───────────────────────────────────────
+  const filteredEvents = events.filter(ev => {
+    if (evFilters.search && !ev.title.toLowerCase().includes(evFilters.search.toLowerCase())) return false;
+    if (evFilters.status && ev.status !== evFilters.status) return false;
+    if (evFilters.city && ev.city !== evFilters.city) return false;
+    if (evFilters.state && ev.state !== evFilters.state) return false;
+    if (evFilters.topic && !ev.topics.includes(evFilters.topic)) return false;
+    if (evFilters.category && ev.category !== evFilters.category) return false;
+    if (evFilters.format && ev.format !== evFilters.format) return false;
+    if (evFilters.dateFrom && new Date(ev.start_date) < new Date(evFilters.dateFrom)) return false;
+    if (evFilters.dateTo && new Date(ev.start_date) > new Date(evFilters.dateTo)) return false;
+    return true;
+  });
+
+  // ── City tab client-side filtering ────────────────────────────────────────
+  const filteredCities = cities.filter(c => {
+    if (cityFilters.search && !c.city.toLowerCase().includes(cityFilters.search.toLowerCase())) return false;
+    if (cityFilters.state && c.state !== cityFilters.state) return false;
+    return true;
+  });
+
+  // ── Unique values for event filter selects ────────────────────────────────
+  const evCities = [...new Set(events.map(ev => ev.city))].sort();
+  const evStates = [...new Set(events.map(ev => ev.state))].filter(Boolean).sort();
 
   const INPUT = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500';
 
@@ -1673,9 +1698,7 @@ export default function AdminPage() {
                   activeTab === tab.value
                     ? tab.value === 'PENDENTE'
                       ? 'bg-yellow-500 text-white'
-                      : tab.value === 'APROVADO'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-red-600 text-white'
+                      : 'bg-red-600 text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -1735,21 +1758,81 @@ export default function AdminPage() {
 
         {/* ── Events Tab ─────────────────────────────────────────────────── */}
         {activeTab === 'EVENTOS' && (
-          eventsLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-200 h-24 animate-pulse" />)}
+          <>
+            {/* Filter bar */}
+            <div className="mb-4 bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <input
+                  className={INPUT}
+                  placeholder="Buscar por título..."
+                  value={evFilters.search}
+                  onChange={e => setEvFilters(f => ({ ...f, search: e.target.value }))}
+                />
+                <select className={INPUT} value={evFilters.status} onChange={e => setEvFilters(f => ({ ...f, status: e.target.value }))}>
+                  <option value="">Todos os status</option>
+                  <option value="PUBLICADO">Publicado</option>
+                  <option value="RASCUNHO">Rascunho</option>
+                  <option value="CANCELADO">Cancelado</option>
+                  <option value="ENCERRADO">Encerrado</option>
+                </select>
+                <select className={INPUT} value={evFilters.category} onChange={e => setEvFilters(f => ({ ...f, category: e.target.value }))}>
+                  <option value="">Todas as categorias</option>
+                  {EVENT_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+                <select className={INPUT} value={evFilters.format} onChange={e => setEvFilters(f => ({ ...f, format: e.target.value }))}>
+                  <option value="">Todos os formatos</option>
+                  {EVENT_FORMATS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <select className={INPUT} value={evFilters.city} onChange={e => setEvFilters(f => ({ ...f, city: e.target.value }))}>
+                  <option value="">Todas as cidades</option>
+                  {evCities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select className={INPUT} value={evFilters.state} onChange={e => setEvFilters(f => ({ ...f, state: e.target.value }))}>
+                  <option value="">Todos os estados</option>
+                  {evStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <select className={INPUT} value={evFilters.topic} onChange={e => setEvFilters(f => ({ ...f, topic: e.target.value }))}>
+                  <option value="">Todos os temas</option>
+                  {EVENT_TOPICS.map(t => <option key={t.slug} value={t.slug}>{t.emoji} {t.label}</option>)}
+                </select>
+                <button
+                  onClick={() => setEvFilters({ search: '', status: '', city: '', state: '', topic: '', category: '', format: '', dateFrom: '', dateTo: '' })}
+                  className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  ✕ Limpar filtros
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">De</label>
+                  <input type="date" className={INPUT} value={evFilters.dateFrom} onChange={e => setEvFilters(f => ({ ...f, dateFrom: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Até</label>
+                  <input type="date" className={INPUT} value={evFilters.dateTo} onChange={e => setEvFilters(f => ({ ...f, dateTo: e.target.value }))} />
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">{filteredEvents.length} de {events.length} evento(s)</p>
             </div>
-          ) : events.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              <p className="text-4xl mb-3">📭</p>
-              <p className="text-lg font-medium">Nenhum evento encontrado</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {events.map(ev => (
-                <EventCard
-                  key={ev.id}
-                  event={ev}
+
+            {eventsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-200 h-24 animate-pulse" />)}
+              </div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="text-center py-20 text-gray-400">
+                <p className="text-4xl mb-3">📭</p>
+                <p className="text-lg font-medium">Nenhum evento encontrado</p>
+                {events.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros.</p>}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEvents.map(ev => (
+                  <EventCard
+                    key={ev.id}
+                    event={ev}
                   onEdit={() => setEventEditModal({
                     id: ev.id,
                     slug: ev.slug,
@@ -1791,7 +1874,8 @@ export default function AdminPage() {
                 />
               ))}
             </div>
-          )
+          )}
+          </>
         )}
 
         {/* ── Categories Tab ─────────────────────────────────────────────── */}
@@ -1851,19 +1935,45 @@ export default function AdminPage() {
                 + Nova Cidade
               </button>
             </div>
+            {/* Filter bar */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <input
+                    className={INPUT}
+                    placeholder="Buscar por cidade..."
+                    value={cityFilters.search}
+                    onChange={e => setCityFilters(f => ({ ...f, search: e.target.value }))}
+                  />
+                </div>
+                <select className={INPUT} value={cityFilters.state} onChange={e => setCityFilters(f => ({ ...f, state: e.target.value }))}>
+                  <option value="">Todos os estados</option>
+                  {BR_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-xs text-gray-400">{filteredCities.length} de {cities.length} cidade(s)</p>
+                <button
+                  onClick={() => setCityFilters({ search: '', state: '' })}
+                  className="text-xs text-gray-500 hover:text-gray-700"
+                >
+                  ✕ Limpar
+                </button>
+              </div>
+            </div>
             {citiesLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map(i => <div key={i} className="bg-white rounded-xl border border-gray-200 h-20 animate-pulse" />)}
               </div>
-            ) : cities.length === 0 ? (
+            ) : filteredCities.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <p className="text-4xl mb-3">🏙️</p>
                 <p className="text-lg font-medium">Nenhuma página de cidade</p>
-                <p className="text-sm mt-1">Crie páginas para melhorar o SEO por cidade.</p>
+                {cities.length > 0 ? <p className="text-sm mt-1">Tente ajustar os filtros.</p> : <p className="text-sm mt-1">Crie páginas para melhorar o SEO por cidade.</p>}
               </div>
             ) : (
               <div className="space-y-3">
-                {cities.map(city => (
+                {filteredCities.map(city => (
                   <CityCard
                     key={city.id}
                     page={city}
@@ -1879,7 +1989,7 @@ export default function AdminPage() {
                         meta_description: city.meta_description ?? `Encontre eventos de marketing em ${city.city}, ${city.state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
                       },
                     })}
-                    onDelete={() => setDeleteCityModal({ id: city.id, title: city.title })}
+                    onDelete={() => {}}
                   />
                 ))}
               </div>
@@ -1939,10 +2049,10 @@ export default function AdminPage() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
               <p className="text-4xl mb-3">
-                {activeTab === 'PENDENTE' ? '📭' : activeTab === 'APROVADO' ? '✅' : '❌'}
+                {activeTab === 'PENDENTE' ? '📭' : '❌'}
               </p>
               <p className="text-lg font-medium">
-                Nenhuma submissão {activeTab === 'PENDENTE' ? 'pendente' : activeTab === 'APROVADO' ? 'aprovada' : 'rejeitada'}
+                Nenhuma submissão {activeTab === 'PENDENTE' ? 'pendente' : 'rejeitada'}
               </p>
             </div>
           ) : (
@@ -2428,33 +2538,7 @@ export default function AdminPage() {
         </Modal>
       )}
 
-      {/* ── Delete City Modal ──────────────────────────────────────────────────── */}
-      {deleteCityModal && (
-        <Modal title="🗑️ Excluir Cidade" onClose={() => !submitting && setDeleteCityModal(null)}>
-          <div className="space-y-5">
-            <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <span className="text-red-600 text-lg">⚠️</span>
-              <div>
-                <p className="text-sm font-medium text-red-800">Esta ação é irreversível.</p>
-                <p className="text-sm text-red-700 mt-1">
-                  A página <strong>&quot;{deleteCityModal.title}&quot;</strong> será removida.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button onClick={handleDeleteCity} disabled={submitting}
-                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-60 transition-colors">
-                {submitting ? 'Excluindo…' : 'Confirmar Exclusão'}
-              </button>
-              <button onClick={() => !submitting && setDeleteCityModal(null)}
-                className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      {/* Delete City Modal removed — cities cannot be deleted (MELHORIA 6) */}
     </div>
   );
 }

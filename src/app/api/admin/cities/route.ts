@@ -3,10 +3,19 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const pages = await prisma.cityPage.findMany({
-      orderBy: [{ state: 'asc' }, { city: 'asc' }],
-    });
-    return NextResponse.json({ pages });
+    const [pages, countsByCity] = await Promise.all([
+      prisma.cityPage.findMany({ orderBy: [{ state: 'asc' }, { city: 'asc' }] }),
+      prisma.event.groupBy({
+        by: ['city'],
+        where: { status: 'PUBLICADO' },
+        _count: { id: true },
+      }),
+    ]);
+
+    const countMap = Object.fromEntries(countsByCity.map((r) => [r.city, r._count.id]));
+    const pagesWithCount = pages.map((p) => ({ ...p, event_count: countMap[p.city] ?? 0 }));
+
+    return NextResponse.json({ pages: pagesWithCount });
   } catch (err) {
     console.error('[admin/cities] GET error:', err);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

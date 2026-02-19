@@ -33,6 +33,8 @@ function getPlaceholderGradient(slug: string) {
 }
 
 export default function EventCard({ event }: { event: Event }) {
+  const isCancelled = event.status === 'CANCELADO';
+
   const formattedDate = format(new Date(event.start_date), "EEE, dd 'de' MMM", {
     locale: ptBR,
   });
@@ -45,7 +47,9 @@ export default function EventCard({ event }: { event: Event }) {
   return (
     <Link
       href={`/evento/${event.slug}`}
-      className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-gray-200 bg-white transition-shadow hover:shadow-lg"
+      className={`group flex flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
+        isCancelled ? 'border-red-200 opacity-75' : 'border-gray-200'
+      }`}
     >
       {/* Image */}
       <div className="relative aspect-[16/9] w-full overflow-hidden">
@@ -70,6 +74,12 @@ export default function EventCard({ event }: { event: Event }) {
         >
           {FORMAT_LABELS[event.format] ?? event.format}
         </span>
+        {/* Cancelled badge */}
+        {isCancelled && (
+          <span className="absolute top-3 right-3 rounded-[var(--radius-pill)] bg-red-600 px-2.5 py-1 text-xs font-semibold text-white">
+            Cancelado
+          </span>
+        )}
       </div>
 
       {/* Content */}

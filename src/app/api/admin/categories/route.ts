@@ -4,10 +4,19 @@ import type { EventCategory } from '@/generated/prisma/client';
 
 export async function GET() {
   try {
-    const pages = await prisma.categoryPage.findMany({
-      orderBy: { category: 'asc' },
-    });
-    return NextResponse.json({ pages });
+    const [pages, countsByCategory] = await Promise.all([
+      prisma.categoryPage.findMany({ orderBy: { category: 'asc' } }),
+      prisma.event.groupBy({
+        by: ['category'],
+        where: { status: 'PUBLICADO' },
+        _count: { id: true },
+      }),
+    ]);
+
+    const countMap = Object.fromEntries(countsByCategory.map((r) => [r.category, r._count.id]));
+    const pagesWithCount = pages.map((p) => ({ ...p, event_count: countMap[p.category] ?? 0 }));
+
+    return NextResponse.json({ pages: pagesWithCount });
   } catch (err) {
     console.error('[admin/categories] GET error:', err);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

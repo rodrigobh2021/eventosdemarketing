@@ -3,10 +3,22 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const pages = await prisma.topicPage.findMany({
-      orderBy: { topic: 'asc' },
-    });
-    return NextResponse.json({ pages });
+    const [pages, publishedEvents] = await Promise.all([
+      prisma.topicPage.findMany({ orderBy: { topic: 'asc' } }),
+      // topics is a String[] — groupBy doesn't work; count in memory instead
+      prisma.event.findMany({ where: { status: 'PUBLICADO' }, select: { topics: true } }),
+    ]);
+
+    const topicCountMap: Record<string, number> = {};
+    for (const ev of publishedEvents) {
+      for (const topic of ev.topics) {
+        topicCountMap[topic] = (topicCountMap[topic] ?? 0) + 1;
+      }
+    }
+
+    const pagesWithCount = pages.map((p) => ({ ...p, event_count: topicCountMap[p.topic] ?? 0 }));
+
+    return NextResponse.json({ pages: pagesWithCount });
   } catch (err) {
     console.error('[admin/topics] GET error:', err);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });

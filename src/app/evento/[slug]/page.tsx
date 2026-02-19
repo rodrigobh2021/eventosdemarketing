@@ -141,6 +141,9 @@ export default async function EventoPage({ params }: Props) {
 
   if (!event) notFound();
 
+  // RASCUNHO: page is not publicly accessible
+  if (event.status === 'RASCUNHO') notFound();
+
   const isPresencial = event.format === 'PRESENCIAL' || event.format === 'HIBRIDO';
   const isOnline = event.format === 'ONLINE' || event.format === 'HIBRIDO';
   const hasCoords = event.latitude != null && event.longitude != null;
@@ -216,6 +219,18 @@ export default async function EventoPage({ params }: Props) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
+
+      {/* ── Status Banners ──────────────────────────────────────────── */}
+      {event.status === 'CANCELADO' && (
+        <div className="bg-red-600 text-white px-4 py-3 text-center">
+          <p className="text-sm font-semibold">⚠️ Este evento foi cancelado.</p>
+        </div>
+      )}
+      {event.status === 'ENCERRADO' && (
+        <div className="bg-gray-600 text-white px-4 py-3 text-center">
+          <p className="text-sm font-semibold">📅 Este evento já aconteceu.</p>
+        </div>
+      )}
 
       {/* ── Breadcrumb ──────────────────────────────────────────────── */}
       <div className="border-b border-gray-200 bg-white">
