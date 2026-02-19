@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
 import { EVENT_TOPICS } from '@/lib/constants';
 
+export const revalidate = 60;
+
 // ─── Data ─────────────────────────────────────────────────────────────
 
 const HOME_TOPICS = EVENT_TOPICS.slice(0, 11);

@@ -22,8 +22,7 @@ const CATEGORY_PILLS = [
   { slug: 'hackathons',   label: 'Hackathons'   },
 ] as const;
 
-// Force SSR so meta changes in admin reflect immediately
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 // ─── Metadata ─────────────────────────────────────────────────────────
 

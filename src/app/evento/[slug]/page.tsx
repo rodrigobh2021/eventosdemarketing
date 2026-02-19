@@ -3,6 +3,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { format, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+export const revalidate = 60;
 import { prisma } from '@/lib/prisma';
 import { TOPIC_SLUG_TO_LABEL, ITEMS_PER_PAGE, CATEGORY_SINGULAR_TO_SLUG, CATEGORY_SLUG_MAP, MAIN_CITIES } from '@/lib/constants';
 import { buildEventUrl } from '@/lib/utils';

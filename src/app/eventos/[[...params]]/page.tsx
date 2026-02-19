@@ -17,7 +17,7 @@ import {
 } from '@/lib/utils';
 
 // Revalidate at most every 24h, and on-demand via revalidatePath from admin
-export const revalidate = 86400;
+export const revalidate = 60;
 
 // ─── Static Params ────────────────────────────────────────────────────
 
