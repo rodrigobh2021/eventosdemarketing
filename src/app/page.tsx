@@ -135,15 +135,16 @@ export default async function Home() {
               <Link
                 key={city.slug}
                 href={`/eventos-marketing-${city.slug}`}
-                className="group relative flex aspect-[4/3] items-end overflow-hidden rounded-[var(--radius-card)]"
+                className="group relative flex h-48 items-end overflow-hidden rounded-[var(--radius-card)] sm:h-56"
               >
                 {'image' in city && city.image ? (
                   <Image
                     src={city.image}
                     alt={`Eventos de marketing em ${city.name}`}
                     fill
+                    quality={85}
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    sizes="(max-width: 768px) 50vw, 33vw"
                   />
                 ) : (
                   <div
