@@ -148,7 +148,16 @@ export default async function EventoPage({ params }: Props) {
   const timeStr = formatTimeRange(event.start_time, event.end_time);
   const eventUrl = `https://www.eventosdemarketing.com.br/evento/${event.slug}`;
 
-  const cityInfo = isPresencial ? MAIN_CITIES.find((c) => c.name === event.city) : undefined;
+  // Correção 7: buscar cidade no banco se não estiver em MAIN_CITIES
+  const mainCityInfo = isPresencial ? MAIN_CITIES.find((c) => c.name === event.city) : undefined;
+  const dbCityInfo = isPresencial && !mainCityInfo
+    ? await prisma.cityPage.findFirst({ where: { city: event.city }, select: { slug: true, city: true } })
+    : null;
+  const cityInfo = mainCityInfo
+    ? { slug: mainCityInfo.slug, name: mainCityInfo.name }
+    : dbCityInfo
+      ? { slug: dbCityInfo.slug, name: dbCityInfo.city }
+      : null;
 
   const calendarLocation =
     event.format === 'ONLINE'
@@ -456,14 +465,19 @@ export default async function EventoPage({ params }: Props) {
       </div>
 
       {/* ── Map ─────────────────────────────────────────────────────── */}
-      {isPresencial && hasCoords && (
+      {/* Correção 6: fallback para endereço/cidade quando lat/lng não disponíveis */}
+      {isPresencial && (hasCoords || event.address || event.city) && (
         <div className="border-t border-gray-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
             <h2 className="mb-4 text-lg font-semibold text-text">Como chegar</h2>
             <div className="overflow-hidden rounded-[var(--radius-card)] border border-gray-200">
               <iframe
                 title="Mapa do evento"
-                src={`https://maps.google.com/maps?q=${event.latitude},${event.longitude}&z=15&output=embed`}
+                src={hasCoords
+                  ? `https://maps.google.com/maps?q=${event.latitude},${event.longitude}&z=15&output=embed`
+                  : `https://maps.google.com/maps?q=${encodeURIComponent(
+                      [event.address, event.city, event.state].filter(Boolean).join(', ')
+                    )}&output=embed`}
                 className="h-[300px] w-full sm:h-[400px]"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

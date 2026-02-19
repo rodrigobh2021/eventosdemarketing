@@ -592,9 +592,11 @@ function Modal({
 function EditForm({
   data,
   onChange,
+  cities = [],
 }: {
   data: EventData;
   onChange: (d: EventData) => void;
+  cities?: CityPageRecord[];
 }) {
   function set(key: keyof EventData, value: unknown) {
     onChange({ ...data, [key]: value });
@@ -664,7 +666,34 @@ function EditForm({
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
-            <input className={INPUT} value={data.city} onChange={e => set('city', e.target.value)} />
+            {cities.length > 0 ? (
+              <>
+                <select
+                  className={INPUT}
+                  value={data.city}
+                  onChange={e => {
+                    const cityName = e.target.value;
+                    if (cityName === 'Online') {
+                      onChange({ ...data, city: 'Online', state: 'BR' });
+                    } else {
+                      const found = cities.find(c => c.city === cityName);
+                      if (found) onChange({ ...data, city: found.city, state: found.state });
+                    }
+                  }}
+                >
+                  <option value="Online">🌐 Online</option>
+                  {!cities.some(c => c.city === data.city) && data.city !== 'Online' && (
+                    <option value={data.city} disabled>{data.city} (não cadastrada)</option>
+                  )}
+                  {cities.map(c => (
+                    <option key={c.id} value={c.city}>{c.city} — {c.state}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">Para usar cidade não listada, crie-a na aba Cidades.</p>
+              </>
+            ) : (
+              <input className={INPUT} value={data.city} onChange={e => set('city', e.target.value)} />
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">UF</label>
@@ -734,6 +763,29 @@ function EditForm({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Site</label>
           <input className={INPUT} value={data.organizer_url ?? ''} onChange={e => set('organizer_url', e.target.value || null)} />
+        </div>
+      </div>
+
+      {/* Temas */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Temas</h4>
+        <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+          {EVENT_TOPICS.map(t => (
+            <label key={t.slug} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.topics.includes(t.slug)}
+                onChange={e => {
+                  const next = e.target.checked
+                    ? [...data.topics, t.slug]
+                    : data.topics.filter(s => s !== t.slug);
+                  set('topics', next);
+                }}
+                className="h-4 w-4 rounded border-gray-300 accent-blue-600"
+              />
+              <span className="text-sm text-gray-700">{t.emoji} {t.label}</span>
+            </label>
+          ))}
         </div>
       </div>
     </div>
@@ -995,13 +1047,18 @@ function SeoForm({
         <div className="flex items-center gap-1">
           {slugPrefix && <span className="text-sm text-gray-400 shrink-0">{slugPrefix}/</span>}
           <input
-            className={INPUT}
+            className={`${INPUT}${slugReadonly ? ' bg-gray-100 cursor-not-allowed text-gray-500' : ''}`}
             value={data.slug}
             onChange={e => !slugReadonly && set('slug', e.target.value)}
             readOnly={slugReadonly}
             placeholder="ex: workshop-marketing-sao-paulo"
           />
         </div>
+        {slugReadonly && (
+          <p className="text-xs text-gray-400 mt-1">
+            O slug não pode ser alterado pois afeta todas as URLs do site.
+          </p>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Descrição da Página</label>
@@ -1202,6 +1259,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (activeTab === 'CIDADES') loadCities();
   }, [activeTab, loadCities]);
+
+  // Carrega cidades no mount para o select de cidade no EditForm
+  useEffect(() => { loadCities(); }, [loadCities]);
 
   // ── Load topics ────────────────────────────────────────────────────────────
 
@@ -1987,6 +2047,7 @@ export default function AdminPage() {
             <EditForm
               data={editModal.data}
               onChange={data => setEditModal(prev => prev ? { ...prev, data } : prev)}
+              cities={cities}
             />
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
@@ -2085,6 +2146,7 @@ export default function AdminPage() {
             <EditForm
               data={eventEditModal.data}
               onChange={data => setEventEditModal(prev => prev ? { ...prev, data } : prev)}
+              cities={cities}
             />
 
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
@@ -2164,6 +2226,7 @@ export default function AdminPage() {
             <SeoForm
               data={categoryModal.seo}
               onChange={seo => setCategoryModal(prev => prev ? { ...prev, seo } : prev)}
+              slugReadonly={Boolean(categoryModal.id)}
             />
 
             <div className="flex gap-2 pt-2 border-t border-gray-100">
@@ -2256,6 +2319,7 @@ export default function AdminPage() {
             <SeoForm
               data={cityModal.seo}
               onChange={seo => setCityModal(prev => prev ? { ...prev, seo } : prev)}
+              slugReadonly={Boolean(cityModal.id)}
             />
 
             <div className="flex gap-2 pt-2 border-t border-gray-100">
@@ -2310,6 +2374,7 @@ export default function AdminPage() {
             <SeoForm
               data={topicModal.seo}
               onChange={seo => setTopicModal(prev => prev ? { ...prev, seo } : prev)}
+              slugReadonly={Boolean(topicModal.id)}
             />
 
             <div className="flex gap-2 pt-2 border-t border-gray-100">

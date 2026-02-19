@@ -217,14 +217,28 @@ export default async function EventosCatchAllPage({ params, searchParams }: Prop
   const sp = await searchParams;
   const basePath = buildEventUrl({ tema, categoria, cidade });
 
+  // Correções 3 & 4: buscar título/descrição do banco para páginas de categoria e tema
+  let pageTitle = buildTitle(tema, categoria, cidade);
+  let pageSubtitle = buildSubtitle(tema, categoria, cidade);
+
+  if (categoria && !tema && !cidade) {
+    const catPage = await prisma.categoryPage.findUnique({ where: { slug: categoria } });
+    if (catPage?.title) pageTitle = catPage.title;
+    if (catPage?.description) pageSubtitle = catPage.description;
+  } else if (tema && !categoria && !cidade) {
+    const topicPage = await prisma.topicPage.findUnique({ where: { slug: tema } });
+    if (topicPage?.title) pageTitle = topicPage.title;
+    if (topicPage?.description) pageSubtitle = topicPage.description;
+  }
+
   return (
     <EventListingPage
       tema={tema}
       categoria={categoriaSingular}
       categoriaSlug={categoria}
       cidade={cidade}
-      title={buildTitle(tema, categoria, cidade)}
-      subtitle={buildSubtitle(tema, categoria, cidade)}
+      title={pageTitle}
+      subtitle={pageSubtitle}
       basePath={basePath}
       searchParams={sp}
     />
