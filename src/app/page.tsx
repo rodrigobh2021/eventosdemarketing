@@ -9,12 +9,12 @@ import { EVENT_TOPICS } from '@/lib/constants';
 const HOME_TOPICS = EVENT_TOPICS.slice(0, 11);
 
 const CITIES = [
-  { slug: 'sao-paulo',       name: 'São Paulo',       state: 'SP', image: '/images/cidades/sao-paulo.jpg',       color: 'from-blue-600 to-indigo-700'   },
-  { slug: 'rio-de-janeiro',  name: 'Rio de Janeiro',  state: 'RJ', image: '/images/cidades/rio-de-janeiro.jpg',  color: 'from-emerald-500 to-teal-700'  },
-  { slug: 'belo-horizonte',  name: 'Belo Horizonte',  state: 'MG', image: '/images/cidades/belo-horizonte.jpg',  color: 'from-orange-500 to-red-600'    },
-  { slug: 'curitiba',        name: 'Curitiba',        state: 'PR', image: '/images/cidades/curitiba.jpg',        color: 'from-violet-500 to-purple-700' },
-  { slug: 'porto-alegre',    name: 'Porto Alegre',    state: 'RS', image: '/images/cidades/porto-alegre.jpg',    color: 'from-rose-500 to-pink-700'     },
-  { slug: 'brasilia',        name: 'Brasília',        state: 'DF', image: '/images/cidades/brasilia.jpg',        color: 'from-cyan-500 to-blue-700'     },
+  { slug: 'sao-paulo',      name: 'São Paulo',      state: 'SP', image: '/images/cidades/sao-paulo.jpg'      },
+  { slug: 'rio-de-janeiro', name: 'Rio de Janeiro', state: 'RJ', image: '/images/cidades/rio-de-janeiro.jpg' },
+  { slug: 'belo-horizonte', name: 'Belo Horizonte', state: 'MG', image: '/images/cidades/belo-horizonte.jpg' },
+  { slug: 'curitiba',       name: 'Curitiba',       state: 'PR', image: '/images/cidades/curitiba.jpg'       },
+  { slug: 'porto-alegre',   name: 'Porto Alegre',   state: 'RS', image: '/images/cidades/porto-alegre.jpg'   },
+  { slug: 'brasilia',       name: 'Brasília',       state: 'DF', image: '/images/cidades/brasilia.jpg'       },
 ] as const;
 
 // ─── Page ─────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ export default async function Home() {
                   />
                 ) : (
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${city.color} transition-transform duration-300 group-hover:scale-105`}
+                    className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 transition-transform duration-300 group-hover:scale-105"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
