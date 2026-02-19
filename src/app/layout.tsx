@@ -43,6 +43,11 @@ export const metadata: Metadata = {
     follow: false,
   },
   alternates: { canonical: 'https://www.eventosdemarketing.com.br' },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
