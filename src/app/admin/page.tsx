@@ -315,6 +315,8 @@ function SubmissionCard({
   onApprove,
   onReject,
   onEdit,
+  onReview,
+  onDeleteSubmission,
 }: {
   submission: Submission;
   expanded: boolean;
@@ -322,6 +324,8 @@ function SubmissionCard({
   onApprove: () => void;
   onReject: () => void;
   onEdit: () => void;
+  onReview?: () => void;
+  onDeleteSubmission?: () => void;
 }) {
   const d = submission.event_data;
   const [imgError, setImgError] = useState(false);
@@ -535,7 +539,7 @@ function SubmissionCard({
             <FieldsAudit d={d} source={submission.source} />
           )}
 
-          {/* Action buttons */}
+          {/* Action buttons — PENDENTE */}
           {submission.status === 'PENDENTE' && (
             <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
               <button
@@ -555,6 +559,24 @@ function SubmissionCard({
                 className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
               >
                 ❌ Rejeitar
+              </button>
+            </div>
+          )}
+
+          {/* Action buttons — REJEITADO */}
+          {submission.status === 'REJEITADO' && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+              <button
+                onClick={onReview}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                🔄 Revisar Novamente
+              </button>
+              <button
+                onClick={onDeleteSubmission}
+                className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
+              >
+                🗑️ Excluir Definitivamente
               </button>
             </div>
           )}
@@ -1177,6 +1199,9 @@ export default function AdminPage() {
   const [deleteModal, setDeleteModal] = useState<{
     id: string; title: string;
   } | null>(null);
+  const [deleteSubmissionModal, setDeleteSubmissionModal] = useState<{
+    id: string; title: string;
+  } | null>(null);
 
   // Categories tab state
   const [categories, setCategories] = useState<CategoryPageRecord[]>([]);
@@ -1472,6 +1497,25 @@ export default function AdminPage() {
       } else {
         addToast('Evento atualizado com sucesso.', 'success');
       }
+    } catch (err) {
+      addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // ── Delete submission ─────────────────────────────────────────────────────
+
+  async function handleDeleteSubmission() {
+    if (!deleteSubmissionModal) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/admin/submissions/${deleteSubmissionModal.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setDeleteSubmissionModal(null);
+      await load();
+      addToast('Submissão excluída definitivamente.', 'success');
     } catch (err) {
       addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
     } finally {
@@ -2103,6 +2147,8 @@ export default function AdminPage() {
                   }}
                   onReject={() => setRejectModal({ id: sub.id, reason: '' })}
                   onEdit={() => setEditModal({ id: sub.id, data: { ...sub.event_data } })}
+                  onReview={() => setEditModal({ id: sub.id, data: { ...sub.event_data } })}
+                  onDeleteSubmission={() => setDeleteSubmissionModal({ id: sub.id, title: sub.event_data.title })}
                 />
               ))}
             </div>
@@ -2398,6 +2444,34 @@ export default function AdminPage() {
                 {submitting ? 'Excluindo…' : 'Confirmar Exclusão'}
               </button>
               <button onClick={() => !submitting && setDeleteModal(null)}
+                className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Delete Submission Modal ────────────────────────────────────────────── */}
+      {deleteSubmissionModal && (
+        <Modal title="🗑️ Excluir Submissão" onClose={() => !submitting && setDeleteSubmissionModal(null)}>
+          <div className="space-y-5">
+            <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <span className="text-red-600 text-lg">⚠️</span>
+              <div>
+                <p className="text-sm font-medium text-red-800">Esta ação é irreversível.</p>
+                <p className="text-sm text-red-700 mt-1">
+                  A submissão <strong>&quot;{deleteSubmissionModal.title}&quot;</strong> será permanentemente removida.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button onClick={handleDeleteSubmission} disabled={submitting}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-60 transition-colors">
+                {submitting ? 'Excluindo…' : 'Confirmar Exclusão'}
+              </button>
+              <button onClick={() => !submitting && setDeleteSubmissionModal(null)}
                 className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
                 Cancelar
               </button>

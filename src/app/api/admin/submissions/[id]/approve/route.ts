@@ -35,8 +35,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     if (!submission) {
       return NextResponse.json({ error: 'Submissão não encontrada' }, { status: 404 });
     }
-    if (submission.status !== 'PENDENTE') {
-      return NextResponse.json({ error: 'Submissão já foi processada' }, { status: 400 });
+    if (submission.status !== 'PENDENTE' && submission.status !== 'REJEITADO') {
+      return NextResponse.json({ error: 'Submissão já foi aprovada' }, { status: 400 });
     }
 
     const d = submission.event_data as Record<string, unknown>;

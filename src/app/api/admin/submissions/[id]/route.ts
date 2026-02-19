@@ -24,3 +24,20 @@ export async function PUT(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }
+
+export async function DELETE(_req: Request, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+
+    const submission = await prisma.eventSubmission.findUnique({ where: { id } });
+    if (!submission) {
+      return NextResponse.json({ error: 'Submissão não encontrada' }, { status: 404 });
+    }
+
+    await prisma.eventSubmission.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[admin/submissions/[id]] DELETE error:', err);
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}
