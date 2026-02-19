@@ -10,6 +10,14 @@ export const revalidate = 60;
 
 const HOME_TOPICS = EVENT_TOPICS.slice(0, 11);
 
+const FEATURED_EVENT = {
+  title: 'CMO Summit 2026',
+  date: '25 de março',
+  city: 'São Paulo - SP',
+  image: '/images/destaque/cmo-summit.jpg',
+  url: '/evento/cmo-summit-2026',
+};
+
 const CITIES = [
   { slug: 'sao-paulo',      name: 'São Paulo',      state: 'SP', image: '/images/cidades/sao-paulo.jpg'      },
   { slug: 'rio-de-janeiro', name: 'Rio de Janeiro', state: 'RJ', image: '/images/cidades/rio-de-janeiro.jpg' },
@@ -34,8 +42,22 @@ export default async function Home() {
   return (
     <>
       {/* ── 1. Hero ────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-[#1e40af] to-[#0f172a] px-4 py-20 text-center sm:py-28">
-        <div className="mx-auto max-w-3xl">
+      <section className="relative overflow-hidden px-4 py-20 text-center sm:py-28">
+        {/* Background image */}
+        <Image
+          src={FEATURED_EVENT.image}
+          alt={FEATURED_EVENT.title}
+          fill
+          priority
+          quality={85}
+          className="object-cover"
+          sizes="100vw"
+        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/40" />
+
+        {/* Central content */}
+        <div className="relative mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
             Descubra os melhores eventos de marketing do Brasil
           </h1>
@@ -71,7 +93,29 @@ export default async function Home() {
               Buscar
             </button>
           </div>
+
+          {/* Featured event callout — mobile: below search */}
+          <div className="mt-6 sm:hidden">
+            <Link
+              href={FEATURED_EVENT.url}
+              className="inline-flex flex-col items-start gap-0.5 rounded-[var(--radius-card)] bg-black/40 px-5 py-3 text-left backdrop-blur-sm transition-colors hover:bg-black/50"
+            >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/60">Destaque</span>
+              <span className="text-sm font-bold text-white">{FEATURED_EVENT.title}</span>
+              <span className="text-xs text-white/70">{FEATURED_EVENT.date} · {FEATURED_EVENT.city}</span>
+            </Link>
+          </div>
         </div>
+
+        {/* Featured event callout — desktop: bottom-right */}
+        <Link
+          href={FEATURED_EVENT.url}
+          className="absolute right-6 bottom-6 hidden flex-col items-start gap-0.5 rounded-[var(--radius-card)] bg-black/40 px-5 py-3 text-left backdrop-blur-sm transition-colors hover:bg-black/50 sm:flex"
+        >
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-white/60">Destaque</span>
+          <span className="text-sm font-bold text-white">{FEATURED_EVENT.title}</span>
+          <span className="text-xs text-white/70">{FEATURED_EVENT.date} · {FEATURED_EVENT.city}</span>
+        </Link>
       </section>
 
       {/* ── 2. Categories ──────────────────────────────────────────── */}
