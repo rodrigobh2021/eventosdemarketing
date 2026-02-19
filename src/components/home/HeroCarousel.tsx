@@ -60,8 +60,8 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="relative overflow-hidden"
-      style={{ minHeight: '420px' }}
+      className="group relative overflow-hidden"
+      style={{ minHeight: '380px', maxHeight: '75vh' }}
       onMouseEnter={() => multi && setPaused(true)}
       onMouseLeave={() => multi && setPaused(false)}
       onTouchStart={handleTouchStart}
@@ -88,36 +88,54 @@ export default function HeroCarousel() {
 
       {/* ── Overlays ── */}
       <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/40 via-transparent to-transparent sm:hidden" />
+      {/* stronger bottom gradient on mobile so callout text is readable */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:hidden" />
 
-      {/* ── Callouts — all rendered, fade in/out ── */}
+      {/* ── Nav arrows ── */}
+      {multi && (
+        <>
+          <button
+            onClick={prev}
+            aria-label="Slide anterior"
+            className="absolute left-3 top-1/2 z-[4] -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100 opacity-60"
+          >
+            ‹
+          </button>
+          <button
+            onClick={next}
+            aria-label="Próximo slide"
+            className="absolute right-3 top-1/2 z-[4] -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100 opacity-60"
+          >
+            ›
+          </button>
+        </>
+      )}
+
+      {/* ── MOBILE callout: full-width bar at the bottom ── */}
       {FEATURED_EVENTS.map((ev, i) => (
         <Link
-          key={ev.url}
+          key={ev.url + '-m'}
           href={ev.url}
           style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? 'auto' : 'none' }}
-          className={[
-            'absolute z-[3] flex flex-col gap-0.5 rounded-[var(--radius-card)] bg-black/50 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/60',
-            /* mobile: top-right, small */
-            'top-4 right-4 px-3 py-2 sm:hidden',
-          ].join(' ')}
+          className="absolute bottom-3 left-3 right-3 z-[3] flex items-center gap-3 rounded-xl bg-black/50 px-4 py-3 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/60 sm:hidden"
         >
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/60">⭐ Evento em Destaque</span>
-          <span className="text-xs font-bold text-white">{ev.title}</span>
-          <span className="text-[11px] text-white/70">{ev.date} · {ev.city}</span>
+          <span className="shrink-0 text-base leading-none">⭐</span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/60">Evento em Destaque</span>
+            <span className="truncate text-sm font-bold text-white">{ev.title}</span>
+            <span className="text-[11px] text-white/70">{ev.date} · {ev.city}</span>
+          </div>
+          <span className="shrink-0 text-xl leading-none text-white/70">›</span>
         </Link>
       ))}
 
+      {/* ── Desktop callout: bottom-right ── */}
       {FEATURED_EVENTS.map((ev, i) => (
         <Link
-          key={ev.url + '-desktop'}
+          key={ev.url + '-d'}
           href={ev.url}
           style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? 'auto' : 'none' }}
-          className={[
-            'absolute z-[3] flex-col gap-1 rounded-[var(--radius-card)] bg-black/45 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/55',
-            /* desktop: bottom-right, larger */
-            'right-8 bottom-6 hidden px-6 py-4 sm:flex',
-          ].join(' ')}
+          className="absolute right-5 bottom-6 z-[3] hidden flex-col gap-1 rounded-[var(--radius-card)] bg-black/45 px-6 py-4 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/55 sm:flex"
         >
           <span className="text-xs font-semibold uppercase tracking-wider text-white/60">⭐ Evento em Destaque</span>
           <span className="text-base font-bold text-white">{ev.title}</span>
@@ -125,8 +143,8 @@ export default function HeroCarousel() {
         </Link>
       ))}
 
-      {/* ── MOBILE: title + search + dots, bottom-left ── */}
-      <div className="absolute left-4 right-4 bottom-6 z-[2] flex flex-col items-start text-left sm:hidden">
+      {/* ── MOBILE: title + search + dots, vertically centered ── */}
+      <div className="absolute inset-x-4 top-[42%] z-[2] -translate-y-1/2 flex flex-col items-start text-left sm:hidden">
         <h1 className="text-xl font-bold leading-snug tracking-tight text-white">
           <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
           <span className="block">de marketing do Brasil</span>
@@ -147,7 +165,7 @@ export default function HeroCarousel() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 aria-label={`Slide ${i + 1}`}
-                className={`h-1.5 rounded-full bg-white transition-all duration-300 ${i === current ? 'w-4 opacity-100' : 'w-1.5 opacity-50'}`}
+                className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
               />
             ))}
           </div>
@@ -155,7 +173,7 @@ export default function HeroCarousel() {
       </div>
 
       {/* ── DESKTOP: title + search + dots, left-center ── */}
-      <div className="relative z-[2] hidden sm:flex sm:min-h-[480px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
+      <div className="relative z-[2] hidden sm:flex sm:min-h-[540px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
         <div className="flex max-w-lg flex-col items-start text-left">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-white">
             <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
@@ -177,7 +195,7 @@ export default function HeroCarousel() {
                   key={i}
                   onClick={() => setCurrent(i)}
                   aria-label={`Slide ${i + 1}`}
-                  className={`h-2 rounded-full bg-white transition-all duration-300 ${i === current ? 'w-5 opacity-100' : 'w-2 opacity-50'}`}
+                  className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
                 />
               ))}
             </div>
