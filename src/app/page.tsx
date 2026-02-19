@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
 import { EVENT_TOPICS } from '@/lib/constants';
@@ -8,12 +9,12 @@ import { EVENT_TOPICS } from '@/lib/constants';
 const HOME_TOPICS = EVENT_TOPICS.slice(0, 11);
 
 const CITIES = [
-  { slug: 'sao-paulo', name: 'São Paulo', state: 'SP', color: 'from-blue-600 to-indigo-700' },
-  { slug: 'rio-de-janeiro', name: 'Rio de Janeiro', state: 'RJ', color: 'from-emerald-500 to-teal-700' },
-  { slug: 'belo-horizonte', name: 'Belo Horizonte', state: 'MG', color: 'from-orange-500 to-red-600' },
-  { slug: 'curitiba', name: 'Curitiba', state: 'PR', color: 'from-violet-500 to-purple-700' },
-  { slug: 'porto-alegre', name: 'Porto Alegre', state: 'RS', color: 'from-rose-500 to-pink-700' },
-  { slug: 'brasilia', name: 'Brasília', state: 'DF', color: 'from-cyan-500 to-blue-700' },
+  { slug: 'sao-paulo',       name: 'São Paulo',       state: 'SP', image: '/images/cidades/sao-paulo.jpg',       color: 'from-blue-600 to-indigo-700'   },
+  { slug: 'rio-de-janeiro',  name: 'Rio de Janeiro',  state: 'RJ', image: '/images/cidades/rio-de-janeiro.jpg',  color: 'from-emerald-500 to-teal-700'  },
+  { slug: 'belo-horizonte',  name: 'Belo Horizonte',  state: 'MG', image: '/images/cidades/belo-horizonte.jpg',  color: 'from-orange-500 to-red-600'    },
+  { slug: 'curitiba',        name: 'Curitiba',        state: 'PR', image: '/images/cidades/curitiba.jpg',        color: 'from-violet-500 to-purple-700' },
+  { slug: 'porto-alegre',    name: 'Porto Alegre',    state: 'RS', image: '/images/cidades/porto-alegre.jpg',    color: 'from-rose-500 to-pink-700'     },
+  { slug: 'brasilia',        name: 'Brasília',        state: 'DF', image: '/images/cidades/brasilia.jpg',        color: 'from-cyan-500 to-blue-700'     },
 ] as const;
 
 // ─── Page ─────────────────────────────────────────────────────────────
@@ -136,10 +137,20 @@ export default async function Home() {
                 href={`/eventos-marketing-${city.slug}`}
                 className="group relative flex aspect-[4/3] items-end overflow-hidden rounded-[var(--radius-card)]"
               >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${city.color} transition-transform duration-300 group-hover:scale-105`}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                {'image' in city && city.image ? (
+                  <Image
+                    src={city.image}
+                    alt={`Eventos de marketing em ${city.name}`}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                ) : (
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${city.color} transition-transform duration-300 group-hover:scale-105`}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="relative p-4">
                   <h3 className="text-lg font-bold text-white sm:text-xl">{city.name}</h3>
                   <span className="text-sm text-white/70">{city.state}</span>
