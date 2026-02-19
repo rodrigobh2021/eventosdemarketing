@@ -53,22 +53,22 @@ export default async function Home() {
           className="object-cover"
           sizes="100vw"
         />
-        {/* Dark overlay — heavier on right (desktop) / bottom (mobile) */}
-        <div className="absolute inset-0 bg-gradient-to-l from-black/75 via-black/45 to-black/20 sm:bg-gradient-to-l" />
+        {/* Dark overlay — heavier on left (desktop) / bottom (mobile) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20 sm:bg-gradient-to-r" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent sm:hidden" />
 
         {/* ── MOBILE layout ── */}
-        {/* Callout: top-left */}
+        {/* Callout: top-right */}
         <Link
           href={FEATURED_EVENT.url}
-          className="absolute top-4 left-4 flex flex-col gap-0.5 rounded-[var(--radius-card)] bg-black/50 px-3 py-2 text-left backdrop-blur-sm transition-colors hover:bg-black/60 sm:hidden"
+          className="absolute top-4 right-4 flex flex-col gap-0.5 rounded-[var(--radius-card)] bg-black/50 px-3 py-2 text-left backdrop-blur-sm transition-colors hover:bg-black/60 sm:hidden"
         >
           <span className="text-[10px] font-semibold uppercase tracking-wider text-white/60">⭐ Evento em Destaque</span>
           <span className="text-xs font-bold text-white">{FEATURED_EVENT.title}</span>
           <span className="text-[11px] text-white/70">{FEATURED_EVENT.date} · {FEATURED_EVENT.city}</span>
         </Link>
-        {/* Title + search: bottom-right */}
-        <div className="absolute right-4 bottom-6 flex max-w-[58%] flex-col items-end text-right sm:hidden">
+        {/* Title + search: bottom-left */}
+        <div className="absolute left-4 bottom-6 flex max-w-[58%] flex-col items-start text-left sm:hidden">
           <h1 className="text-xl font-bold leading-snug tracking-tight text-white">
             Descubra os melhores eventos de marketing do Brasil
           </h1>
@@ -84,9 +84,9 @@ export default async function Home() {
         </div>
 
         {/* ── DESKTOP layout ── */}
-        {/* Title + search: right side, vertically centered */}
-        <div className="relative hidden sm:flex sm:min-h-[480px] sm:items-center sm:justify-end sm:px-10 sm:py-16 lg:px-20">
-          <div className="flex max-w-md flex-col items-end text-right">
+        {/* Title + search: left side, vertically centered */}
+        <div className="relative hidden sm:flex sm:min-h-[480px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
+          <div className="flex max-w-md flex-col items-start text-left">
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-white lg:text-5xl">
               Descubra os melhores eventos de marketing do Brasil
             </h1>
@@ -101,10 +101,10 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        {/* Callout: bottom-left (desktop) */}
+        {/* Callout: bottom-right (desktop) */}
         <Link
           href={FEATURED_EVENT.url}
-          className="absolute bottom-6 left-8 hidden flex-col gap-1 rounded-[var(--radius-card)] bg-black/45 px-6 py-4 text-left backdrop-blur-sm transition-colors hover:bg-black/55 sm:flex"
+          className="absolute right-8 bottom-6 hidden flex-col gap-1 rounded-[var(--radius-card)] bg-black/45 px-6 py-4 text-left backdrop-blur-sm transition-colors hover:bg-black/55 sm:flex"
         >
           <span className="text-xs font-semibold uppercase tracking-wider text-white/60">⭐ Evento em Destaque</span>
           <span className="text-base font-bold text-white">{FEATURED_EVENT.title}</span>
