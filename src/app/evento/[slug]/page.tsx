@@ -144,6 +144,7 @@ export default async function EventoPage({ params }: Props) {
   // RASCUNHO: page is not publicly accessible
   if (event.status === 'RASCUNHO') notFound();
 
+  const isInactive = event.status === 'CANCELADO' || event.status === 'ENCERRADO';
   const isPresencial = event.format === 'PRESENCIAL' || event.format === 'HIBRIDO';
   const isOnline = event.format === 'ONLINE' || event.format === 'HIBRIDO';
   const hasCoords = event.latitude != null && event.longitude != null;
@@ -400,80 +401,133 @@ export default async function EventoPage({ params }: Props) {
           <aside className="w-full shrink-0 lg:w-[360px]">
             <div className="sticky top-20 space-y-5 rounded-[var(--radius-card)] border border-gray-200 bg-white p-6 shadow-sm">
 
-              {/* Price */}
-              <div>
-                {event.is_free ? (
-                  <p className="text-2xl font-bold text-success">Gratuito</p>
-                ) : (
-                  <p className="text-2xl font-bold text-text">{event.price_info ?? 'Consulte'}</p>
-                )}
-              </div>
+              {isInactive ? (
+                <>
+                  {/* Status note */}
+                  <div className={`rounded-lg px-4 py-3 text-sm font-medium ${
+                    event.status === 'CANCELADO'
+                      ? 'bg-red-50 text-red-700 border border-red-200'
+                      : 'bg-gray-100 text-gray-600 border border-gray-200'
+                  }`}>
+                    {event.status === 'CANCELADO' ? '⚠️ Este evento foi cancelado.' : '📅 Este evento já aconteceu.'}
+                  </div>
 
-              {/* Primary CTA */}
-              {event.ticket_url ? (
-                <a
-                  href={event.ticket_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-accent px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-accent/90"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-                  </svg>
-                  Comprar Ingresso
-                </a>
-              ) : event.event_url ? (
-                <a
-                  href={event.event_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-accent px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-accent/90"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                  </svg>
-                  Acessar Site do Evento
-                </a>
+                  {/* Secondary link to event site */}
+                  {event.event_url && (
+                    <a
+                      href={event.event_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] border border-gray-300 px-6 py-3 text-sm font-medium text-text-secondary transition-colors hover:border-gray-400 hover:text-text"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                      Visitar site do evento
+                    </a>
+                  )}
+
+                  {/* Share */}
+                  <ShareButton url={eventUrl} title={event.title} />
+
+                  {/* Divider */}
+                  <hr className="border-gray-100" />
+
+                  {/* Interest */}
+                  <div className="text-center">
+                    <p className="text-sm text-text-secondary">
+                      <span className="font-semibold text-text">{event.interest_count}</span>{' '}
+                      pessoa{event.interest_count !== 1 ? 's' : ''} interessada{event.interest_count !== 1 ? 's' : ''}
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] border border-gray-200 px-4 py-2.5 text-sm font-medium text-text transition-colors hover:border-red-300 hover:text-red-500"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                      </svg>
+                      Tenho Interesse
+                    </button>
+                  </div>
+                </>
               ) : (
-                <div className="flex w-full items-center justify-center rounded-[var(--radius-btn)] bg-gray-100 px-6 py-3 text-base font-medium text-text-secondary">
-                  Informacoes em breve
-                </div>
+                <>
+                  {/* Price */}
+                  <div>
+                    {event.is_free ? (
+                      <p className="text-2xl font-bold text-success">Gratuito</p>
+                    ) : (
+                      <p className="text-2xl font-bold text-text">{event.price_info ?? 'Consulte'}</p>
+                    )}
+                  </div>
+
+                  {/* Primary CTA */}
+                  {event.ticket_url ? (
+                    <a
+                      href={event.ticket_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-accent px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-accent/90"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                      </svg>
+                      Comprar Ingresso
+                    </a>
+                  ) : event.event_url ? (
+                    <a
+                      href={event.event_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-accent px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-accent/90"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                      Acessar Site do Evento
+                    </a>
+                  ) : (
+                    <div className="flex w-full items-center justify-center rounded-[var(--radius-btn)] bg-gray-100 px-6 py-3 text-base font-medium text-text-secondary">
+                      Informacoes em breve
+                    </div>
+                  )}
+
+                  {/* Calendar */}
+                  <CalendarButton
+                    slug={event.slug}
+                    title={event.title}
+                    description={calendarDescription}
+                    startDate={event.start_date.toISOString()}
+                    endDate={event.end_date?.toISOString() ?? null}
+                    startTime={event.start_time}
+                    endTime={event.end_time}
+                    location={calendarLocation}
+                  />
+
+                  {/* Share */}
+                  <ShareButton url={eventUrl} title={event.title} />
+
+                  {/* Divider */}
+                  <hr className="border-gray-100" />
+
+                  {/* Interest */}
+                  <div className="text-center">
+                    <p className="text-sm text-text-secondary">
+                      <span className="font-semibold text-text">{event.interest_count}</span>{' '}
+                      pessoa{event.interest_count !== 1 ? 's' : ''} interessada{event.interest_count !== 1 ? 's' : ''}
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] border border-gray-200 px-4 py-2.5 text-sm font-medium text-text transition-colors hover:border-red-300 hover:text-red-500"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                      </svg>
+                      Tenho Interesse
+                    </button>
+                  </div>
+                </>
               )}
-
-              {/* Calendar */}
-              <CalendarButton
-                slug={event.slug}
-                title={event.title}
-                description={calendarDescription}
-                startDate={event.start_date.toISOString()}
-                endDate={event.end_date?.toISOString() ?? null}
-                startTime={event.start_time}
-                endTime={event.end_time}
-                location={calendarLocation}
-              />
-
-              {/* Share */}
-              <ShareButton url={eventUrl} title={event.title} />
-
-              {/* Divider */}
-              <hr className="border-gray-100" />
-
-              {/* Interest */}
-              <div className="text-center">
-                <p className="text-sm text-text-secondary">
-                  <span className="font-semibold text-text">{event.interest_count}</span>{' '}
-                  pessoa{event.interest_count !== 1 ? 's' : ''} interessada{event.interest_count !== 1 ? 's' : ''}
-                </p>
-                <button
-                  type="button"
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-[var(--radius-btn)] border border-gray-200 px-4 py-2.5 text-sm font-medium text-text transition-colors hover:border-red-300 hover:text-red-500"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                  </svg>
-                  Tenho Interesse
-                </button>
-              </div>
             </div>
           </aside>
         </div>
