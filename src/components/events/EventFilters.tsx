@@ -218,6 +218,7 @@ export default function EventFilters({
   const router = useRouter();
   const update = useFilterUpdater();
   const [showAllTopics, setShowAllTopics] = useState(false);
+  const [showAllCities, setShowAllCities] = useState(false);
 
   // Read secondary filters from query params
   const temas = searchParams.get('tema')?.split(',').filter(Boolean) ?? [];
@@ -343,7 +344,7 @@ export default function EventFilters({
         <legend className="mb-2 text-sm font-semibold text-text">Cidade</legend>
         <CitySearchInput onSelect={handleCityChange} />
         <div className="space-y-2">
-          {MAIN_CITIES.map((c) => (
+          {(showAllCities ? MAIN_CITIES : MAIN_CITIES.slice(0, 5)).map((c) => (
             <label key={c.slug} className="flex items-center gap-2 text-sm text-text">
               <input
                 type="checkbox"
@@ -355,6 +356,15 @@ export default function EventFilters({
             </label>
           ))}
         </div>
+        {MAIN_CITIES.length > 5 && (
+          <button
+            type="button"
+            onClick={() => setShowAllCities(!showAllCities)}
+            className="mt-2 text-sm font-medium text-primary hover:underline"
+          >
+            {showAllCities ? 'Ver menos' : `Ver todas (${MAIN_CITIES.length})`}
+          </button>
+        )}
       </fieldset>
 
       {/* Topics — hidden when tema is locked in URL path */}
