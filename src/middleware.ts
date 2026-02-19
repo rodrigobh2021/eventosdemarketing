@@ -11,6 +11,7 @@ export function middleware(request: NextRequest) {
   // Rotas excluídas da proteção
   if (
     pathname.startsWith('/_next/') ||
+    pathname.startsWith('/images/') ||
     pathname === '/favicon.ico' ||
     pathname === '/api/agent/scrape'
   ) {
