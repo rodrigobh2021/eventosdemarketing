@@ -59,19 +59,19 @@ export default async function Home() {
       <HeroCarousel />
 
       {/* ── 2. Themes ──────────────────────────────────────────────── */}
-      <section className="border-b border-gray-100 bg-white py-8 sm:py-10">
+      <section className="border-b border-gray-100 bg-white py-8 sm:py-10 sm:pb-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-2">
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8 sm:gap-4">
             {THEME_GRID.map(({ slug, label, Icon }) => (
               <Link
                 key={slug}
                 href={`/eventos/${slug}`}
                 className="group flex flex-col items-center gap-2 text-center"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gray-200 bg-white transition-transform duration-200 group-hover:scale-110 sm:h-[72px] sm:w-[72px]">
-                  <Icon className="h-7 w-7 text-gray-500 transition-colors duration-200 group-hover:text-accent sm:h-8 sm:w-8" strokeWidth={1.5} />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white transition-transform duration-200 group-hover:scale-110 sm:h-16 sm:w-16">
+                  <Icon className="h-6 w-6 text-gray-500 transition-colors duration-200 group-hover:text-accent sm:h-7 sm:w-7" strokeWidth={1.5} />
                 </div>
-                <span className="text-xs font-medium text-text-secondary transition-colors duration-200 group-hover:text-accent sm:text-sm">
+                <span className="text-xs font-medium text-gray-600 transition-colors duration-200 group-hover:text-accent leading-tight">
                   {label}
                 </span>
               </Link>

@@ -61,18 +61,18 @@ export default function HeroCarousel() {
   return (
     <section
       className="group relative overflow-hidden"
-      style={{ minHeight: '380px', maxHeight: '75vh' }}
+      style={{ minHeight: '380px', maxHeight: '65vh' }}
       onMouseEnter={() => multi && setPaused(true)}
       onMouseLeave={() => multi && setPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* ── Background images ── */}
+      {/* ── 1. Background images — fade via z-index + opacity ── */}
       {FEATURED_EVENTS.map((ev, i) => (
         <div
           key={ev.image}
           className="absolute inset-0 transition-opacity duration-1000"
-          style={{ opacity: i === current ? 1 : 0 }}
+          style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
         >
           <Image
             src={ev.image}
@@ -86,38 +86,39 @@ export default function HeroCarousel() {
         </div>
       ))}
 
-      {/* ── Overlays ── */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
-      {/* stronger bottom gradient on mobile so callout text is readable */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:hidden" />
+      {/* ── 2. Overlays — stronger on left for legibility ── */}
+      {/* horizontal: heavy on left where title sits */}
+      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/80 via-black/50 to-black/30" />
+      {/* vertical: subtle top-to-bottom darkening */}
+      <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/20 via-transparent to-black/50" />
 
-      {/* ── Nav arrows ── */}
+      {/* ── 4. Nav arrows — desktop only (mobile uses swipe) ── */}
       {multi && (
         <>
           <button
             onClick={prev}
             aria-label="Slide anterior"
-            className="absolute left-3 top-1/2 z-[4] -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100 opacity-60"
+            className="absolute left-3 top-1/2 z-[5] -translate-y-1/2 hidden h-10 w-10 items-center justify-center rounded-full bg-black/40 text-2xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:flex sm:opacity-0 sm:group-hover:opacity-100"
           >
             ‹
           </button>
           <button
             onClick={next}
             aria-label="Próximo slide"
-            className="absolute right-3 top-1/2 z-[4] -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100 opacity-60"
+            className="absolute right-3 top-1/2 z-[5] -translate-y-1/2 hidden h-10 w-10 items-center justify-center rounded-full bg-black/40 text-2xl text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/65 sm:flex sm:opacity-0 sm:group-hover:opacity-100"
           >
             ›
           </button>
         </>
       )}
 
-      {/* ── MOBILE callout: full-width bar at the bottom ── */}
+      {/* ── Mobile callout: full-width bar at the bottom ── */}
       {FEATURED_EVENTS.map((ev, i) => (
         <Link
           key={ev.url + '-m'}
           href={ev.url}
           style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? 'auto' : 'none' }}
-          className="absolute bottom-3 left-3 right-3 z-[3] flex items-center gap-3 rounded-xl bg-black/50 px-4 py-3 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/60 sm:hidden"
+          className="absolute bottom-3 left-3 right-3 z-[4] flex items-center gap-3 rounded-xl bg-black/55 px-4 py-3 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/65 sm:hidden"
         >
           <span className="shrink-0 text-base leading-none">⭐</span>
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -135,7 +136,7 @@ export default function HeroCarousel() {
           key={ev.url + '-d'}
           href={ev.url}
           style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? 'auto' : 'none' }}
-          className="absolute right-5 bottom-6 z-[3] hidden flex-col gap-1 rounded-[var(--radius-card)] bg-black/45 px-6 py-4 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/55 sm:flex"
+          className="absolute right-5 bottom-6 z-[4] hidden flex-col gap-1 rounded-[var(--radius-card)] bg-black/50 px-6 py-4 backdrop-blur-sm transition-opacity duration-700 hover:bg-black/65 sm:flex"
         >
           <span className="text-xs font-semibold uppercase tracking-wider text-white/60">⭐ Evento em Destaque</span>
           <span className="text-base font-bold text-white">{ev.title}</span>
@@ -143,8 +144,8 @@ export default function HeroCarousel() {
         </Link>
       ))}
 
-      {/* ── MOBILE: title + search + dots, vertically centered ── */}
-      <div className="absolute inset-x-4 top-[42%] z-[2] -translate-y-1/2 flex flex-col items-start text-left sm:hidden">
+      {/* ── MOBILE: title + search, vertically centered ── */}
+      <div className="absolute inset-x-4 top-[42%] z-[3] -translate-y-1/2 flex flex-col items-start text-left sm:hidden">
         <h1 className="text-xl font-bold leading-snug tracking-tight text-white">
           <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
           <span className="block">de marketing do Brasil</span>
@@ -158,22 +159,24 @@ export default function HeroCarousel() {
           </div>
           <button type="button" className="bg-accent px-4 text-xs font-semibold whitespace-nowrap text-white transition-colors hover:bg-accent/90">Buscar</button>
         </div>
-        {multi && (
-          <div className="mt-3 flex gap-2">
-            {FEATURED_EVENTS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                aria-label={`Slide ${i + 1}`}
-                className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
+      {/* ── 6. MOBILE dots — above the callout ── */}
+      {multi && (
+        <div className="absolute bottom-[76px] left-1/2 z-[4] -translate-x-1/2 flex gap-2 sm:hidden">
+          {FEATURED_EVENTS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              aria-label={`Slide ${i + 1}`}
+              className={`h-3 w-3 rounded-full border-2 border-white transition-all duration-300 ${i === current ? 'bg-white opacity-100' : 'bg-transparent opacity-60'}`}
+            />
+          ))}
+        </div>
+      )}
+
       {/* ── DESKTOP: title + search + dots, left-center ── */}
-      <div className="relative z-[2] hidden sm:flex sm:min-h-[540px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
+      <div className="relative z-[3] hidden sm:flex sm:min-h-[520px] sm:items-center sm:justify-start sm:px-10 sm:py-16 lg:px-20">
         <div className="flex max-w-lg flex-col items-start text-left">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-white">
             <span className="block whitespace-nowrap">Descubra os melhores eventos</span>
