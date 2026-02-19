@@ -133,14 +133,29 @@ function mapScrapedToForm(data: ScrapedEventData, sourceUrl: string): {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function getTodayStr(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 function validateForm(form: FormState): Record<string, string> {
   const e: Record<string, string> = {};
+  const today = getTodayStr();
   if (form.is_organizer === null) e.is_organizer = 'Selecione uma opção para continuar';
   if (!form.title.trim()) e.title = 'Título obrigatório';
   if (!form.category) e.category = 'Selecione uma categoria';
   if (!form.format) e.format = 'Selecione um formato';
   if (form.topics.length === 0) e.topics = 'Selecione ao menos 1 tema';
-  if (!form.start_date) e.start_date = 'Data de início obrigatória';
+  if (!form.start_date) {
+    e.start_date = 'Data de início obrigatória';
+  } else if (form.start_date < today) {
+    e.start_date = 'A data de início não pode ser anterior a hoje';
+  }
+  if (form.end_date && form.start_date && form.end_date < form.start_date) {
+    e.end_date = 'A data de término não pode ser anterior à data de início';
+  }
   if (form.format !== 'ONLINE') {
     const city = form.citySelect === 'outra' ? form.cityInput.trim() : form.citySelect;
     if (!city) e.citySelect = 'Cidade obrigatória';
@@ -494,6 +509,7 @@ export default function CadastrarEventoPage() {
   // ── Phase: form ────────────────────────────────────────────────────────────
 
   const hasAI = form.source === 'AGENTE';
+  const startDateIsPast = form.start_date ? form.start_date < getTodayStr() : false;
 
   return (
     <>
@@ -726,19 +742,25 @@ export default function CadastrarEventoPage() {
                 <input
                   type="date"
                   value={form.start_date}
+                  min={getTodayStr()}
                   onChange={(e) => set('start_date', e.target.value)}
                   className={inputCls('start_date')}
                 />
                 <FieldError msg={err('start_date')} />
+                {!err('start_date') && startDateIsPast && (
+                  <p className="mt-1 text-xs text-amber-600">Atenção: esta data já passou. Verifique ou corrija antes de enviar.</p>
+                )}
               </div>
               <div>
                 <FieldLabel label="Data de término" aiActive={ai('end_date')} />
                 <input
                   type="date"
                   value={form.end_date}
+                  min={form.start_date || getTodayStr()}
                   onChange={(e) => set('end_date', e.target.value)}
                   className={inputCls('end_date')}
                 />
+                <FieldError msg={err('end_date')} />
               </div>
               <div>
                 <FieldLabel label="Horário de início" aiActive={ai('start_time')} />

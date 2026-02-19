@@ -141,7 +141,7 @@ interface TopicPageRecord {
 interface Toast {
   id: string;
   message: string;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning';
   link?: { href: string; label: string };
 }
 
@@ -1309,7 +1309,7 @@ export default function AdminPage() {
 
   // ── Toasts ────────────────────────────────────────────────────────────────
 
-  function addToast(message: string, type: 'success' | 'error', link?: Toast['link']) {
+  function addToast(message: string, type: 'success' | 'error' | 'warning', link?: Toast['link']) {
     const id = crypto.randomUUID();
     setToasts(t => [...t, { id, message, type, link }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 6000);
@@ -1445,7 +1445,11 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(json.error);
       setEventEditModal(null);
       await loadEvents();
-      addToast('Evento atualizado com sucesso.', 'success');
+      if (json.autoEncerrado) {
+        addToast('Evento marcado como Encerrado automaticamente (data passada).', 'warning');
+      } else {
+        addToast('Evento atualizado com sucesso.', 'success');
+      }
     } catch (err) {
       addToast(`Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, 'error');
     } finally {
@@ -1662,7 +1666,7 @@ export default function AdminPage() {
           <div
             key={t.id}
             className={`flex items-start gap-3 rounded-xl px-4 py-3 shadow-lg text-sm text-white ${
-              t.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+              t.type === 'success' ? 'bg-green-600' : t.type === 'warning' ? 'bg-amber-500' : 'bg-red-600'
             }`}
           >
             <span className="flex-1">{t.message}</span>

@@ -26,6 +26,19 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
     const oldSlug = event.slug;
 
+    // Auto-encerrar se data passada e status PUBLICADO
+    let finalStatus = body.status as EventStatus;
+    let autoEncerrado = false;
+    if (finalStatus === 'PUBLICADO') {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const eventEndDate = body.end_date ? new Date(body.end_date) : new Date(body.start_date);
+      if (eventEndDate < startOfToday) {
+        finalStatus = 'ENCERRADO';
+        autoEncerrado = true;
+      }
+    }
+
     await prisma.event.update({
       where: { id },
       data: {
@@ -52,7 +65,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
         organizer_name: body.organizer_name,
         organizer_url: body.organizer_url || null,
         format: body.format as EventFormat,
-        status: body.status as EventStatus,
+        status: finalStatus,
         is_verified: Boolean(body.is_verified),
         source_url: body.source_url || null,
         meta_title: body.meta_title || null,
@@ -63,7 +76,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
     revalidatePath(`/evento/${newSlug}`);
     if (newSlug !== oldSlug) revalidatePath(`/evento/${oldSlug}`);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, autoEncerrado });
   } catch (err) {
     console.error('[admin/events/[id]] PUT error:', err);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
