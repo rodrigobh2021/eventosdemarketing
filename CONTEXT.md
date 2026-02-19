@@ -19,14 +19,18 @@
 
 | Camada             | Tecnologia              | Versão / Detalhe                  |
 | ------------------ | ----------------------- | --------------------------------- |
-| Framework          | Next.js (App Router)    | 15+ com React 19                  |
+| Framework          | Next.js 16 (App Router) | com React 19, Turbopack           |
 | Linguagem          | TypeScript              | 5+ (strict mode)                  |
 | Estilização        | Tailwind CSS            | v4 (`@import "tailwindcss"`)      |
-| Banco de dados     | PostgreSQL              | via Supabase                      |
+| Banco de dados     | PostgreSQL              | via Supabase (região São Paulo)   |
 | ORM                | Prisma                  | com adapter `@prisma/adapter-pg`  |
 | Agente de scraping | Claude API + Playwright | claude-sonnet-4-6                 |
+| Editor rich text   | Tiptap                  | —                                 |
+| Sanitização HTML   | DOMPurify               | —                                 |
+| Validação          | Zod                     | client + server                   |
 | Calendário (.ics)  | ical-generator          | —                                 |
 | Deploy             | Vercel                  | —                                 |
+| Domínio            | www.eventosdemarketing.com.br | canonical com www            |
 
 ---
 
@@ -58,6 +62,7 @@ eventos_mkt/
 │   │   │   │   ├── cities/        # CRUD de CityPage
 │   │   │   │   └── topics/        # CRUD de TopicPage
 │   │   │   ├── events/[slug]/calendar/  # Download .ics
+│   │   │   ├── cron/close-events/ # Encerramento automático (cron diário)
 │   │   │   └── agent/scrape/      # Agente de scraping
 │   ├── components/
 │   │   ├── layout/                # Header, Footer
@@ -97,7 +102,7 @@ eventos_mkt/
 | -------------- | --------- | ------------------------------------------------------------ |
 | slug           | String    | Único, gerado a partir do título + cidade                    |
 | title          | String    | —                                                            |
-| description    | Text      | Rich text (HTML)                                             |
+| description    | Text      | Rich text (HTML sanitizado com DOMPurify)                    |
 | start_date     | DateTime  | —                                                            |
 | city / state   | String    | city="Online" para eventos online                            |
 | category       | Enum      | conferencia, workshop, meetup, webinar, curso, palestra, hackathon |
@@ -173,42 +178,172 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 
 ---
 
-## Progresso Atual
+## Progresso Atual (19/02/2026)
 
-### ✅ Concluído
+### ✅ Fase 0 — Setup e Fundação (COMPLETA)
+- [x] Domínio registrado: eventosdemarketing.com.br
+- [x] Repositório GitHub
+- [x] Next.js 16 + TypeScript + Tailwind CSS v4 + App Router
+- [x] ESLint + Prettier configurados
+- [x] PostgreSQL via Supabase (região São Paulo)
+- [x] Prisma ORM com schema completo
+- [x] Deploy na Vercel (www como canonical)
 
-- [x] **Setup** — Next.js 15, TypeScript strict, Tailwind v4, Prisma + Supabase
-- [x] **Modelagem** — schema completo (Event, User, Organizer, Submission, CityPage, TopicPage, CategoryPage)
-- [x] **Páginas públicas** — Home, /eventos (listagem + filtros), /evento/[slug], /cidade/[cidade], /eventos/[[...params]] (catch-all com filtros aninhados)
-- [x] **SEO** — JSON-LD (Event + BreadcrumbList), meta tags programáticos, sitemap dinâmico (2143+ URLs), robots.txt
-- [x] **Formulário de cadastro** — `/cadastrar-evento` com suporte a scraping via URL (agente Claude + Playwright)
-- [x] **Painel admin** — `/admin` com CRUD de eventos, submissões, categorias, cidades e temas; aprovação gera CityPage automaticamente para cidades novas
-- [x] **Testes admin (1-11)** — 235 checks, 0 falhas (testes Playwright em `tests/`)
-- [x] **Proteção temporária** — Basic Auth (middleware), noindex/nofollow, robots Disallow:/
-- [x] **Banco limpo** — dados de seed removidos; 1 evento real (SEOCamp 2026, Santos)
-- [x] **Melhorias admin (6)** — filtros em Eventos e Cidades, remoção aba Aprovados, comportamento por status (RASCUNHO=404, CANCELADO/ENCERRADO=banner), contadores de eventos nas abas, bloqueio exclusão de cidades
-- [x] **Automação de encerramento** — cron `/api/cron/close-events` via vercel.json (diariamente às 03:00 UTC)
+### ✅ Fase 1 — Modelagem de Dados (COMPLETA)
+- [x] Models: Event, User, Organizer, EventSubmission, CityPage, TopicPage, CategoryPage
+- [x] Enums: EventCategory, EventFormat, EventStatus, SubmissionStatus, SubmissionSource
+- [x] Índices otimizados para queries de listagem
+- [x] Dados de seed removidos (banco limpo para dados reais)
 
-### Comportamento por Status de Evento
+### ✅ Fase 2 — Páginas Públicas Core (COMPLETA)
+- [x] Layout: Header (logo, busca, CTAs), Footer (4 colunas), responsivo
+- [x] Home: Hero, categorias, eventos em destaque, cidades, CTAs
+- [x] Listagem com filtros: Sidebar desktop, drawer mobile, query params
+- [x] SEO programático: ~2.000 URLs pré-geradas (`/eventos/[tema]`, `/eventos/[categoria]`, `/eventos-marketing-[cidade]` e combinações)
+- [x] Página do evento: Layout 2 colunas, dados completos, mapa, eventos relacionados
+- [x] Dados estruturados: JSON-LD (Event + BreadcrumbList)
+- [x] Adicionar ao Calendário: Google Calendar, Outlook, .ics (com link de volta ao site)
+- [x] Landing pages de cidade: Hero, pills de categorias dinâmicas (filtradas por disponibilidade), texto SEO único, CTA notificações
+- [x] Badge de cidade: Internal linking na página do evento
+- [x] Tooltip explicativo no badge "Evento Verificado"
+- [x] SEO técnico: Sitemap dinâmico com lastmod real, robots.txt, meta tags, OG, canonical, max-image-preview
+
+### ⏳ Fase 3 — Sistema de Notificações (PENDENTE)
+- [ ] Cadastro de email com double opt-in
+- [ ] Matching de preferências (cidade, tema, categoria)
+- [ ] Disparo de notificações para novos eventos
+- [ ] Fluxo de notificação para eventos cancelados (futuro)
+- [ ] Fluxo para novas edições de eventos encerrados (futuro)
+
+### ⏳ Fase 4 — Portal do Organizador (PARCIAL)
+- [x] Formulário de cadastro unificado (scraping + manual)
+- [x] Diferenciação organizador vs. indicação
+- [x] Campo de email obrigatório para organizadores
+- [ ] Autenticação (PENDENTE)
+- [ ] Dashboard do organizador (PENDENTE)
+
+### ✅ Fase 5 — Agente de Scraping + Admin (QUASE COMPLETA)
+
+**Agente de Scraping:**
+- [x] Playwright (navegador headless) para extração
+- [x] Claude API (Sonnet) para interpretação
+- [x] Extração de HTML, meta tags, JSON-LD
+- [x] Descrição em HTML com formatação preservada
+- [x] Funciona com Sympla, Eventbrite, sites próprios, Framer, etc.
+
+**Formulário de Cadastro:**
+- [x] Input de URL + extração automática
+- [x] Preenchimento manual como alternativa
+- [x] Editor rich text (Tiptap) para descrição
+- [x] Diferenciação organizador/indicação + email de contato
+- [x] Validação com Zod (client + server)
+- [x] Bloqueio de datas passadas no calendário
+- [x] URL do evento e imagem obrigatórios
+- [x] Preview antes de submeter
+
+**Painel Administrativo:**
+- [x] Tabs: Pendentes | Rejeitados | Eventos | Categorias | Cidades | Temas
+- [x] Filtros avançados na aba Eventos (texto, status, cidade, estado, tema, categoria, formato, data)
+- [x] Filtros na aba Cidades (texto, estado)
+- [x] Aprovação com campos de SEO editáveis (slug, meta title, meta description)
+- [x] Edição completa de eventos (todos os campos, tema, categoria)
+- [x] Edição de categorias, cidades e temas (título, descrição, meta tags)
+- [x] Slug readonly em categorias, cidades e temas
+- [x] Cidade restrita a select (sem digitação livre na edição)
+- [x] UF automática pela cidade selecionada
+- [x] Contadores de eventos em cidades, categorias e temas
+- [x] Criação automática de cidade ao cadastrar evento de cidade nova
+- [x] Revisão de eventos rejeitados (aprovar ou excluir definitivamente)
+- [x] Editor rich text (Tiptap) na edição de descrição
+- [x] Exclusão de categorias, temas e cidades bloqueada
+
+**Status de Eventos:**
+- [x] Automação de encerramento: cron `/api/cron/close-events` via `vercel.json` (diariamente às 03:00 UTC)
+
+**Pendente na Fase 5:**
+- [ ] Popular catálogo com 50-100 eventos reais
+
+### ⏳ Fase 6 — Polimento e Lançamento (PENDENTE)
+- [ ] Validar dados estruturados no Google Rich Results Test (5 páginas)
+- [ ] Testes de performance (Lighthouse)
+- [ ] Testes de acessibilidade
+- [ ] Revisão visual final (mobile + desktop)
+- [ ] Remover proteção de senha (Basic Auth)
+- [ ] Reverter robots.txt e meta robots para indexação
+- [ ] Submeter sitemap no Google Search Console
+- [ ] Submeter sitemap no Bing Webmaster Tools
+
+---
+
+## Comportamento por Status de Evento
 
 | Status     | Página pública | Listagens | Sitemap | Home | Comportamento especial |
 |------------|---------------|-----------|---------|------|------------------------|
 | PUBLICADO  | ✅            | ✅        | ✅      | ✅   | Normal                 |
 | RASCUNHO   | ❌ (404)      | ❌        | ❌      | ❌   | —                      |
-| CANCELADO  | ✅            | ❌        | ❌      | ❌   | Banner vermelho no topo; badge no EventCard |
-| ENCERRADO  | ✅            | ❌ (data passada) | ❌ | ❌ | Banner cinza no topo; auto-criado pelo cron |
+| CANCELADO  | ✅            | ❌        | ❌      | ❌   | Banner vermelho; sem compra/calendário; mantém "Tenho Interesse" |
+| ENCERRADO  | ✅            | ❌ (data passada) | ❌ | ❌ | Banner cinza; sem compra/calendário; mantém "Tenho Interesse" |
 
-### ⏳ Próximas Etapas
+---
 
-- [ ] **Popular o catálogo** — usar agente de scraping para importar eventos reais
-- [ ] **Configurar env vars na Vercel** — `SITE_PROTECTION_ENABLED`, `SITE_PROTECTION_USER`, `SITE_PROTECTION_PASSWORD`
-- [ ] **Fase 3** — Sistema de notificações por email (subscribers + newsletter)
-- [ ] **Fase 4** — Autenticação real para `/admin` e `/api/admin/*` (substituir Basic Auth por JWT/session)
-- [ ] **Lançamento público** — remover proteção (Basic Auth, noindex, robots Disallow)
-- [ ] **Pendência futura** — notificação de interessados quando evento é cancelado ou nova edição disponível
+## Proteções Temporárias Ativas (pré-lançamento)
 
-### Avisos conhecidos
+- 🔒 Site protegido com Basic Auth (middleware Next.js)
+- 🔒 `robots.txt`: `Disallow: /`
+- 🔒 `meta robots`: `noindex, nofollow`
+- Env vars: `SITE_PROTECTION_ENABLED`, `SITE_PROTECTION_USER`, `SITE_PROTECTION_PASSWORD`
+
+---
+
+## Pendências e Dívidas Técnicas
+
+| Prioridade | Item                                                              | Fase      |
+|------------|-------------------------------------------------------------------|-----------|
+| 🔴 Alta    | Trocar senha do banco Supabase (exposta no chat)                  | Imediata  |
+| 🔴 Alta    | Popular catálogo com eventos reais (50-100 eventos)               | 5.5       |
+| 🟡 Média   | Autenticação no admin (/admin protegido)                          | 4         |
+| 🟡 Média   | Sistema de notificações por email                                 | 3         |
+| 🟡 Média   | Dashboard do organizador                                          | 4         |
+| 🟡 Média   | Campo de busca de cidades no filtro lateral (sidebar)             | Melhoria  |
+| 🟢 Baixa   | Fluxo de notificação para eventos cancelados                      | 3         |
+| 🟢 Baixa   | Fluxo de notificação para novas edições de encerrados             | 3         |
+| 🟢 Baixa   | Sitemap index quando passar de 50k URLs                           | Futuro    |
+| 🟢 Baixa   | OG Image dinâmica por evento                                      | Futuro    |
+
+---
+
+## Próximos Passos Recomendados
+
+### Curto prazo
+1. **Trocar senha do Supabase** (5 min)
+2. **Popular catálogo** — usar o agente para cadastrar 50-100 eventos reais de marketing no Brasil
+3. **Campo de busca de cidades** no filtro lateral (melhoria pendente dos testes)
+
+### Médio prazo
+4. **Fase 3 — Notificações**: Cadastro de email, preferências, disparo automático
+5. **Fase 4 — Autenticação**: Proteger /admin, login para organizadores
+6. **Fase 6 — Lançamento**: Remover proteções, submeter ao Google
+
+### Longo prazo
+7. Dashboard do organizador
+8. Fluxos de notificação avançados (cancelamento, novas edições)
+9. Analytics e métricas de uso
+10. OG Images dinâmicas
+
+---
+
+## Testes Realizados
+
+- ✅ 11 testes automatizados (Playwright, `tests/`) — todos passaram
+- ✅ Verificação manual completa — 7 correções aplicadas
+- ✅ 6 melhorias adicionais implementadas e validadas
+- 📌 Pendente: validação no Google Rich Results Test (pós-lançamento)
+
+---
+
+## Avisos Conhecidos
 
 - `/admin` acessível sem autenticação real (apenas Basic Auth de site) — implementar auth na Fase 4
-- meta_title de CityPages auto-criadas pode ter sufixo duplicado (cosmético, não afeta SEO)
+- `meta_title` de CityPages auto-criadas pode ter sufixo duplicado (cosmético, não afeta SEO)
 - Tailwind v4: usar `@import "tailwindcss"` e blocos `@theme` (não as diretivas v3)
+- Datas armazenadas como UTC midnight: usar `getUTCDate/Month/FullYear()` para evitar bug de timezone (UTC-3)
