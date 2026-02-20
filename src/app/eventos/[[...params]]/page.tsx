@@ -199,6 +199,73 @@ function buildSubtitle(tema?: string, categoria?: string, cidade?: string): stri
   return 'Todos os eventos de marketing do Brasil';
 }
 
+// ─── Structured Data ──────────────────────────────────────────────────
+
+const SITE_URL = 'https://www.eventosdemarketing.com.br';
+
+function buildBreadcrumbJsonLd(tema?: string, categoria?: string, cidade?: string) {
+  const temaLabel = tema ? getTemaLabel(tema) : null;
+  const catLabel = categoria ? getCategoriaLabel(categoria) : null;
+  const cidadeLabel = cidade ? getCidadeLabel(cidade) : null;
+
+  const items: { position: number; name: string; item: string }[] = [
+    { position: 1, name: 'Home', item: `${SITE_URL}/` },
+    { position: 2, name: 'Eventos', item: `${SITE_URL}/eventos` },
+  ];
+
+  if (temaLabel) {
+    const url = `${SITE_URL}${buildEventUrl({ tema })}`;
+    const hasMore = catLabel || cidadeLabel;
+    items.push({ position: 3, name: temaLabel, item: url });
+    if (catLabel) {
+      items.push({
+        position: 4,
+        name: catLabel,
+        item: `${SITE_URL}${buildEventUrl({ tema, categoria })}`,
+      });
+    }
+    if (cidadeLabel && !catLabel) {
+      items.push({
+        position: 4,
+        name: cidadeLabel,
+        item: `${SITE_URL}${buildEventUrl({ tema, cidade })}`,
+      });
+    }
+    if (cidadeLabel && catLabel) {
+      items.push({
+        position: 5,
+        name: cidadeLabel,
+        item: `${SITE_URL}${buildEventUrl({ tema, categoria, cidade })}`,
+      });
+    }
+    void hasMore;
+  } else if (catLabel) {
+    items.push({
+      position: 3,
+      name: catLabel,
+      item: `${SITE_URL}${buildEventUrl({ categoria })}`,
+    });
+    if (cidadeLabel) {
+      items.push({
+        position: 4,
+        name: cidadeLabel,
+        item: `${SITE_URL}${buildEventUrl({ categoria, cidade })}`,
+      });
+    }
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(({ position, name, item }) => ({
+      '@type': 'ListItem',
+      position,
+      name,
+      item,
+    })),
+  };
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────
 
 type Props = {
@@ -231,16 +298,24 @@ export default async function EventosCatchAllPage({ params, searchParams }: Prop
     if (topicPage?.description) pageSubtitle = topicPage.description;
   }
 
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(tema, categoria, cidade);
+
   return (
-    <EventListingPage
-      tema={tema}
-      categoria={categoriaSingular}
-      categoriaSlug={categoria}
-      cidade={cidade}
-      title={pageTitle}
-      subtitle={pageSubtitle}
-      basePath={basePath}
-      searchParams={sp}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <EventListingPage
+        tema={tema}
+        categoria={categoriaSingular}
+        categoriaSlug={categoria}
+        cidade={cidade}
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        basePath={basePath}
+        searchParams={sp}
+      />
+    </>
   );
 }
