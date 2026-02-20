@@ -178,7 +178,7 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 
 ---
 
-## Progresso Atual (19/02/2026)
+## Progresso Atual (20/02/2026)
 
 ### ✅ Fase 0 — Setup e Fundação (COMPLETA)
 - [x] Domínio registrado: eventosdemarketing.com.br
@@ -196,17 +196,20 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 - [x] Dados de seed removidos (banco limpo para dados reais)
 
 ### ✅ Fase 2 — Páginas Públicas Core (COMPLETA)
-- [x] Layout: Header (logo, busca, CTAs), Footer (4 colunas), responsivo
+- [x] Layout: Header redesenhado (busca funcional + CTA "Cadastre um Evento"), Footer simplificado, responsivo
 - [x] Home: Hero, categorias, eventos em destaque, cidades, CTAs
-- [x] Listagem com filtros: Sidebar desktop, drawer mobile, query params
+- [x] Listagem com filtros: Sidebar desktop, drawer mobile, query params; grid 3×3 (9 por página), centralizado na última linha; cards com preço alinhado e títulos truncados
 - [x] SEO programático: ~2.000 URLs pré-geradas (`/eventos/[tema]`, `/eventos/[categoria]`, `/eventos-marketing-[cidade]` e combinações)
 - [x] Página do evento: Layout 2 colunas, dados completos, mapa, eventos relacionados
-- [x] Dados estruturados: JSON-LD (Event + BreadcrumbList)
+- [x] Dados estruturados: JSON-LD (Event, BreadcrumbList, WebSite com SearchAction, Organization com logo)
 - [x] Adicionar ao Calendário: Google Calendar, Outlook, .ics (com link de volta ao site)
 - [x] Landing pages de cidade: Hero, pills de categorias dinâmicas (filtradas por disponibilidade), texto SEO único, CTA notificações
 - [x] Badge de cidade: Internal linking na página do evento
 - [x] Tooltip explicativo no badge "Evento Verificado"
 - [x] SEO técnico: Sitemap dinâmico com lastmod real, robots.txt, meta tags, OG, canonical, max-image-preview
+- [x] Favicon configurado
+- [x] Busca por título, descrição e temas (campo de texto livre)
+- [x] Paginação SEO: links `<a href>` indexáveis pelo Googlebot, self-canonical por página (`?pagina=N`)
 
 ### ⏳ Fase 3 — Sistema de Notificações (PENDENTE)
 - [ ] Cadastro de email com double opt-in
