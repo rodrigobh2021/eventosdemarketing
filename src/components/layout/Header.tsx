@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -53,6 +54,8 @@ function CloseIcon({ className }: { className?: string }) {
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     function handleScroll() {
@@ -61,6 +64,13 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  function handleSearch(q: string, closeMobile = false) {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    if (closeMobile) setMobileMenuOpen(false);
+    router.push(`/eventos?q=${encodeURIComponent(trimmed)}`);
+  }
 
   return (
     <header
@@ -81,28 +91,32 @@ export default function Header() {
         {/* Search bar — desktop */}
         <div className="mx-4 hidden max-w-md flex-1 md:flex">
           <div className="relative w-full">
-            <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
               placeholder="Buscar eventos de marketing..."
-              className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-4 pl-9 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
+              className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-10 pl-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={() => handleSearch(searchQuery)}
+              aria-label="Buscar"
+              className="absolute top-1/2 right-1.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-white transition-opacity hover:opacity-85"
+            >
+              <SearchIcon className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center md:flex">
           <Link
-            href="/organizador/novo-evento"
-            className="rounded-[var(--radius-btn)] border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/5"
-          >
-            Criar Evento
-          </Link>
-          <Link
-            href="/entrar"
+            href="/cadastrar-evento"
             className="rounded-[var(--radius-btn)] bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent)]/90"
           >
-            Entrar
+            Cadastre um Evento
           </Link>
         </div>
 
@@ -126,27 +140,30 @@ export default function Header() {
         <div className="border-t border-gray-100 bg-white px-4 pb-4 md:hidden">
           {/* Mobile search */}
           <div className="relative my-3">
-            <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery, true)}
               placeholder="Buscar eventos de marketing..."
-              className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-4 pl-9 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
+              className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-10 pl-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={() => handleSearch(searchQuery, true)}
+              aria-label="Buscar"
+              className="absolute top-1/2 right-1.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-white transition-opacity hover:opacity-85"
+            >
+              <SearchIcon className="h-3.5 w-3.5" />
+            </button>
           </div>
           <div className="flex flex-col gap-2">
             <Link
-              href="/organizador/novo-evento"
-              className="rounded-[var(--radius-btn)] border border-[var(--color-primary)] px-4 py-2.5 text-center text-sm font-medium text-[var(--color-primary)]"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Criar Evento
-            </Link>
-            <Link
-              href="/entrar"
+              href="/cadastrar-evento"
               className="rounded-[var(--radius-btn)] bg-[var(--color-accent)] px-4 py-2.5 text-center text-sm font-medium text-white"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Entrar
+              Cadastre um Evento
             </Link>
           </div>
         </div>

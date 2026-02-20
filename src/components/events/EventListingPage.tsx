@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { startOfDay, endOfDay, endOfWeek, endOfMonth } from 'date-fns';
+import { startOfDay, endOfDay, addDays } from 'date-fns';
 import EventCard from '@/components/events/EventCard';
 import EventFilters, {
   EventDatePills,
@@ -56,9 +56,9 @@ function buildDateRange(periodo: string | null): { gte: Date; lte?: Date } | nul
     case 'hoje':
       return { gte: today, lte: endOfDay(now) };
     case 'semana':
-      return { gte: today, lte: endOfWeek(now, { weekStartsOn: 1 }) };
+      return { gte: today, lte: endOfDay(addDays(today, 7)) };
     case 'mes':
-      return { gte: today, lte: endOfMonth(now) };
+      return { gte: today, lte: endOfDay(addDays(today, 30)) };
     default:
       return null;
   }
