@@ -6,6 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS, MAIN_CITIES } from '@/lib/constants';
 import type { ScrapedEventData } from '@/types';
 import RichTextEditor from '@/components/shared/RichTextEditor';
+import { maskCurrencyInput, parseCurrencyInput } from '@/lib/utils';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -39,7 +40,8 @@ interface FormState {
   latitude: string;
   longitude: string;
   is_free: boolean;
-  price_info: string;
+  price_type: 'a_partir_de' | 'unico' | 'nao_informado';
+  price_value: string; // masked, e.g. "1.490,00"
   ticket_url: string;
   description: string;
   event_url: string;
@@ -59,7 +61,7 @@ const EMPTY_FORM: FormState = {
   start_date: '', end_date: '', start_time: '', end_time: '',
   venue_name: '', address: '', citySelect: '', cityInput: '', state: '',
   latitude: '', longitude: '',
-  is_free: false, price_info: '', ticket_url: '',
+  is_free: false, price_type: 'nao_informado', price_value: '', ticket_url: '',
   description: '', event_url: '', image_url: '',
   organizer_name: '', organizer_url: '',
   source_url: '', source: 'ORGANIZADOR',
@@ -115,7 +117,8 @@ function mapScrapedToForm(data: ScrapedEventData, sourceUrl: string): {
       latitude: mark('latitude', data.latitude != null ? String(data.latitude) : ''),
       longitude: mark('longitude', data.longitude != null ? String(data.longitude) : ''),
       is_free: mark('is_free', data.is_free ?? false),
-      price_info: mark('price_info', data.price_info ?? ''),
+      price_type: mark('price_type', (data.price_type ?? 'nao_informado') as FormState['price_type']),
+      price_value: mark('price_value', data.price_value != null ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data.price_value) : ''),
       ticket_url: mark('ticket_url', data.ticket_url ?? ''),
       description: mark('description', data.description ?? ''),
       event_url: mark('event_url', data.event_url ?? ''),
@@ -274,8 +277,12 @@ function PreviewModal({
           <div className="pt-1">
             {form.is_free ? (
               <span className="inline-block rounded-full bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-0.5">Gratuito</span>
+            ) : form.price_type === 'nao_informado' || !form.price_value ? (
+              <span className="text-sm text-gray-400">Preços não informados</span>
             ) : (
-              <span className="text-sm text-gray-600">{form.price_info || 'Preço a confirmar'}</span>
+              <span className="text-sm text-gray-600">
+                {form.price_type === 'a_partir_de' ? 'A partir de ' : ''}R$&nbsp;{form.price_value}
+              </span>
             )}
           </div>
           {form.description && (
@@ -381,7 +388,8 @@ export default function CadastrarEventoPage() {
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
         is_free: form.is_free,
-        price_info: form.is_free ? null : (form.price_info || null),
+        price_type: form.is_free ? null : form.price_type,
+        price_value: form.is_free || form.price_type === 'nao_informado' ? null : parseCurrencyInput(form.price_value),
         ticket_url: form.ticket_url || null,
         description: form.description,
         event_url: form.event_url || null,
@@ -919,15 +927,44 @@ export default function CadastrarEventoPage() {
             </div>
 
             {!form.is_free && (
-              <div>
-                <FieldLabel label="Informação de preço" aiActive={ai('price_info')} />
-                <input
-                  type="text"
-                  value={form.price_info}
-                  onChange={(e) => set('price_info', e.target.value)}
-                  placeholder="Ex: A partir de R$150"
-                  className={inputCls('price_info')}
-                />
+              <div className="space-y-3">
+                <div>
+                  <FieldLabel label="Tipo de preço" aiActive={ai('price_type')} />
+                  <div className="flex flex-wrap gap-3 mt-1">
+                    {(['a_partir_de', 'unico', 'nao_informado'] as const).map((pt) => (
+                      <label key={pt} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="price_type"
+                          value={pt}
+                          checked={form.price_type === pt}
+                          onChange={() => set('price_type', pt)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {pt === 'a_partir_de' ? 'A partir de' : pt === 'unico' ? 'Preço único' : 'Não informado'}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {form.price_type !== 'nao_informado' && (
+                  <div>
+                    <FieldLabel label="Valor (R$)" aiActive={ai('price_value')} />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">R$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={form.price_value}
+                        onChange={(e) => set('price_value', maskCurrencyInput(e.target.value))}
+                        placeholder="0,00"
+                        className={`${inputCls('price_value')} pl-9`}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -105,7 +105,7 @@ export function generateEventJsonLd(event: Event) {
     },
     offers: {
       '@type': 'Offer',
-      price: event.is_free ? '0' : (event.price_info ?? '0'),
+      price: event.is_free ? '0' : (event.price_value != null ? String(event.price_value) : '0'),
       priceCurrency: 'BRL',
       availability: 'https://schema.org/InStock',
       ...(event.ticket_url ? { url: event.ticket_url } : {}),

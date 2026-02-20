@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS } from '@/lib/constants';
 import RichTextEditor from '@/components/shared/RichTextEditor';
+import { formatPrice, maskCurrencyInput, parseCurrencyInput } from '@/lib/utils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,8 @@ interface EventData {
   latitude: number | null;
   longitude: number | null;
   is_free: boolean;
-  price_info: string | null;
+  price_type: string | null;
+  price_value: number | null;
   ticket_url: string | null;
   description: string;
   event_url: string | null;
@@ -82,7 +84,8 @@ interface EventRecord {
   category: string;
   topics: string[];
   is_free: boolean;
-  price_info: string | null;
+  price_type: string | null;
+  price_value: number | null;
   ticket_url: string | null;
   event_url: string | null;
   image_url: string | null;
@@ -206,7 +209,7 @@ function auditFields(d: EventData, source: string): FieldCheck[] {
     { label: 'URL do evento',         ok: Boolean(d.event_url),                    severity: 'error' },
     { label: 'Descrição (≥100 car.)', ok: stripHtml(d.description ?? '').length >= 100, severity: 'error' },
     { label: 'Link de ingressos',     ok: d.is_free || Boolean(d.ticket_url),      severity: 'warn'  },
-    { label: 'Preço',                 ok: d.is_free || Boolean(d.price_info),      severity: 'warn'  },
+    { label: 'Preço',                 ok: d.is_free || (d.price_type != null && d.price_type !== 'nao_informado'), severity: 'warn'  },
     { label: 'Horário de início',     ok: Boolean(d.start_time),                   severity: 'warn'  },
     { label: 'Horário de término',    ok: Boolean(d.end_time),                     severity: 'info'  },
     { label: 'Nome do local',         ok: !presencial || Boolean(d.venue_name),    severity: 'warn'  },
@@ -439,7 +442,7 @@ function SubmissionCard({
 
               <Section title="Ingressos">
                 <InfoRow label="Gratuito?" value={d.is_free ? 'Sim' : 'Não'} />
-                {!d.is_free && <InfoRow label="Preço" value={d.price_info} />}
+                {!d.is_free && <InfoRow label="Preço" value={formatPrice(d)} />}
                 <InfoRow
                   label="Compra"
                   value={
@@ -760,9 +763,39 @@ function EditForm({
           <label htmlFor="edit-is-free" className="text-sm text-gray-700">Evento gratuito</label>
         </div>
         {!data.is_free && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Informação de preço</label>
-            <input className={INPUT} value={data.price_info ?? ''} onChange={e => set('price_info', e.target.value || null)} placeholder="Ex: A partir de R$150" />
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Tipo de preço</label>
+            <div className="flex gap-4 flex-wrap">
+              {(['a_partir_de', 'unico', 'nao_informado'] as const).map(pt => (
+                <label key={pt} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name="price_type"
+                    value={pt}
+                    checked={(data.price_type ?? 'nao_informado') === pt}
+                    onChange={() => set('price_type', pt)}
+                    className="h-4 w-4"
+                  />
+                  {pt === 'a_partir_de' ? 'A partir de' : pt === 'unico' ? 'Preço único' : 'Não informado'}
+                </label>
+              ))}
+            </div>
+            {(data.price_type === 'a_partir_de' || data.price_type === 'unico') && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">R$</span>
+                <input
+                  className={INPUT}
+                  value={data.price_value != null ? maskCurrencyInput(String(Math.round(data.price_value * 100))) : ''}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    const masked = maskCurrencyInput(raw);
+                    const num = parseCurrencyInput(masked);
+                    set('price_value', num);
+                  }}
+                  placeholder="0,00"
+                />
+              </div>
+            )}
           </div>
         )}
         <div>
@@ -1933,7 +1966,8 @@ export default function AdminPage() {
                       latitude: ev.latitude,
                       longitude: ev.longitude,
                       is_free: ev.is_free,
-                      price_info: ev.price_info,
+                      price_type: ev.price_type,
+                      price_value: ev.price_value,
                       ticket_url: ev.ticket_url,
                       description: ev.description,
                       event_url: ev.event_url,

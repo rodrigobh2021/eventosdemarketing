@@ -159,7 +159,7 @@ INSTRUÇÕES IMPORTANTES:
 - Analise TODOS os dados fornecidos: texto visível, meta tags e dados estruturados (JSON-LD)
 - Cruze informações de diferentes fontes para maior precisão
 - Se a data estiver em formato relativo ("próximo sábado"), converta para data absoluta considerando a data atual
-- Para preços, busque o menor valor disponível para o price_info
+- Para preços: defina price_type como "a_partir_de" (menor valor disponível), "unico" (valor fixo único) ou "nao_informado" (sem info); price_value deve ser o valor numérico em reais (ex: 1490.00 para R$1.490,00); se is_free=true, price_type e price_value devem ser null
 - Para ticket_url, priorize links de compra (Sympla, Eventbrite, etc.)
 - Se o evento tiver múltiplos dias, use start_date e end_date
 - Para a descrição, retorne o conteúdo em HTML simples. Preserve a estrutura: parágrafos como <p>, listas como <ul>/<li>, negritos como <strong>, itálicos como <em>, headings como <h2>/<h3>. NÃO inclua tags <html>, <body>, <head> ou estilos inline. Capture o máximo de detalhes (programação, palestrantes, público-alvo)
@@ -207,7 +207,8 @@ Extraia as informações no seguinte formato JSON:
   "category": "CONFERENCIA|WORKSHOP|MEETUP|WEBINAR|CURSO|PALESTRA|HACKATHON",
   "topics": ["array de topics aplicáveis"],
   "is_free": true/false,
-  "price_info": "string (ex: 'A partir de R$97') ou null",
+  "price_type": "a_partir_de|unico|nao_informado ou null se is_free=true",
+  "price_value": number (valor em reais, ex: 97.00) ou null,
   "ticket_url": "string (URL para compra) ou null",
   "event_url": "string (URL oficial do evento)",
   "image_url": "string (URL da imagem/banner) ou null",
@@ -279,7 +280,8 @@ function validateAndBuild(data: Record<string, unknown>, url: string): ScrapedEv
     category: category as ScrapedEventData['category'],
     topics,
     is_free: Boolean(data.is_free),
-    price_info: (data.price_info as string) || null,
+    price_type: (['a_partir_de', 'unico', 'nao_informado'].includes(data.price_type as string) ? data.price_type as ScrapedEventData['price_type'] : null),
+    price_value: typeof data.price_value === 'number' && data.price_value > 0 ? data.price_value : null,
     ticket_url: (data.ticket_url as string) || null,
     event_url: (data.event_url as string) || url,
     image_url: (data.image_url as string) || null,
@@ -298,7 +300,7 @@ function calcConfidence(data: ScrapedEventData): ScrapeMeta['confidence'] {
   const optionalFields: (keyof ScrapedEventData)[] = [
     'description', 'end_date', 'start_time', 'end_time',
     'city', 'state', 'address', 'venue_name',
-    'price_info', 'ticket_url', 'image_url', 'organizer_url',
+    'price_type', 'ticket_url', 'image_url', 'organizer_url',
   ];
   const filled = optionalFields.filter((f) => data[f] !== null && data[f] !== '').length;
   if (filled >= 8) return 'high';

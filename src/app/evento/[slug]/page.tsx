@@ -7,7 +7,7 @@ import { ptBR } from 'date-fns/locale';
 export const revalidate = 60;
 import { prisma } from '@/lib/prisma';
 import { TOPIC_SLUG_TO_LABEL, ITEMS_PER_PAGE, CATEGORY_SINGULAR_TO_SLUG, CATEGORY_SLUG_MAP, MAIN_CITIES } from '@/lib/constants';
-import { buildEventUrl } from '@/lib/utils';
+import { buildEventUrl, formatPrice } from '@/lib/utils';
 import { generateEventJsonLd, generateBreadcrumbJsonLd } from '@/lib/schema-org';
 import EventCard from '@/components/events/EventCard';
 import ShareButton from '@/components/shared/ShareButton';
@@ -480,7 +480,7 @@ export default async function EventoPage({ params }: Props) {
                     {event.is_free ? (
                       <p className="text-2xl font-bold text-success">Gratuito</p>
                     ) : (
-                      <p className="text-2xl font-bold text-text">{event.price_info ?? 'Consulte'}</p>
+                      <p className="text-2xl font-bold text-text">{formatPrice(event)}</p>
                     )}
                   </div>
 

@@ -136,3 +136,51 @@ export function getCategoriaLabel(categoriaSlug: string): string {
 export function categoryEnumToSlug(enumValue: string): string | undefined {
   return CATEGORY_SINGULAR_TO_SLUG[enumValue];
 }
+
+// ─── Price Formatting ───────────────────────────────────────────────────
+
+/**
+ * Returns a human-readable price string for an event.
+ * Works in both Node.js (RSC) and browser (client components).
+ */
+export function formatPrice(event: {
+  is_free: boolean;
+  price_type?: string | null;
+  price_value?: number | null;
+}): string {
+  if (event.is_free) return 'Gratuito';
+  if (!event.price_type || event.price_type === 'nao_informado') return 'Preços não informados';
+  if (event.price_value == null) return 'Preços não informados';
+
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(event.price_value);
+
+  if (event.price_type === 'a_partir_de') return `A partir de ${formatted}`;
+  return formatted;
+}
+
+/**
+ * Mask a raw digit string as Brazilian currency display (no R$ prefix).
+ * e.g. "149000" → "1.490,00"  (treats input as cents)
+ */
+export function maskCurrencyInput(digits: string): string {
+  const d = digits.replace(/\D/g, '');
+  if (!d) return '';
+  const num = parseInt(d, 10) / 100;
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(num);
+}
+
+/**
+ * Parse a masked currency string ("1.490,00") back to a float (1490.00).
+ * Returns null if the input is empty or invalid.
+ */
+export function parseCurrencyInput(masked: string): number | null {
+  const cleaned = masked.replace(/\./g, '').replace(',', '.');
+  const num = parseFloat(cleaned);
+  return isNaN(num) || num <= 0 ? null : num;
+}

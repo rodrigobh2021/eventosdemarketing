@@ -12,7 +12,8 @@ export interface ScrapedEventData {
   category: 'CONFERENCIA' | 'WORKSHOP' | 'MEETUP' | 'WEBINAR' | 'CURSO' | 'PALESTRA' | 'HACKATHON';
   topics: string[];
   is_free: boolean;
-  price_info: string | null;
+  price_type: 'a_partir_de' | 'unico' | 'nao_informado' | null;
+  price_value: number | null;
   ticket_url: string | null;
   event_url: string;
   image_url: string | null;

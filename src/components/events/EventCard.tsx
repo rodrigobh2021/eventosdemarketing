@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Event } from '@/generated/prisma/client';
+import { formatPrice } from '@/lib/utils';
 
 const FORMAT_LABELS: Record<string, string> = {
   PRESENCIAL: 'Presencial',
@@ -104,7 +105,9 @@ export default function EventCard({ event }: { event: Event }) {
               Gratuito
             </span>
           ) : (
-            <span className="text-sm font-medium text-text-secondary">{event.price_info}</span>
+            <span className="text-sm font-medium text-text-secondary">
+              {formatPrice(event)}
+            </span>
           )}
         </div>
       </div>

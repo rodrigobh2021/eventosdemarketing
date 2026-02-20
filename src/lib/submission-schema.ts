@@ -40,7 +40,8 @@ export const submissionSchema = z.object({
 
   // D — Ingressos
   is_free: z.boolean(),
-  price_info: nullableStr,
+  price_type: z.enum(['a_partir_de', 'unico', 'nao_informado']).nullable().optional(),
+  price_value: nullableNum,
   ticket_url: nullableStr,
 
   // E — Detalhes

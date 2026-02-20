@@ -67,7 +67,9 @@ model Event {
   category       EventCategory
   topics         String[]
   is_free        Boolean       @default(false)
-  price_info     String?
+  price_info     String?       // deprecated — mantido para compatibilidade; migrar para price_type/price_value
+  price_type     String?       // "a_partir_de" | "unico" | "nao_informado"
+  price_value    Float?        // ex: 1490.00 para R$ 1.490,00
   ticket_url     String?
   event_url      String?
   image_url      String?
