@@ -19,7 +19,7 @@ import { Info } from 'lucide-react';
 // ─── Constants ────────────────────────────────────────────────────────
 
 const CATEGORY_LABELS: Record<string, string> = {
-  CONFERENCIA: 'Conferencia',
+  CONFERENCIA: 'Conferência',
   WORKSHOP: 'Workshop',
   MEETUP: 'Meetup',
   WEBINAR: 'Webinar',
@@ -100,8 +100,8 @@ function formatTimeRange(startTime: string | null, endTime: string | null): stri
     return m === '00' ? `${parseInt(h)}h` : `${parseInt(h)}h${m}`;
   };
 
-  if (endTime) return `Das ${fmtTime(startTime)} as ${fmtTime(endTime)}`;
-  return `A partir das ${fmtTime(startTime)}`;
+  if (endTime) return `das ${fmtTime(startTime)} às ${fmtTime(endTime)}`;
+  return `a partir das ${fmtTime(startTime)}`;
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────
@@ -216,23 +216,25 @@ export default async function EventoPage({ params }: Props) {
       />
 
       {/* ── Banner ──────────────────────────────────────────────────── */}
-      <div className="relative h-[200px] w-full overflow-hidden sm:h-[300px]">
-        {event.image_url ? (
-          <img
-            src={event.image_url}
-            alt={event.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div
-            className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${BANNER_GRADIENTS[event.category] ?? 'from-gray-400 to-gray-600'}`}
-          >
-            <span className="text-6xl font-bold text-white/30 sm:text-8xl">
-              {event.title.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      <div className="sm:mx-auto sm:max-w-7xl sm:px-6 lg:px-8">
+        <div className="relative h-[200px] w-full overflow-hidden sm:mt-6 sm:h-[320px] sm:rounded-xl">
+          {event.image_url ? (
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="h-full w-full object-cover object-center"
+            />
+          ) : (
+            <div
+              className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${BANNER_GRADIENTS[event.category] ?? 'from-gray-400 to-gray-600'}`}
+            >
+              <span className="text-6xl font-bold text-white/30 sm:text-8xl">
+                {event.title.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        </div>
       </div>
 
       {/* ── Status Banners ──────────────────────────────────────────── */}
@@ -262,7 +264,8 @@ export default async function EventoPage({ params }: Props) {
                 if (categorySlug && categoryInfo) {
                   crumbs.push({ label: categoryInfo.label, href: `/eventos/${categorySlug}` });
                 }
-                crumbs.push({ label: event.title });
+                const truncTitle = event.title.length > 50 ? event.title.slice(0, 50) + '…' : event.title;
+                crumbs.push({ label: truncTitle });
 
                 return crumbs.map((crumb, i) => (
                   <li key={i} className="flex items-center gap-1">
@@ -345,7 +348,7 @@ export default async function EventoPage({ params }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
               </svg>
               <div>
-                <p className="font-medium capitalize text-text">{dateStr}</p>
+                <p className="font-medium text-text">{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</p>
                 {timeStr && <p className="text-sm text-text-secondary">{timeStr}</p>}
               </div>
             </div>
