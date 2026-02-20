@@ -215,12 +215,11 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 - [ ] Fluxo de notificação para eventos cancelados (futuro)
 - [ ] Fluxo para novas edições de eventos encerrados (futuro)
 
-### ⏳ Fase 4 — Portal do Organizador (PARCIAL)
-- [x] Formulário de cadastro unificado (scraping + manual)
-- [x] Diferenciação organizador vs. indicação
-- [x] Campo de email obrigatório para organizadores
-- [ ] Autenticação (PENDENTE)
-- [ ] Dashboard do organizador (PENDENTE)
+### ⏳ Fase 4 — Proteção do Admin (PENDENTE)
+- [ ] Autenticação no /admin (PENDENTE)
+
+> Dashboard do organizador removido da V1. Será implementado em versão futura,
+> quando houver plano de monetização e mídia kit.
 
 ### ✅ Fase 5 — Agente de Scraping + Admin (QUASE COMPLETA)
 
@@ -303,7 +302,6 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 | 🔴 Alta    | Popular catálogo com eventos reais (50-100 eventos)               | 5.5       |
 | 🟡 Média   | Autenticação no admin (/admin protegido)                          | 4         |
 | 🟡 Média   | Sistema de notificações por email                                 | 3         |
-| 🟡 Média   | Dashboard do organizador                                          | 4         |
 | 🟡 Média   | Campo de busca de cidades no filtro lateral (sidebar)             | Melhoria  |
 | 🟢 Baixa   | Fluxo de notificação para eventos cancelados                      | 3         |
 | 🟢 Baixa   | Fluxo de notificação para novas edições de encerrados             | 3         |
@@ -321,11 +319,11 @@ NEXT_PUBLIC_SITE_NAME="Eventos de Marketing"
 
 ### Médio prazo
 4. **Fase 3 — Notificações**: Cadastro de email, preferências, disparo automático
-5. **Fase 4 — Autenticação**: Proteger /admin, login para organizadores
+5. **Fase 4 — Autenticação**: Proteger /admin
 6. **Fase 6 — Lançamento**: Remover proteções, submeter ao Google
 
 ### Longo prazo
-7. Dashboard do organizador
+7. Dashboard do organizador (versão futura, pós-monetização)
 8. Fluxos de notificação avançados (cancelamento, novas edições)
 9. Analytics e métricas de uso
 10. OG Images dinâmicas
