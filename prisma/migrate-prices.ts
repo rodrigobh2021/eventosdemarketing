@@ -18,27 +18,40 @@ const A_PARTIR_DE_RE = /a partir|from|partir|starting|desde|min\.|mín\.|mínimo
 // Extrai valor numérico de uma string de preço
 const PRICE_NUM_RE = /[\d]{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?/;
 
+function parseBRLNumber(raw: string): number | null {
+  // Brazilian currency rules:
+  // 1.300     → 1300  (dot = thousands separator, 3 digits after)
+  // 1.300,00  → 1300  (dot = thousands, comma = decimal)
+  // 247,00    → 247   (comma = decimal only)
+  // 599.99    → 599.99 (dot = decimal, only 2 digits after — English style)
+  // 1.866,60  → 1866.60
+
+  const hasDotFollowedBy3 = /\.\d{3}/.test(raw);
+  const hasComma = raw.includes(',');
+
+  let normalised: string;
+  if (hasDotFollowedBy3) {
+    // dot is thousands separator; comma (if present) is decimal
+    normalised = raw.replace(/\./g, '').replace(',', '.');
+  } else if (hasComma) {
+    // comma is decimal separator (e.g. "247,00")
+    normalised = raw.replace(',', '.');
+  } else {
+    // plain number or dot-decimal (e.g. "347" or "599.99")
+    normalised = raw;
+  }
+
+  const num = parseFloat(normalised);
+  return !isNaN(num) && num > 0 ? num : null;
+}
+
 function parsePrice(info: string): { price_type: string; price_value: number | null } {
   const isAPartirDe = A_PARTIR_DE_RE.test(info);
 
   const match = info.match(PRICE_NUM_RE);
   let price_value: number | null = null;
   if (match) {
-    // Normalise: remove thousand separators, convert decimal comma to dot
-    const raw = match[0];
-    // Detect if comma is decimal or thousand separator
-    const lastCommaIdx = raw.lastIndexOf(',');
-    const lastDotIdx = raw.lastIndexOf('.');
-    let normalised: string;
-    if (lastCommaIdx > lastDotIdx) {
-      // comma is decimal separator (Brazilian format: 1.490,00)
-      normalised = raw.replace(/\./g, '').replace(',', '.');
-    } else {
-      // dot is decimal separator or no decimal (1490.00 / 1490)
-      normalised = raw.replace(/,/g, '');
-    }
-    const num = parseFloat(normalised);
-    if (!isNaN(num) && num > 0) price_value = num;
+    price_value = parseBRLNumber(match[0]);
   }
 
   return {
@@ -48,10 +61,14 @@ function parsePrice(info: string): { price_type: string; price_value: number | n
 }
 
 async function main() {
-  // Only migrate events that still have price_info but no price_type set
+  // Migrate events that either have no price_type yet, OR have price_info set
+  // (re-runs safely to fix any bad parses)
   const events = await prisma.event.findMany({
     where: {
-      price_type: null,
+      OR: [
+        { price_type: null },
+        { price_info: { not: null } },
+      ],
     },
     select: { id: true, is_free: true, price_info: true, price_type: true },
   });
