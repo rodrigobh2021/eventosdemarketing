@@ -87,20 +87,18 @@ export default function EventCard({ event }: { event: Event }) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
-        {/* Date */}
-        <time className="text-sm font-semibold text-primary uppercase">{formattedDate}</time>
+      <div className="flex flex-1 flex-col p-4">
+        {/* Middle: date + title + location — grows to fill available space */}
+        <div className="flex-1">
+          <time className="text-sm font-semibold uppercase text-primary">{formattedDate}</time>
+          <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-text group-hover:text-primary">
+            {event.title}
+          </h3>
+          <p className="mt-1 line-clamp-1 text-sm text-text-secondary">{location}</p>
+        </div>
 
-        {/* Title */}
-        <h3 className="line-clamp-2 text-base font-semibold text-text group-hover:text-primary">
-          {event.title}
-        </h3>
-
-        {/* Location */}
-        <p className="line-clamp-1 text-sm text-text-secondary">{location}</p>
-
-        {/* Price */}
-        <div className="mt-auto pt-2">
+        {/* Price — always anchored at the bottom */}
+        <div className="mt-3 border-t border-gray-100 pt-3">
           {event.is_free ? (
             <span className="inline-block rounded-[var(--radius-pill)] bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">
               Gratuito

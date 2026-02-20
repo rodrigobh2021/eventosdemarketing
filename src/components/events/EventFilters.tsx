@@ -204,6 +204,47 @@ function CitySearchInput({ onSelect }: { onSelect: (slug: string) => void }) {
   );
 }
 
+// ─── Collapsible Section ──────────────────────────────────────────────
+
+function FilterSection({
+  title,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between py-1"
+      >
+        <span className="text-sm font-semibold text-text">{title}</span>
+        <svg
+          className={`h-4 w-4 shrink-0 text-text-secondary transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
+        </svg>
+      </button>
+      <div
+        className={`grid transition-all duration-200 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+      >
+        <div className="overflow-hidden">
+          <div className="pt-2">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sidebar Filters ──────────────────────────────────────────────────
 
 const INITIAL_TOPICS_SHOWN = 6;
@@ -339,9 +380,8 @@ export default function EventFilters({
         </a>
       )}
 
-      {/* City — always visible */}
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-text">Cidade</legend>
+      {/* City — open by default */}
+      <FilterSection title="Cidade" defaultOpen={true}>
         <CitySearchInput onSelect={handleCityChange} />
         <div className="space-y-2">
           {(showAllCities ? MAIN_CITIES : MAIN_CITIES.slice(0, 5)).map((c) => (
@@ -365,42 +405,11 @@ export default function EventFilters({
             {showAllCities ? 'Ver menos' : `Ver todas (${MAIN_CITIES.length})`}
           </button>
         )}
-      </fieldset>
+      </FilterSection>
 
-      {/* Topics — hidden when tema is locked in URL path */}
-      {!hideTema && (
-        <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-text">Tema</legend>
-          <div className="space-y-2">
-            {visibleTopics.map((topic) => (
-              <label key={topic.slug} className="flex items-center gap-2 text-sm text-text">
-                <input
-                  type="checkbox"
-                  checked={temas.includes(topic.slug)}
-                  onChange={(e) => handleTopicChange(topic.slug, e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20"
-                />
-                <span>{topic.emoji}</span>
-                {topic.label}
-              </label>
-            ))}
-          </div>
-          {EVENT_TOPICS.length > INITIAL_TOPICS_SHOWN && (
-            <button
-              type="button"
-              onClick={() => setShowAllTopics(!showAllTopics)}
-              className="mt-2 text-sm font-medium text-primary hover:underline"
-            >
-              {showAllTopics ? 'Ver menos' : `Ver todos (${EVENT_TOPICS.length})`}
-            </button>
-          )}
-        </fieldset>
-      )}
-
-      {/* Category — hidden when categoria is locked in URL path */}
+      {/* Category — open by default, hidden when locked in URL path */}
       {!hideCategoria && (
-        <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-text">Categoria</legend>
+        <FilterSection title="Categoria" defaultOpen={true}>
           <div className="space-y-2">
             {EVENT_CATEGORIES.map((cat) => (
               <label key={cat.value} className="flex items-center gap-2 text-sm text-text">
@@ -414,12 +423,11 @@ export default function EventFilters({
               </label>
             ))}
           </div>
-        </fieldset>
+        </FilterSection>
       )}
 
-      {/* Format */}
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-text">Formato</legend>
+      {/* Format — closed by default */}
+      <FilterSection title="Formato" defaultOpen={false}>
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm text-text">
             <input
@@ -444,7 +452,36 @@ export default function EventFilters({
             </label>
           ))}
         </div>
-      </fieldset>
+      </FilterSection>
+
+      {/* Topics — closed by default, hidden when locked in URL path */}
+      {!hideTema && (
+        <FilterSection title="Tema" defaultOpen={false}>
+          <div className="space-y-2">
+            {visibleTopics.map((topic) => (
+              <label key={topic.slug} className="flex items-center gap-2 text-sm text-text">
+                <input
+                  type="checkbox"
+                  checked={temas.includes(topic.slug)}
+                  onChange={(e) => handleTopicChange(topic.slug, e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20"
+                />
+                <span>{topic.emoji}</span>
+                {topic.label}
+              </label>
+            ))}
+          </div>
+          {EVENT_TOPICS.length > INITIAL_TOPICS_SHOWN && (
+            <button
+              type="button"
+              onClick={() => setShowAllTopics(!showAllTopics)}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              {showAllTopics ? 'Ver menos' : `Ver todos (${EVENT_TOPICS.length})`}
+            </button>
+          )}
+        </FilterSection>
+      )}
 
       {/* Free only */}
       <fieldset>
