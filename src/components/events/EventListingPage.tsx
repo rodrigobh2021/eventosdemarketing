@@ -139,6 +139,7 @@ export default async function EventListingPage({
   const dataInicio = (searchParams.data_inicio as string) ?? null;
   const dataFim = (searchParams.data_fim as string) ?? null;
   const ordem = (searchParams.ordem as string) ?? null;
+  const q = (searchParams.q as string) ?? null;
   const pagina = Math.max(1, parseInt((searchParams.pagina as string) ?? '1', 10) || 1);
 
   // ── Build Prisma WHERE ────────────────────────────────────────────
@@ -163,6 +164,14 @@ export default async function EventListingPage({
   } else if (categoriaParam) {
     const cats = categoriaParam.split(',').filter(Boolean);
     if (cats.length > 0) where.category = { in: cats as never[] };
+  }
+
+  // Text search
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' } },
+      { description: { contains: q, mode: 'insensitive' } },
+    ];
   }
 
   // Format
@@ -223,7 +232,7 @@ export default async function EventListingPage({
   // Only treat as "extra filters" things added via query params on top of the URL path.
   // URL-path segments (tema, categoria, cidade) are the page identity, not user-applied filters.
   const hasQueryFilters =
-    (activeTema && !tema) || (activeCidade && !cidade) || categoriaParam || formato || gratuito || periodo || dataInicio || dataFim;
+    (activeTema && !tema) || (activeCidade && !cidade) || categoriaParam || formato || gratuito || periodo || dataInicio || dataFim || q;
 
   let displaySubtitle = subtitle;
   if (hasQueryFilters) {
@@ -243,6 +252,7 @@ export default async function EventListingPage({
         parts.push(`sobre ${topicLabel}${extraCount > 0 ? ` +${extraCount}` : ''}`);
       }
     }
+    if (q) parts.push(`para "${q}"`);
     displaySubtitle = parts.join(' ');
   }
 
