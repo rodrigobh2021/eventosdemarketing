@@ -51,7 +51,7 @@ export default function EventCard({ event }: { event: Event }) {
   return (
     <Link
       href={`/evento/${event.slug}`}
-      className={`group flex flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
+      className={`group flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
         isCancelled ? 'border-red-200 opacity-75' : 'border-gray-200'
       }`}
     >
@@ -88,16 +88,16 @@ export default function EventCard({ event }: { event: Event }) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
-        {/* Middle: date + title + location — grows to fill available space */}
-        <div className="flex-1">
-          <time className="text-sm font-semibold uppercase text-primary">{formattedDate}</time>
-          <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-text group-hover:text-primary">
-            {event.title}
-          </h3>
-          <p className="mt-1 line-clamp-1 text-sm text-text-secondary">{location}</p>
-        </div>
+        <time className="text-sm font-semibold uppercase text-primary">{formattedDate}</time>
+        <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-text group-hover:text-primary">
+          {event.title}
+        </h3>
+        <p className="mt-1 line-clamp-1 text-sm text-text-secondary">{location}</p>
 
-        {/* Price — always anchored at the bottom */}
+        {/* Spacer — empurra o preço para o fundo */}
+        <div className="flex-grow" />
+
+        {/* Preço — sempre fixo no rodapé */}
         <div className="mt-3 border-t border-gray-100 pt-3">
           {event.is_free ? (
             <span className="inline-block rounded-[var(--radius-pill)] bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">
