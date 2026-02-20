@@ -64,7 +64,14 @@
       "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; git add ''src/components/shared/Tooltip.tsx'' ''src/app/evento/[slug]/page.tsx'' package.json package-lock.json\")",
       "Bash(powershell -Command @\"\ncd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''\ngit commit -m ''feat: tooltip explicativo no badge Evento Verificado''\n\"@)",
       "Bash(powershell -Command \"cd ''C:\\\\Users\\\\Rodrigo\\\\eventos_mkt''; git commit -m ''feat: tooltip explicativo no badge Evento Verificado''\")",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(node_modules/.bin/next build)",
+      "Bash(powershell -File:*)",
+      "Bash(grep:*)",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_evaluate",
+      "Bash(git stash:*)",
+      "Bash(git stash pop:*)"
     ]
   }
 }
