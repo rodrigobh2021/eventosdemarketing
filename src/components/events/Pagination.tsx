@@ -1,25 +1,22 @@
 'use client';
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useCallback } from 'react';
+import Link from 'next/link';
+import { useSearchParams, usePathname } from 'next/navigation';
 
 export default function Pagination({ totalPages, currentPage }: { totalPages: number; currentPage: number }) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const goToPage = useCallback(
-    (page: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (page <= 1) {
-        params.delete('pagina');
-      } else {
-        params.set('pagina', String(page));
-      }
-      router.push(`${pathname}?${params.toString()}`, { scroll: true });
-    },
-    [router, pathname, searchParams],
-  );
+  function buildPageUrl(page: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (page <= 1) {
+      params.delete('pagina');
+    } else {
+      params.set('pagina', String(page));
+    }
+    const qs = params.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
 
   if (totalPages <= 1) return null;
 
@@ -33,16 +30,23 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
     }
   }
 
+  const prevUrl = buildPageUrl(currentPage - 1);
+  const nextUrl = buildPageUrl(currentPage + 1);
+
   return (
     <nav aria-label="Paginação" className="flex items-center justify-center gap-1">
-      <button
-        type="button"
-        onClick={() => goToPage(currentPage - 1)}
-        disabled={currentPage <= 1}
-        className="rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Anterior
-      </button>
+      {currentPage <= 1 ? (
+        <span className="cursor-not-allowed rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary opacity-40">
+          Anterior
+        </span>
+      ) : (
+        <Link
+          href={prevUrl}
+          className="rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100"
+        >
+          Anterior
+        </Link>
+      )}
 
       {pages.map((page, i) =>
         page === '...' ? (
@@ -50,10 +54,10 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
             ...
           </span>
         ) : (
-          <button
+          <Link
             key={page}
-            type="button"
-            onClick={() => goToPage(page)}
+            href={buildPageUrl(page)}
+            aria-current={page === currentPage ? 'page' : undefined}
             className={`min-w-[36px] rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium transition-colors ${
               page === currentPage
                 ? 'bg-primary text-white'
@@ -61,18 +65,22 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
             }`}
           >
             {page}
-          </button>
+          </Link>
         ),
       )}
 
-      <button
-        type="button"
-        onClick={() => goToPage(currentPage + 1)}
-        disabled={currentPage >= totalPages}
-        className="rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Próximo
-      </button>
+      {currentPage >= totalPages ? (
+        <span className="cursor-not-allowed rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary opacity-40">
+          Próximo
+        </span>
+      ) : (
+        <Link
+          href={nextUrl}
+          className="rounded-[var(--radius-btn)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100"
+        >
+          Próximo
+        </Link>
+      )}
     </nav>
   );
 }

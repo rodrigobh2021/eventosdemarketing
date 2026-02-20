@@ -66,7 +66,10 @@ export function generateStaticParams() {
 
 // ─── Metadata ─────────────────────────────────────────────────────────
 
-type MetadataProps = { params: Promise<{ params?: string[] }> };
+type MetadataProps = {
+  params: Promise<{ params?: string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 async function getExtraCities(): Promise<Set<string>> {
   const pages = await prisma.cityPage.findMany({ select: { slug: true } });
@@ -81,8 +84,9 @@ async function resolveCidadeLabel(slug: string): Promise<string> {
   return page?.city ?? slug;
 }
 
-export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: MetadataProps): Promise<Metadata> {
   const { params: segments } = await params;
+  const sp = await searchParams;
   const extraCities = await getExtraCities();
   const parsed = parseEventParams(segments, extraCities);
 
@@ -93,7 +97,10 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const temaLabel = tema ? getTemaLabel(tema) : null;
   const catLabel = categoria ? getCategoriaLabel(categoria) : null;
   const cidadeLabel = cidade ? await resolveCidadeLabel(cidade) : null;
-  const canonical = `https://www.eventosdemarketing.com.br${buildEventUrl({ tema, categoria, cidade })}`;
+
+  const pagina = Math.max(1, parseInt((sp.pagina as string) ?? '1', 10) || 1);
+  const baseUrl = `https://www.eventosdemarketing.com.br${buildEventUrl({ tema, categoria, cidade })}`;
+  const canonical = pagina > 1 ? `${baseUrl}?pagina=${pagina}` : baseUrl;
 
   // /eventos
   if (!tema && !categoria && !cidade) {
