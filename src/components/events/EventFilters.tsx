@@ -87,7 +87,7 @@ export function EventDatePills() {
   );
 
   return (
-    <div className="flex gap-2">
+    <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {pills.map((pill) => (
         <button
           key={pill.value}
@@ -562,8 +562,8 @@ export function MobileFilterDrawer({
 
   return (
     <>
-      {/* Fixed bottom button — mobile only */}
-      <div className="fixed bottom-4 left-0 right-0 z-[9999] flex justify-center md:hidden">
+      {/* Fixed bottom button — mobile only, hidden while drawer is open */}
+      <div className={`fixed bottom-4 left-0 right-0 z-[9999] flex justify-center transition-opacity duration-200 md:hidden ${open ? 'pointer-events-none opacity-0' : ''}`}>
         <button
           type="button"
           onClick={() => setOpen(true)}

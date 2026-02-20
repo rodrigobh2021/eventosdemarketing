@@ -275,7 +275,7 @@ export default async function EventListingPage({
         </div>
       </div>
 
-      {/* Date pills + sort + mobile filter button */}
+      {/* Date pills + sort */}
       <div className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Suspense>
@@ -287,12 +287,12 @@ export default async function EventListingPage({
               <SortSelect />
             </Suspense>
           </div>
-          {/* MobileFilterDrawer renders a fixed button — always in DOM */}
-          <Suspense>
-            <MobileFilterDrawer currentTema={tema} currentCategoria={categoriaSlug} currentCidade={cidade} />
-          </Suspense>
         </div>
       </div>
+      {/* MobileFilterDrawer: fixed button + drawer — outside flex row to avoid phantom gap */}
+      <Suspense>
+        <MobileFilterDrawer currentTema={tema} currentCategoria={categoriaSlug} currentCidade={cidade} />
+      </Suspense>
 
       {/* Breadcrumb */}
       <div className="border-b border-gray-200 bg-white">
