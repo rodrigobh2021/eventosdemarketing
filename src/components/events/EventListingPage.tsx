@@ -266,7 +266,7 @@ export default async function EventListingPage({
   }
 
   return (
-    <div className="min-h-screen bg-bg-alt">
+    <div className="min-h-screen bg-bg-alt pb-24 lg:pb-0">
       {/* Page header */}
       <div className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
