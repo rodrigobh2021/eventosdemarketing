@@ -93,7 +93,7 @@ export function EventDatePills() {
           key={pill.value}
           type="button"
           onClick={() => handleClick(pill.value)}
-          className={`rounded-[var(--radius-pill)] px-4 py-2 text-sm font-medium transition-colors ${
+          className={`shrink-0 whitespace-nowrap rounded-[var(--radius-pill)] px-4 py-2 text-sm font-medium transition-colors ${
             active === pill.value
               ? 'bg-primary text-white'
               : 'border border-gray-200 bg-white text-text hover:border-primary hover:text-primary'

@@ -281,14 +281,16 @@ export default async function EventListingPage({
           <Suspense>
             <EventDatePills />
           </Suspense>
-          <div className="flex items-center gap-3">
+          {/* Sort select — hidden on mobile to prevent overflow */}
+          <div className="hidden items-center gap-3 md:flex">
             <Suspense>
               <SortSelect />
             </Suspense>
-            <Suspense>
-              <MobileFilterDrawer currentTema={tema} currentCategoria={categoriaSlug} currentCidade={cidade} />
-            </Suspense>
           </div>
+          {/* MobileFilterDrawer renders a fixed button — always in DOM */}
+          <Suspense>
+            <MobileFilterDrawer currentTema={tema} currentCategoria={categoriaSlug} currentCidade={cidade} />
+          </Suspense>
         </div>
       </div>
 
