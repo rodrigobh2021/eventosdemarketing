@@ -1,9 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import * as cheerio from 'cheerio';
-import { chromium } from 'playwright';
 import type { ScrapedEventData, ScrapeMeta } from '@/types';
 
-// ─── Page Fetching with Playwright ──────────────────────────────────
+// ─── Page Fetching with fetch + cheerio ──────────────────────────────
 
 interface PageData {
   html: string;
@@ -13,69 +12,60 @@ interface PageData {
   title: string;
 }
 
-async function fetchPageWithBrowser(url: string): Promise<PageData> {
-  const browser = await chromium.launch({ headless: true });
-
+async function fetchPageWithHttp(url: string): Promise<PageData> {
+  let response: Response;
   try {
-    const context = await browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      locale: 'pt-BR',
+    response = await fetch(url, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control': 'no-cache',
+      },
+      signal: AbortSignal.timeout(30_000),
     });
-    const page = await context.newPage();
-
-    await page.goto(url, {
-      waitUntil: 'load',
-      timeout: 30_000,
-    });
-
-    // Wait for SPAs to render
-    await page.waitForTimeout(3000);
-
-    // Extract all data from the rendered page
-    const html = await page.content();
-    const visibleText = await page.evaluate(() => document.body.innerText);
-    const title = await page.title();
-
-    const metaTags = await page.evaluate(() => {
-      const tags: Record<string, string> = {};
-      document
-        .querySelectorAll('meta[property^="og:"], meta[name^="og:"]')
-        .forEach((el) => {
-          const key = el.getAttribute('property') || el.getAttribute('name') || '';
-          const val = el.getAttribute('content') || '';
-          if (key && val) tags[key] = val;
-        });
-      const desc = document.querySelector('meta[name="description"]');
-      if (desc) {
-        const val = desc.getAttribute('content');
-        if (val) tags['description'] = val;
-      }
-      return tags;
-    });
-
-    const jsonLdScripts = await page.evaluate(() => {
-      const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-      return Array.from(scripts)
-        .map((s) => s.textContent || '')
-        .filter(Boolean);
-    });
-
-    await context.close();
-
-    return { html, visibleText, metaTags, jsonLdScripts, title };
   } catch (err) {
-    if (err instanceof Error && err.message.includes('Timeout')) {
-      throw new Error(
-        `Timeout de 30s ao acessar ${url}. Verifique se a URL está correta.`,
-      );
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      throw new Error(`Timeout de 30s ao acessar ${url}. Verifique se a URL está correta.`);
     }
     throw new Error(
       `Não foi possível acessar a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
     );
-  } finally {
-    await browser.close();
   }
+
+  if (!response.ok) {
+    throw new Error(`Não foi possível acessar a página: HTTP ${response.status} ${response.statusText}`);
+  }
+
+  const html = await response.text();
+  const $ = cheerio.load(html);
+
+  const title =
+    $('title').text().trim() ||
+    $('meta[property="og:title"]').attr('content') ||
+    '';
+
+  const metaTags: Record<string, string> = {};
+  $('meta[property^="og:"], meta[name^="og:"]').each((_, el) => {
+    const key = $(el).attr('property') || $(el).attr('name') || '';
+    const val = $(el).attr('content') || '';
+    if (key && val) metaTags[key] = val;
+  });
+  const descContent = $('meta[name="description"]').attr('content');
+  if (descContent) metaTags['description'] = descContent;
+
+  const jsonLdScripts: string[] = [];
+  $('script[type="application/ld+json"]').each((_, el) => {
+    const text = $(el).html() || '';
+    if (text) jsonLdScripts.push(text);
+  });
+
+  $('script, style, nav, footer, header, iframe, noscript, svg, form').remove();
+  const visibleText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return { html, visibleText, metaTags, jsonLdScripts, title };
 }
 
 // ─── HTML Cleaning (Cheerio) ────────────────────────────────────────
@@ -91,7 +81,6 @@ interface ExtractedContent {
 function extractContent(pageData: PageData): ExtractedContent {
   const $ = cheerio.load(pageData.html);
 
-  // Merge Playwright meta tags with any cheerio might find
   const metaTags = { ...pageData.metaTags };
 
   // Find event-related JSON-LD
@@ -125,8 +114,8 @@ function extractContent(pageData: PageData): ExtractedContent {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  // Use whichever text is longer/better — Playwright's visibleText (JS-rendered)
-  // or cheerio's extraction from the HTML
+  // Use whichever text is longer/better — basic visibleText
+  // or cheerio's extraction with deeper filtering
   const text = pageData.visibleText.length > cheerioText.length
     ? pageData.visibleText.slice(0, 15_000)
     : cheerioText.slice(0, 15_000);
@@ -313,8 +302,8 @@ function calcConfidence(data: ScrapedEventData): ScrapeMeta['confidence'] {
 export async function scrapeEventFromUrl(
   url: string,
 ): Promise<{ data: ScrapedEventData; meta: ScrapeMeta }> {
-  // 1. Fetch page with headless browser
-  const pageData = await fetchPageWithBrowser(url);
+  // 1. Fetch page with HTTP + cheerio
+  const pageData = await fetchPageWithHttp(url);
 
   // 2. Extract and clean content
   const content = extractContent(pageData);
