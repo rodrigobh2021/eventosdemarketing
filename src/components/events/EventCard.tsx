@@ -51,7 +51,7 @@ export default function EventCard({ event }: { event: Event }) {
   return (
     <Link
       href={`/evento/${event.slug}`}
-      className={`group flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
+      className={`group flex h-full w-full flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
         isCancelled ? 'border-red-200 opacity-75' : 'border-gray-200'
       }`}
     >

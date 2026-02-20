@@ -562,8 +562,8 @@ export function MobileFilterDrawer({
 
   return (
     <>
-      {/* Fixed bottom button — mobile only (md+ has sidebar or top bar) */}
-      <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center md:hidden">
+      {/* Fixed bottom button — mobile only */}
+      <div className="fixed bottom-4 left-0 right-0 z-[9999] flex justify-center md:hidden">
         <button
           type="button"
           onClick={() => setOpen(true)}

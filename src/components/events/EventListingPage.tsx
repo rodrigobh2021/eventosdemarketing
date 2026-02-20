@@ -301,7 +301,7 @@ export default async function EventListingPage({
 
       {/* Main content: sidebar + grid */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex gap-8">
+        <div className="lg:flex lg:gap-8">
           {/* Sidebar — desktop only */}
           <aside className="hidden w-[280px] shrink-0 lg:block">
             <div className="sticky top-20 rounded-[var(--radius-card)] border border-gray-200 bg-white p-5">
@@ -315,7 +315,7 @@ export default async function EventListingPage({
           </aside>
 
           {/* Results */}
-          <div className="min-w-0 flex-1">
+          <div className="w-full min-w-0 lg:flex-1">
             {/* Result count */}
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm text-text-secondary">
