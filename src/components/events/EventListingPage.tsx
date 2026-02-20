@@ -327,9 +327,11 @@ export default async function EventListingPage({
 
             {events.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex flex-wrap justify-center gap-6">
                   {events.map((event) => (
-                    <EventCard key={event.id} event={event} />
+                    <div key={event.id} className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
+                      <EventCard event={event} />
+                    </div>
                   ))}
                 </div>
 
