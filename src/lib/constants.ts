@@ -92,4 +92,4 @@ export const SITE_URL = 'https://www.eventosdemarketing.com.br';
 /** Update this date on each significant deploy */
 export const SITE_LAST_UPDATED = '2026-02-17';
 
-export const ITEMS_PER_PAGE = 10;
+export const ITEMS_PER_PAGE = 9;
