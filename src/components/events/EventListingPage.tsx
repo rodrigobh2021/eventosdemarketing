@@ -168,10 +168,19 @@ export default async function EventListingPage({
 
   // Text search
   if (q) {
-    where.OR = [
+    const lq = q.toLowerCase();
+    const matchingTopics = Object.entries(TOPIC_SLUG_TO_LABEL)
+      .filter(([slug, label]) => slug.includes(lq) || label.toLowerCase().includes(lq))
+      .map(([slug]) => slug);
+
+    const orClauses: Prisma.EventWhereInput[] = [
       { title: { contains: q, mode: 'insensitive' } },
       { description: { contains: q, mode: 'insensitive' } },
     ];
+    if (matchingTopics.length > 0) {
+      orClauses.push({ topics: { hasSome: matchingTopics } });
+    }
+    where.OR = orClauses;
   }
 
   // Format
