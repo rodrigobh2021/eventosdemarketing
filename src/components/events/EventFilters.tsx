@@ -562,74 +562,80 @@ export function MobileFilterDrawer({
 
   return (
     <>
-      {/* Fixed bottom button — hidden on lg+ (desktop has sidebar) */}
-      <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center lg:hidden">
+      {/* Fixed bottom button — mobile only (md+ has sidebar or top bar) */}
+      <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center md:hidden">
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-full bg-[var(--color-text)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-7 py-3.5 text-sm font-bold text-white shadow-xl transition-opacity hover:opacity-90"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
           </svg>
           {filterCount > 0 ? `Filtrar (${filterCount})` : 'Filtrar'}
         </button>
       </div>
 
-      {/* Bottom-up drawer */}
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
+      {/* Bottom-up drawer with smooth animation */}
+      <div
+        className={`fixed inset-0 z-50 transition-opacity duration-300 md:hidden ${
+          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
 
-          {/* Panel */}
-          <div className="absolute bottom-0 left-0 right-0 flex max-h-[85vh] flex-col rounded-t-2xl bg-white shadow-2xl">
-            {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
-              <h2 className="text-base font-semibold text-text">
-                Filtros{filterCount > 0 ? ` (${filterCount})` : ''}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-full p-1.5 text-text-secondary hover:bg-gray-100"
-                aria-label="Fechar filtros"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+        {/* Panel — slides up from bottom */}
+        <div
+          className={`absolute bottom-0 left-0 right-0 flex max-h-[85vh] flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-300 ease-out ${
+            open ? 'translate-y-0' : 'translate-y-full'
+          }`}
+        >
+          {/* Header */}
+          <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4">
+            <h2 className="text-base font-semibold text-text">
+              Filtros{filterCount > 0 ? ` (${filterCount})` : ''}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-full p-1.5 text-text-secondary hover:bg-gray-100"
+              aria-label="Fechar filtros"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
-            {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto px-5 py-5">
-              <EventFilters
-                currentTema={currentTema}
-                currentCategoria={currentCategoria}
-                currentCidade={currentCidade}
-              />
-            </div>
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <EventFilters
+              currentTema={currentTema}
+              currentCategoria={currentCategoria}
+              currentCidade={currentCidade}
+            />
+          </div>
 
-            {/* Footer */}
-            <div className="flex shrink-0 gap-3 border-t border-gray-100 px-5 py-4">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="flex-1 rounded-[var(--radius-btn)] border border-gray-200 py-3 text-sm font-medium text-text transition-colors hover:bg-gray-50"
-              >
-                Limpar
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="flex-[2] rounded-[var(--radius-btn)] bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                Aplicar Filtros
-              </button>
-            </div>
+          {/* Footer */}
+          <div className="flex shrink-0 gap-3 border-t border-gray-100 px-5 py-4">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="flex-1 rounded-[var(--radius-btn)] border border-gray-200 py-3 text-sm font-medium text-text transition-colors hover:bg-gray-50"
+            >
+              Limpar
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="flex-[2] rounded-[var(--radius-btn)] bg-[var(--color-accent)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Aplicar Filtros
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

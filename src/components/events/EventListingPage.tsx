@@ -266,7 +266,7 @@ export default async function EventListingPage({
   }
 
   return (
-    <div className="min-h-screen bg-bg-alt pb-24 lg:pb-0">
+    <div className="min-h-screen bg-bg-alt pb-24 md:pb-0">
       {/* Page header */}
       <div className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -325,7 +325,7 @@ export default async function EventListingPage({
 
             {events.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {events.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))}
