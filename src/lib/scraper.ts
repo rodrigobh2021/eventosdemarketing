@@ -359,7 +359,20 @@ export async function scrapeEventFromUrl(
   // 2. Extract and clean content
   const content = extractContent(pageData);
 
-  if (content.text.length < 50) {
+  // Detect SPA shell: minimal text but page loaded OK
+  const isSpaShell =
+    content.text.length < 50 &&
+    (pageData.html.includes('id="root"') || pageData.html.includes("id='root'") ||
+      pageData.html.includes('id="app"') || pageData.html.includes("id='app'"));
+
+  if (isSpaShell) {
+    throw new Error(
+      'Este site usa renderização JavaScript (React/Vue/Angular) — o conteúdo é carregado ' +
+        'dinamicamente e não pode ser lido automaticamente. Por favor, preencha o formulário manualmente.',
+    );
+  }
+
+  if (content.text.length < 50 && !content.hasOgTags && !content.hasJsonLd) {
     throw new Error(
       'Conteúdo da página muito curto — a URL pode estar bloqueando scraping ou ser inválida',
     );
