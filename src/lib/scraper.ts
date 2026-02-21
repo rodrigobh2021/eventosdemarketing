@@ -12,31 +12,79 @@ interface PageData {
   title: string;
 }
 
+// Domains known to block server-side scraping (anti-bot, queue systems)
+const ANTI_BOT_DOMAINS = [
+  'queue-it.net',
+  'queue-it.com',
+  'datadome.co',
+  'imperva.com',
+  'perimeterx.net',
+  'kasada.io',
+];
+
+const FETCH_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Cache-Control': 'no-cache',
+};
+
 async function fetchPageWithHttp(url: string): Promise<PageData> {
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cache-Control': 'no-cache',
-      },
-      signal: AbortSignal.timeout(30_000),
-    });
-  } catch (err) {
-    if (err instanceof Error && err.name === 'TimeoutError') {
-      throw new Error(`Timeout de 30s ao acessar ${url}. Verifique se a URL está correta.`);
+  // Follow redirects manually to detect anti-bot systems before failing
+  let currentUrl = url;
+  let response: Response | null = null;
+  const MAX_REDIRECTS = 10;
+
+  for (let i = 0; i <= MAX_REDIRECTS; i++) {
+    try {
+      response = await fetch(currentUrl, {
+        headers: FETCH_HEADERS,
+        redirect: 'manual',
+        signal: AbortSignal.timeout(20_000),
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name === 'TimeoutError') {
+        throw new Error(`Timeout ao acessar ${url}. Verifique se a URL está correta.`);
+      }
+      throw new Error(
+        `Não foi possível acessar a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+      );
     }
-    throw new Error(
-      `Não foi possível acessar a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
-    );
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location) break;
+
+      const resolvedLocation = new URL(location, currentUrl).href;
+
+      const isAntiBot = ANTI_BOT_DOMAINS.some((d) => resolvedLocation.includes(d));
+      if (isAntiBot) {
+        throw new Error(
+          'Este site usa proteção anti-bot que impede a extração automática. ' +
+            'Por favor, preencha as informações do evento manualmente.',
+        );
+      }
+
+      currentUrl = resolvedLocation;
+      continue;
+    }
+
+    break;
   }
 
-  if (!response.ok) {
-    throw new Error(`Não foi possível acessar a página: HTTP ${response.status} ${response.statusText}`);
+  if (!response || !response.ok) {
+    const status = response?.status ?? 0;
+    if (status === 403 || status === 429) {
+      throw new Error(
+        'Este site bloqueou o acesso automático (HTTP ' +
+          status +
+          '). Por favor, preencha as informações do evento manualmente.',
+      );
+    }
+    throw new Error(
+      `Não foi possível acessar a página: HTTP ${status}`,
+    );
   }
 
   const html = await response.text();
