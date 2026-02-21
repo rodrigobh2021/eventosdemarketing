@@ -290,12 +290,15 @@ function validateAndBuild(data: Record<string, unknown>, url: string): ScrapedEv
   if (!title || typeof title !== 'string') {
     throw new Error('Campo obrigatório ausente: title');
   }
-  if (!startDate || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
-    throw new Error('Campo obrigatório ausente ou inválido: start_date (esperado YYYY-MM-DD)');
-  }
-  if (!category || !VALID_CATEGORIES.has(category)) {
-    throw new Error(`Campo obrigatório ausente ou inválido: category (recebido: ${category})`);
-  }
+  // start_date: use empty string if missing/invalid so the user can fill manually
+  const validStartDate =
+    startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate) ? startDate : '';
+
+  // category: fall back to CONFERENCIA if the AI returned something invalid
+  const validCategory: ScrapedEventData['category'] =
+    category && VALID_CATEGORIES.has(category)
+      ? (category as ScrapedEventData['category'])
+      : 'CONFERENCIA';
 
   const format = (data.format as string) || 'PRESENCIAL';
   const topics = Array.isArray(data.topics)
@@ -306,7 +309,7 @@ function validateAndBuild(data: Record<string, unknown>, url: string): ScrapedEv
   return {
     title,
     description: (data.description as string) || '',
-    start_date: startDate,
+    start_date: validStartDate,
     end_date: (data.end_date as string) || null,
     start_time: (data.start_time as string) || null,
     end_time: (data.end_time as string) || null,
@@ -314,7 +317,7 @@ function validateAndBuild(data: Record<string, unknown>, url: string): ScrapedEv
     state: (data.state as string) || null,
     address: (data.address as string) || null,
     venue_name: (data.venue_name as string) || null,
-    category: category as ScrapedEventData['category'],
+    category: validCategory,
     topics,
     is_free: Boolean(data.is_free),
     price_type: (['a_partir_de', 'unico', 'nao_informado'].includes(data.price_type as string) ? data.price_type as ScrapedEventData['price_type'] : null),
