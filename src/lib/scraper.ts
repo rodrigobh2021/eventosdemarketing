@@ -12,6 +12,56 @@ interface PageData {
   title: string;
 }
 
+// ─── Jina AI Reader fallback for SPAs ────────────────────────────────
+
+async function fetchPageViaJina(url: string): Promise<PageData> {
+  const jinaUrl = `https://r.jina.ai/${url}`;
+
+  let response: Response;
+  try {
+    response = await fetch(jinaUrl, {
+      headers: {
+        Accept: 'application/json',
+        'X-Return-Format': 'markdown',
+      },
+      signal: AbortSignal.timeout(45_000),
+    });
+  } catch (err) {
+    throw new Error(
+      `Jina Reader falhou ao acessar a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(`Jina Reader retornou HTTP ${response.status}`);
+  }
+
+  const json = (await response.json()) as {
+    data?: { content?: string; title?: string; description?: string };
+  };
+  const content = json.data?.content ?? '';
+  const title = json.data?.title ?? '';
+  const description = json.data?.description ?? '';
+
+  if (!content || content.length < 50) {
+    throw new Error(
+      'Este site usa renderização JavaScript e não pôde ser lido automaticamente. ' +
+        'Por favor, preencha o formulário manualmente.',
+    );
+  }
+
+  const metaTags: Record<string, string> = {};
+  if (description) metaTags['description'] = description;
+
+  return {
+    html: `<html><body>${content}</body></html>`,
+    visibleText: content,
+    metaTags,
+    jsonLdScripts: [],
+    title,
+  };
+}
+
 // Domains known to block server-side scraping (anti-bot, queue systems)
 const ANTI_BOT_DOMAINS = [
   'queue-it.net',
@@ -354,22 +404,20 @@ export async function scrapeEventFromUrl(
   url: string,
 ): Promise<{ data: ScrapedEventData; meta: ScrapeMeta }> {
   // 1. Fetch page with HTTP + cheerio
-  const pageData = await fetchPageWithHttp(url);
+  let pageData = await fetchPageWithHttp(url);
 
   // 2. Extract and clean content
-  const content = extractContent(pageData);
+  let content = extractContent(pageData);
 
-  // Detect SPA shell: minimal text but page loaded OK
+  // Detect SPA shell: minimal text but page loaded OK → try Jina Reader
   const isSpaShell =
     content.text.length < 50 &&
     (pageData.html.includes('id="root"') || pageData.html.includes("id='root'") ||
       pageData.html.includes('id="app"') || pageData.html.includes("id='app'"));
 
   if (isSpaShell) {
-    throw new Error(
-      'Este site usa renderização JavaScript (React/Vue/Angular) — o conteúdo é carregado ' +
-        'dinamicamente e não pode ser lido automaticamente. Por favor, preencha o formulário manualmente.',
-    );
+    pageData = await fetchPageViaJina(url);
+    content = extractContent(pageData);
   }
 
   if (content.text.length < 50 && !content.hasOgTags && !content.hasJsonLd) {
