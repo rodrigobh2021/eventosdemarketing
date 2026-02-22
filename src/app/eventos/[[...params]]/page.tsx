@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import type { Prisma } from '@/generated/prisma';
+import type { Prisma } from '@/generated/prisma/client';
 import EventListingPage from '@/components/events/EventListingPage';
 import { prisma } from '@/lib/prisma';
 import {
