@@ -6,7 +6,7 @@ import { ptBR } from 'date-fns/locale';
 
 export const revalidate = 60;
 import { prisma } from '@/lib/prisma';
-import { TOPIC_SLUG_TO_LABEL, ITEMS_PER_PAGE, CATEGORY_SINGULAR_TO_SLUG, CATEGORY_SLUG_MAP, MAIN_CITIES } from '@/lib/constants';
+import { TOPIC_SLUG_TO_LABEL, ITEMS_PER_PAGE, CATEGORY_SINGULAR_TO_SLUG, CATEGORY_SLUG_MAP, MAIN_CITIES, SITE_URL } from '@/lib/constants';
 import { buildEventUrl, formatPrice } from '@/lib/utils';
 import { generateEventJsonLd, generateBreadcrumbJsonLd } from '@/lib/schema-org';
 import EventCard from '@/components/events/EventCard';
@@ -118,7 +118,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const title = event.meta_title ?? event.title;
   const description = event.meta_description ?? stripHtml(event.description).slice(0, 160);
 
-  const canonicalUrl = `https://www.eventosdemarketing.com.br/evento/${slug}`;
+  const canonicalUrl = `${SITE_URL}/evento/${slug}`;
   const ogImage = event.image_url ?? '/og-image.png';
 
   return {
@@ -165,7 +165,7 @@ export default async function EventoPage({ params }: Props) {
   const hasCoords = event.latitude != null && event.longitude != null;
   const dateStr = formatDateRange(event.start_date, event.end_date);
   const timeStr = formatTimeRange(event.start_time, event.end_time);
-  const eventUrl = `https://www.eventosdemarketing.com.br/evento/${event.slug}`;
+  const eventUrl = `${SITE_URL}/evento/${event.slug}`;
 
   // Correção 7: buscar cidade no banco se não estiver em MAIN_CITIES
   const mainCityInfo = isPresencial ? MAIN_CITIES.find((c) => c.name === event.city) : undefined;
@@ -259,11 +259,11 @@ export default async function EventoPage({ params }: Props) {
                 const categorySlug = CATEGORY_SINGULAR_TO_SLUG[event.category];
                 const categoryInfo = categorySlug ? CATEGORY_SLUG_MAP[categorySlug] : null;
                 const crumbs: { label: string; href?: string }[] = [
-                  { label: 'Home', href: '/' },
-                  { label: 'Eventos', href: '/eventos' },
+                  { label: 'Home', href: SITE_URL },
+                  { label: 'Eventos', href: `${SITE_URL}/eventos` },
                 ];
                 if (categorySlug && categoryInfo) {
-                  crumbs.push({ label: categoryInfo.label, href: `/eventos/${categorySlug}` });
+                  crumbs.push({ label: categoryInfo.label, href: `${SITE_URL}/eventos/${categorySlug}` });
                 }
                 const truncTitle = event.title.length > 50 ? event.title.slice(0, 50) + '…' : event.title;
                 crumbs.push({ label: truncTitle });
@@ -385,7 +385,7 @@ export default async function EventoPage({ params }: Props) {
             {/* City badge */}
             {cityInfo && (
               <Link
-                href={`/eventos-marketing-${cityInfo.slug}`}
+                href={`${SITE_URL}/eventos-marketing-${cityInfo.slug}`}
                 className="mt-3 ml-8 inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-blue-50 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-blue-100"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -410,7 +410,7 @@ export default async function EventoPage({ params }: Props) {
                   {event.topics.map((topic) => (
                     <Link
                       key={topic}
-                      href={buildEventUrl({ tema: topic })}
+                      href={`${SITE_URL}${buildEventUrl({ tema: topic })}`}
                       className="rounded-[var(--radius-pill)] border border-gray-200 bg-white px-3 py-1.5 text-sm text-text transition-colors hover:border-primary hover:text-primary"
                     >
                       {TOPIC_SLUG_TO_LABEL[topic] ?? topic}

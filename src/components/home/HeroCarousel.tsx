@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { SITE_URL } from '@/lib/constants';
 
 const FEATURED_EVENTS = [
   {
@@ -12,7 +13,7 @@ const FEATURED_EVENTS = [
     state: 'SP',
     category: 'Conferência',
     image: '/images/destaque/cmo-summit.jpg',
-    url: '/evento/cmo-summit-2026',
+    url: `${SITE_URL}/evento/cmo-summit-2026`,
   },
   {
     title: 'VTEX Day 2026',
@@ -21,7 +22,7 @@ const FEATURED_EVENTS = [
     state: 'SP',
     category: 'Conferência',
     image: '/images/destaque/vtex-day.webp',
-    url: '/evento/vtex-day-2026',
+    url: `${SITE_URL}/evento/vtex-day-2026`,
   },
   {
     title: 'ProXXIma 2026',
@@ -30,7 +31,7 @@ const FEATURED_EVENTS = [
     state: 'SP',
     category: 'Conferência',
     image: '/images/destaque/proxxima-2026.webp',
-    url: '/evento/proxxima-2026-sao-paulo',
+    url: `${SITE_URL}/evento/proxxima-2026-sao-paulo`,
   },
 ];
 

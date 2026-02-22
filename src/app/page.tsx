@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
-import { EVENT_TOPICS } from '@/lib/constants';
+import { EVENT_TOPICS, SITE_URL } from '@/lib/constants';
 import HeroCarousel from '@/components/home/HeroCarousel';
 import MobileSearchBar from '@/components/home/MobileSearchBar';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -44,8 +44,6 @@ const CITIES = [
 ] as const;
 
 // ─── Page ─────────────────────────────────────────────────────────────
-
-const SITE_URL = 'https://www.eventosdemarketing.com.br';
 
 const websiteJsonLd = {
   '@context': 'https://schema.org/',
@@ -111,7 +109,7 @@ export default async function Home() {
             {THEME_GRID.map(({ slug, label, Icon }) => (
               <Link
                 key={slug}
-                href={`/eventos/${slug}`}
+                href={`${SITE_URL}/eventos/${slug}`}
                 className="group flex flex-col items-center gap-2 text-center"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white transition-transform duration-200 group-hover:scale-110 sm:h-16 sm:w-16">
@@ -150,7 +148,7 @@ export default async function Home() {
 
           <div className="mt-10 text-center">
             <Link
-              href="/eventos"
+              href={`${SITE_URL}/eventos`}
               className="inline-block rounded-[var(--radius-btn)] border border-primary px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
             >
               Ver todos os eventos
@@ -170,7 +168,7 @@ export default async function Home() {
             {CITIES.map((city) => (
               <Link
                 key={city.slug}
-                href={`/eventos-marketing-${city.slug}`}
+                href={`${SITE_URL}/eventos-marketing-${city.slug}`}
                 className="group relative flex h-48 items-end overflow-hidden rounded-[var(--radius-card)] sm:h-56"
               >
                 {'image' in city && city.image ? (
@@ -208,7 +206,7 @@ export default async function Home() {
             Cadastre seu evento gratuitamente e alcance milhares de profissionais de marketing.
           </p>
           <Link
-            href="/para-organizadores"
+            href={`${SITE_URL}/para-organizadores`}
             className="mt-8 inline-block rounded-[var(--radius-btn)] bg-white px-8 py-3.5 text-sm font-semibold text-primary transition-colors hover:bg-blue-50"
           >
             Cadastrar meu evento

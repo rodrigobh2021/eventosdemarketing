@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Event } from '@/generated/prisma/client';
 import { formatPrice } from '@/lib/utils';
+import { SITE_URL } from '@/lib/constants';
 
 const FORMAT_LABELS: Record<string, string> = {
   PRESENCIAL: 'Presencial',
@@ -51,7 +52,7 @@ export default function EventCard({ event }: { event: Event }) {
 
   return (
     <Link
-      href={`/evento/${event.slug}`}
+      href={`${SITE_URL}/evento/${event.slug}`}
       className={`group flex h-full w-full flex-col overflow-hidden rounded-[var(--radius-card)] border bg-white transition-shadow hover:shadow-lg ${
         isCancelled ? 'border-red-200 opacity-75' : 'border-gray-200'
       }`}

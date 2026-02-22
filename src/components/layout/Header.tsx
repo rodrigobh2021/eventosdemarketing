@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { SITE_URL } from '@/lib/constants';
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -84,7 +85,7 @@ export default function Header() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center">
+        <Link href={SITE_URL} className="flex shrink-0 items-center">
           <span className="text-xl font-bold tracking-tight text-[var(--color-text)]">
             eventos<span className="text-[var(--color-accent)]">de</span>marketing
           </span>
@@ -115,7 +116,7 @@ export default function Header() {
         {/* Desktop actions */}
         <div className="hidden items-center md:flex">
           <Link
-            href="/cadastrar-evento"
+            href={`${SITE_URL}/cadastrar-evento`}
             className="rounded-[var(--radius-btn)] bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent)]/90"
           >
             Cadastre um Evento
@@ -163,7 +164,7 @@ export default function Header() {
           )}
           <div className="flex flex-col gap-2">
             <Link
-              href="/cadastrar-evento"
+              href={`${SITE_URL}/cadastrar-evento`}
               className="rounded-[var(--radius-btn)] bg-[var(--color-accent)] px-4 py-2.5 text-center text-sm font-medium text-white"
               onClick={() => setMobileMenuOpen(false)}
             >

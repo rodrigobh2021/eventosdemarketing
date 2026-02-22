@@ -71,7 +71,20 @@
       "mcp__playwright__browser_resize",
       "mcp__playwright__browser_evaluate",
       "Bash(git stash:*)",
-      "Bash(git stash pop:*)"
+      "Bash(git stash pop:*)",
+      "Bash(cmd //c \"taskkill /PID 41448 /F\")",
+      "Bash(cmd //c \"curl -s -D - --max-redirs 3 -A \"\"Mozilla/5.0 Chrome/120\"\" \"\"https://www.sympla.com.br/evento/educa-hub-marketing-digital-de-alta-performance/3231796\"\" 2>&1\")",
+      "Bash(cmd //c \"mkdir C:\\\\mnt\\\\user-data\\\\outputs\")",
+      "Bash(cmd //c \"curl -s -o nul -w \"\"%{http_code}\"\" http://localhost:3000/ 2>&1\")",
+      "Bash(cmd //c \"type C:\\\\Users\\\\Rodrigo\\\\eventos_mkt\\\\.env.local 2>nul || echo NOT_FOUND\")",
+      "Bash(git show:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:bugs.webkit.org)",
+      "WebFetch(domain:lukeplant.me.uk)",
+      "WebFetch(domain:weblog.west-wind.com)",
+      "Bash(git rm:*)",
+      "Bash(git revert:*)"
     ]
   }
 }

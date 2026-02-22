@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS, MAIN_CITIES } from '@/lib/constants';
+import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS, MAIN_CITIES, SITE_URL } from '@/lib/constants';
 import type { ScrapedEventData } from '@/types';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 import { maskCurrencyInput, parseCurrencyInput } from '@/lib/utils';
@@ -436,7 +436,7 @@ export default function CadastrarEventoPage() {
             Nossa equipe irá revisar e publicar em até 24 horas. Obrigado por divulgar seu evento!
           </p>
           <div className="flex gap-3 justify-center">
-            <a href="/eventos" className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <a href={`${SITE_URL}/eventos`} className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               Ver eventos
             </a>
             <button

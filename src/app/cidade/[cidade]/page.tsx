@@ -14,8 +14,7 @@ import {
 } from '@/lib/constants';
 import { generateItemListJsonLd } from '@/lib/schema-org';
 import NewsletterSignup from '@/components/NewsletterSignup';
-
-const SITE_URL = 'https://www.eventosdemarketing.com.br';
+import { SITE_URL } from '@/lib/constants';
 
 // ─── Category pills shown on the landing page ───────────────────────
 
@@ -138,13 +137,13 @@ export default async function CidadePage({ params, searchParams }: Props) {
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex flex-wrap items-center gap-1 text-sm text-text-secondary">
               <li className="flex items-center gap-1">
-                <Link href="/" className="transition-colors hover:text-primary">Home</Link>
+                <Link href={SITE_URL} className="transition-colors hover:text-primary">Home</Link>
               </li>
               <li className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
                 </svg>
-                <Link href="/eventos" className="transition-colors hover:text-primary">Eventos</Link>
+                <Link href={`${SITE_URL}/eventos`} className="transition-colors hover:text-primary">Eventos</Link>
               </li>
               <li className="flex items-center gap-1">
                 <svg className="h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -175,7 +174,7 @@ export default async function CidadePage({ params, searchParams }: Props) {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href={`/eventos-marketing-${cidade}`}
+              href={`${SITE_URL}/eventos-marketing-${cidade}`}
               className="rounded-[var(--radius-pill)] bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
             >
               Todos ({count})
@@ -187,7 +186,7 @@ export default async function CidadePage({ params, searchParams }: Props) {
                 return (
                   <Link
                     key={cat.slug}
-                    href={`/eventos/${cat.slug}/${cidade}`}
+                    href={`${SITE_URL}/eventos/${cat.slug}/${cidade}`}
                     className="rounded-[var(--radius-pill)] border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
                   >
                     {cat.label} ({catCount})
@@ -230,7 +229,7 @@ export default async function CidadePage({ params, searchParams }: Props) {
               Cadastre-se para ser notificado quando um novo evento for adicionado.
             </p>
             <Link
-              href="/alertas"
+              href={`${SITE_URL}/alertas`}
               className="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-btn)] bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent/90"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -269,7 +268,7 @@ export default async function CidadePage({ params, searchParams }: Props) {
             </p>
             <p>
               Quer ficar por dentro dos novos eventos?{' '}
-              <Link href="/alertas" className="font-medium text-primary hover:underline">
+              <Link href={`${SITE_URL}/alertas`} className="font-medium text-primary hover:underline">
                 Cadastre-se para receber alertas
               </Link>{' '}
               e nunca perca uma conferencia ou workshop em {cidadeLabel}.

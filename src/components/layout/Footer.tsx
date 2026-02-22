@@ -1,22 +1,23 @@
 import Link from 'next/link';
+import { SITE_URL } from '@/lib/constants';
 
 const exploreLinks = [
-  { href: '/eventos/conferencias', label: 'Conferências' },
-  { href: '/eventos/workshops', label: 'Workshops' },
-  { href: '/eventos/meetups', label: 'Meetups' },
-  { href: '/eventos/webinars', label: 'Webinars' },
-  { href: '/eventos/cursos', label: 'Cursos' },
-  { href: '/eventos?formato=ONLINE', label: 'Eventos Online' },
+  { href: `${SITE_URL}/eventos/conferencias`, label: 'Conferências' },
+  { href: `${SITE_URL}/eventos/workshops`, label: 'Workshops' },
+  { href: `${SITE_URL}/eventos/meetups`, label: 'Meetups' },
+  { href: `${SITE_URL}/eventos/webinars`, label: 'Webinars' },
+  { href: `${SITE_URL}/eventos/cursos`, label: 'Cursos' },
+  { href: `${SITE_URL}/eventos?formato=ONLINE`, label: 'Eventos Online' },
 ];
 
 const organizerLinks = [
-  { href: '/cadastrar-evento', label: 'Cadastre seu Evento' },
+  { href: `${SITE_URL}/cadastrar-evento`, label: 'Cadastre seu Evento' },
 ];
 
 const aboutLinks = [
-  { href: '/politica-de-privacidade', label: 'Política de Privacidade' },
-  { href: '/termos-de-uso', label: 'Termos de Uso' },
-  { href: '/contato', label: 'Contato' },
+  { href: `${SITE_URL}/politica-de-privacidade`, label: 'Política de Privacidade' },
+  { href: `${SITE_URL}/termos-de-uso`, label: 'Termos de Uso' },
+  { href: `${SITE_URL}/contato`, label: 'Contato' },
 ];
 
 export default function Footer() {
@@ -26,7 +27,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Column 1 — Brand */}
           <div>
-            <Link href="/" className="inline-block">
+            <Link href={SITE_URL} className="inline-block">
               <span className="text-xl font-bold tracking-tight text-white">
                 eventos<span className="text-[var(--color-accent)]">de</span>marketing
               </span>

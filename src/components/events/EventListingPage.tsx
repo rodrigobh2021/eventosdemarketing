@@ -13,6 +13,7 @@ import {
   CITY_SLUG_TO_NAME,
   TOPIC_SLUG_TO_LABEL,
   ITEMS_PER_PAGE,
+  SITE_URL,
 } from '@/lib/constants';
 import { buildEventUrl, getCategoriaLabel } from '@/lib/utils';
 import { generateItemListJsonLd } from '@/lib/schema-org';
@@ -70,20 +71,20 @@ function buildDateRange(periodo: string | null): { gte: Date; lte?: Date } | nul
 
 function Breadcrumbs({ tema, categoriaSlug, cidade }: { tema?: string; categoriaSlug?: string; cidade?: string }) {
   const crumbs: { label: string; href?: string }[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Eventos', href: tema || categoriaSlug || cidade ? '/eventos' : undefined },
+    { label: 'Home', href: SITE_URL },
+    { label: 'Eventos', href: tema || categoriaSlug || cidade ? `${SITE_URL}/eventos` : undefined },
   ];
 
   if (tema) {
     const temaLabel = TOPIC_SLUG_TO_LABEL[tema] ?? tema;
     const hasMore = categoriaSlug || cidade;
-    crumbs.push({ label: temaLabel, href: hasMore ? buildEventUrl({ tema }) : undefined });
+    crumbs.push({ label: temaLabel, href: hasMore ? `${SITE_URL}${buildEventUrl({ tema })}` : undefined });
   }
 
   if (categoriaSlug) {
     const catLabel = getCategoriaLabel(categoriaSlug);
     const hasMore = cidade;
-    crumbs.push({ label: catLabel, href: hasMore ? buildEventUrl({ tema, categoria: categoriaSlug }) : undefined });
+    crumbs.push({ label: catLabel, href: hasMore ? `${SITE_URL}${buildEventUrl({ tema, categoria: categoriaSlug })}` : undefined });
   }
 
   if (cidade) {
@@ -376,7 +377,7 @@ export default async function EventListingPage({
                   Tente ajustar seus filtros para encontrar mais eventos.
                 </p>
                 <a
-                  href={basePath}
+                  href={`${SITE_URL}${basePath}`}
                   className="mt-6 rounded-[var(--radius-btn)] bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
                 >
                   Limpar filtros
