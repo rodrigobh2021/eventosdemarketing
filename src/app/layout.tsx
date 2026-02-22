@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import ZoomReset from '@/components/ZoomReset';
 import './globals.css';
 
 const inter = Inter({
@@ -54,7 +53,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body className="flex min-h-screen flex-col font-sans antialiased">
-        <ZoomReset />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
