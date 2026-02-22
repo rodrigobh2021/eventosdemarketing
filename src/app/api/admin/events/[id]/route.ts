@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import type { EventCategory, EventFormat, EventStatus } from '@/generated/prisma/client';
+import { supabaseAdmin, SUPABASE_BUCKET, SUPABASE_STORAGE_PREFIX } from '@/lib/supabase-admin';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -39,6 +40,22 @@ export async function PUT(req: Request, { params }: RouteParams) {
       }
     }
 
+    const newImageUrl: string | null = body.image_url || null;
+
+    // If image changed and old image was Supabase-hosted, delete the old file
+    const oldImageUrl = event.image_url;
+    if (
+      oldImageUrl &&
+      oldImageUrl !== newImageUrl &&
+      oldImageUrl.startsWith(SUPABASE_STORAGE_PREFIX)
+    ) {
+      const oldPath = oldImageUrl.slice(SUPABASE_STORAGE_PREFIX.length);
+      supabaseAdmin.storage
+        .from(SUPABASE_BUCKET)
+        .remove([oldPath])
+        .catch((err: unknown) => console.warn('[events/[id] PUT] Failed to delete old image:', err));
+    }
+
     await prisma.event.update({
       where: { id },
       data: {
@@ -62,7 +79,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
         price_value: typeof body.price_value === 'number' ? body.price_value : null,
         ticket_url: body.ticket_url || null,
         event_url: body.event_url || null,
-        image_url: body.image_url || null,
+        image_url: newImageUrl,
         organizer_name: body.organizer_name,
         organizer_url: body.organizer_url || null,
         format: body.format as EventFormat,

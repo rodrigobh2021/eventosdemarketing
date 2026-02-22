@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS } from '@/lib/constants';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 import { formatPrice, maskCurrencyInput, parseCurrencyInput } from '@/lib/utils';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -822,8 +823,8 @@ function EditForm({
           <input className={INPUT} value={data.event_url ?? ''} onChange={e => set('event_url', e.target.value || null)} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">URL da imagem</label>
-          <input className={INPUT} value={data.image_url ?? ''} onChange={e => set('image_url', e.target.value || null)} />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Imagem</label>
+          <ImageUploadField value={data.image_url} onChange={url => set('image_url', url)} />
         </div>
       </div>
 
