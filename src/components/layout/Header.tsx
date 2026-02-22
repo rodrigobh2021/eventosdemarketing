@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -56,6 +56,8 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     function handleScroll() {
@@ -138,25 +140,27 @@ export default function Header() {
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="border-t border-gray-100 bg-white px-4 pb-4 md:hidden">
-          {/* Mobile search */}
-          <div className="relative my-3">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery, true)}
-              placeholder="Buscar eventos de marketing..."
-              className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-10 pl-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => handleSearch(searchQuery, true)}
-              aria-label="Buscar"
-              className="absolute top-1/2 right-1.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-white transition-opacity hover:opacity-85"
-            >
-              <SearchIcon className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          {/* Mobile search — hidden on homepage (shown below header instead) */}
+          {!isHome && (
+            <div className="relative my-3">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery, true)}
+                placeholder="Buscar eventos de marketing..."
+                className="w-full rounded-[var(--radius-pill)] border border-gray-200 bg-[var(--color-bg-alt)] py-2 pr-10 pl-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => handleSearch(searchQuery, true)}
+                aria-label="Buscar"
+                className="absolute top-1/2 right-1.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-accent)] text-white transition-opacity hover:opacity-85"
+              >
+                <SearchIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <Link
               href="/cadastrar-evento"

@@ -1,14 +1,21 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
+import Pagination from '@/components/events/Pagination';
 import {
   CITY_SLUGS,
   CITY_SLUG_TO_NAME,
   CITY_SLUG_TO_STATE,
   MAIN_CITIES,
   CATEGORY_SLUG_MAP,
+  ITEMS_PER_PAGE,
 } from '@/lib/constants';
+import { generateItemListJsonLd } from '@/lib/schema-org';
+import NewsletterSignup from '@/components/NewsletterSignup';
+
+const SITE_URL = 'https://www.eventosdemarketing.com.br';
 
 // ─── Category pills shown on the landing page ───────────────────────
 
@@ -26,20 +33,27 @@ export const revalidate = 60;
 
 // ─── Metadata ─────────────────────────────────────────────────────────
 
-type MetadataProps = { params: Promise<{ cidade: string }> };
+type MetadataProps = {
+  params: Promise<{ cidade: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export async function generateMetadata({ params }: MetadataProps) {
+export async function generateMetadata({ params, searchParams }: MetadataProps) {
   const { cidade } = await params;
+  const sp = await searchParams;
   const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
   const cidadeLabel = CITY_SLUG_TO_NAME[cidade] ?? pageData?.city;
   if (!cidadeLabel) return {};
 
   const state = CITY_SLUG_TO_STATE[cidade] ?? pageData?.state ?? '';
+  const pagina = Math.max(1, parseInt((sp.pagina as string) ?? '1', 10) || 1);
+  const baseUrl = `https://www.eventosdemarketing.com.br/eventos-marketing-${cidade}`;
+  const canonical = pagina > 1 ? `${baseUrl}?pagina=${pagina}` : baseUrl;
 
   return {
     title: pageData?.meta_title ?? `Eventos de Marketing em ${cidadeLabel} 2026`,
     description: pageData?.meta_description ?? `Encontre eventos de marketing em ${cidadeLabel}, ${state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
-    alternates: { canonical: `https://www.eventosdemarketing.com.br/eventos-marketing-${cidade}` },
+    alternates: { canonical },
   };
 }
 
@@ -47,10 +61,13 @@ export async function generateMetadata({ params }: MetadataProps) {
 
 type Props = {
   params: Promise<{ cidade: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function CidadePage({ params }: Props) {
+export default async function CidadePage({ params, searchParams }: Props) {
   const { cidade } = await params;
+  const sp = await searchParams;
+  const pagina = Math.max(1, parseInt((sp.pagina as string) ?? '1', 10) || 1);
 
   // Support both static MAIN_CITIES and DB-registered dynamic cities
   const pageData = await prisma.cityPage.findUnique({ where: { slug: cidade } });
@@ -60,16 +77,19 @@ export default async function CidadePage({ params }: Props) {
   const state = CITY_SLUG_TO_STATE[cidade] ?? pageData?.state ?? '';
 
   const dbCityName = cidadeLabel;
+  const where = { status: 'PUBLICADO' as const, city: dbCityName, start_date: { gte: new Date() } };
+
   const [events, count] = await Promise.all([
     prisma.event.findMany({
-      where: { status: 'PUBLICADO', city: dbCityName, start_date: { gte: new Date() } },
+      where,
       orderBy: { start_date: 'asc' },
-      take: 12,
+      skip: (pagina - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
     }),
-    prisma.event.count({
-      where: { status: 'PUBLICADO', city: dbCityName, start_date: { gte: new Date() } },
-    }),
+    prisma.event.count({ where }),
   ]);
+
+  const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
 
   // Count per category for the pills
   const categoryCounts = await prisma.event.groupBy({
@@ -85,8 +105,33 @@ export default async function CidadePage({ params }: Props) {
     if (catSlug) countByCategory[catSlug.slug] = row._count;
   }
 
+  const itemListJsonLd = generateItemListJsonLd(
+    events,
+    `Eventos de Marketing em ${cidadeLabel}`,
+    `Conferências, workshops, meetups e webinars de marketing em ${cidadeLabel}`,
+  );
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home',    item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Eventos', item: `${SITE_URL}/eventos` },
+      { '@type': 'ListItem', position: 3, name: cidadeLabel, item: `${SITE_URL}/eventos-marketing-${cidade}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-bg-alt">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       {/* ── Hero ──────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-primary/5 via-white to-accent/5 border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -167,19 +212,11 @@ export default async function CidadePage({ params }: Props) {
               ))}
             </div>
 
-            {count > 12 && (
-              <div className="mt-8 text-center">
-                <Link
-                  href={`/eventos-marketing-${cidade}`}
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-btn)] border border-gray-200 bg-white px-6 py-3 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
-                >
-                  Ver todos os {count} eventos
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </Link>
-              </div>
-            )}
+            <div className="mt-10">
+              <Suspense>
+                <Pagination totalPages={totalPages} currentPage={pagina} />
+              </Suspense>
+            </div>
           </>
         ) : (
           <div className="rounded-[var(--radius-card)] border border-gray-200 bg-white px-6 py-16 text-center">
@@ -204,6 +241,9 @@ export default async function CidadePage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {/* ── Newsletter ────────────────────────────────────────────── */}
+      <NewsletterSignup subtitle={`Receba alertas de novos eventos de marketing em ${cidadeLabel}.`} />
 
       {/* ── SEO Text ──────────────────────────────────────────────── */}
       <section className="border-t border-gray-200 bg-white">

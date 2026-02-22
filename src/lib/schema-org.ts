@@ -120,6 +120,26 @@ export function generateEventJsonLd(event: Event) {
   return jsonLd;
 }
 
+export function generateItemListJsonLd(
+  events: { title: string; slug: string }[],
+  name: string,
+  description?: string,
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    ...(description ? { description } : {}),
+    numberOfItems: events.length,
+    itemListElement: events.map((event, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: event.title,
+      url: `${SITE_URL}/evento/${event.slug}`,
+    })),
+  };
+}
+
 export function generateBreadcrumbJsonLd(event: Event) {
   const categorySlug = CATEGORY_SINGULAR_TO_SLUG[event.category];
   const categoryLabel = CATEGORY_LABELS[event.category] ?? event.category;

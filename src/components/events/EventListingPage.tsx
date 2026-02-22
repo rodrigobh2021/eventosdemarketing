@@ -15,6 +15,8 @@ import {
   ITEMS_PER_PAGE,
 } from '@/lib/constants';
 import { buildEventUrl, getCategoriaLabel } from '@/lib/utils';
+import { generateItemListJsonLd } from '@/lib/schema-org';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import type { Prisma } from '@/generated/prisma/client';
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -265,7 +267,20 @@ export default async function EventListingPage({
     displaySubtitle = parts.join(' ');
   }
 
+  const itemListJsonLd = generateItemListJsonLd(events, title, subtitle);
+
+  const newsletterSubtitle = tema
+    ? `Receba alertas de novos eventos sobre ${TOPIC_SLUG_TO_LABEL[tema] ?? tema}.`
+    : categoriaSlug
+      ? `Receba alertas de novas ${getCategoriaLabel(categoriaSlug).toLowerCase()} de marketing.`
+      : undefined;
+
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+    />
     <div className="min-h-screen bg-bg-alt pb-24 md:pb-0">
       {/* Page header */}
       <div className="border-b border-gray-200 bg-white">
@@ -372,5 +387,7 @@ export default async function EventListingPage({
         </div>
       </div>
     </div>
+    <NewsletterSignup subtitle={newsletterSubtitle} />
+    </>
   );
 }

@@ -10,6 +10,7 @@ import { TOPIC_SLUG_TO_LABEL, ITEMS_PER_PAGE, CATEGORY_SINGULAR_TO_SLUG, CATEGOR
 import { buildEventUrl, formatPrice } from '@/lib/utils';
 import { generateEventJsonLd, generateBreadcrumbJsonLd } from '@/lib/schema-org';
 import EventCard from '@/components/events/EventCard';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import ShareButton from '@/components/shared/ShareButton';
 import CalendarButton from '@/components/shared/CalendarButton';
 import ExpandableDescription from '@/components/shared/ExpandableDescription';
@@ -598,6 +599,7 @@ export default async function EventoPage({ params }: Props) {
           </div>
         </div>
       )}
+      <NewsletterSignup />
     </div>
   );
 }

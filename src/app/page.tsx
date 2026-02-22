@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import EventCard from '@/components/events/EventCard';
 import { EVENT_TOPICS } from '@/lib/constants';
 import HeroCarousel from '@/components/home/HeroCarousel';
+import MobileSearchBar from '@/components/home/MobileSearchBar';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import {
   Bot,
   Share2,
@@ -36,8 +38,8 @@ const CITIES = [
   { slug: 'sao-paulo',      name: 'São Paulo',      state: 'SP', image: '/images/cidades/sao-paulo.jpg'      },
   { slug: 'rio-de-janeiro', name: 'Rio de Janeiro', state: 'RJ', image: '/images/cidades/rio-de-janeiro.jpg' },
   { slug: 'belo-horizonte', name: 'Belo Horizonte', state: 'MG', image: '/images/cidades/belo-horizonte.jpg' },
-  { slug: 'curitiba',       name: 'Curitiba',       state: 'PR', image: '/images/cidades/curitiba.jpg'       },
-  { slug: 'porto-alegre',   name: 'Porto Alegre',   state: 'RS', image: '/images/cidades/porto-alegre.jpg'   },
+  { slug: 'florianopolis',  name: 'Florianópolis',  state: 'SC', image: '/images/cidades/florianopolis.webp' },
+  { slug: 'salvador',       name: 'Salvador',       state: 'BA', image: '/images/cidades/salvador.jpg'       },
   { slug: 'brasilia',       name: 'Brasília',       state: 'DF', image: '/images/cidades/brasilia.jpg'       },
 ] as const;
 
@@ -87,11 +89,23 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
 
-      {/* ── 1. Hero ────────────────────────────────────────────────── */}
+      {/* ── 1. Mobile search bar (homepage only, below header) ─────── */}
+      <MobileSearchBar />
+
+      {/* ── 2. Hero ────────────────────────────────────────────────── */}
       <HeroCarousel />
 
-      {/* ── 2. Themes ──────────────────────────────────────────────── */}
-      <section className="border-b border-gray-100 bg-white py-8 sm:py-10 sm:pb-12">
+      {/* ── 2. H1 ───────────────────────────────────────────────────── */}
+      <section className="bg-white pt-2 sm:pt-4 pb-1">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-[19px] font-bold text-text sm:text-[23px] leading-snug">
+            Descubra os melhores eventos de marketing do Brasil
+          </h1>
+        </div>
+      </section>
+
+      {/* ── 3. Themes ──────────────────────────────────────────────── */}
+      <section className="border-b border-gray-100 bg-white pt-4 pb-8 sm:pt-5 sm:pb-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-4 gap-3 sm:grid-cols-8 sm:gap-4">
             {THEME_GRID.map(({ slug, label, Icon }) => (
@@ -203,28 +217,7 @@ export default async function Home() {
       </section>
 
       {/* ── 6. CTA Notifications ───────────────────────────────────── */}
-      <section className="bg-bg-alt px-4 py-14 text-center sm:py-20">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="text-2xl font-bold text-text sm:text-3xl">Não perca nenhum evento</h2>
-          <p className="mt-3 text-text-secondary">
-            Receba alertas quando novos eventos do seu interesse forem cadastrados.
-          </p>
-
-          <div className="mx-auto mt-8 flex max-w-md overflow-hidden rounded-[var(--radius-card)] border border-gray-200 bg-white shadow-sm">
-            <input
-              type="email"
-              placeholder="seu@email.com"
-              className="flex-1 px-4 py-3.5 text-sm text-text placeholder:text-gray-400 focus:outline-none"
-            />
-            <button
-              type="button"
-              className="bg-accent px-6 text-sm font-semibold whitespace-nowrap text-white transition-colors hover:bg-accent/90"
-            >
-              Quero receber
-            </button>
-          </div>
-        </div>
-      </section>
+      <NewsletterSignup variant="light" />
     </>
   );
 }
