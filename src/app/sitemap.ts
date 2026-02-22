@@ -20,9 +20,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dbCityPages = await prisma.cityPage.findMany({ select: { slug: true } });
   const cities = [...new Set([...staticCities, ...dbCityPages.map((p) => p.slug)])];
 
-  // ── Single query: all published events with fields needed for lastmod ──
+  // ── Single query: only upcoming published events ──────────────────────
+  // Pages with no upcoming events are excluded from the sitemap (crawl budget).
   const events = await prisma.event.findMany({
-    where: { status: 'PUBLICADO' },
+    where: { status: 'PUBLICADO', start_date: { gte: new Date() } },
     select: { slug: true, city: true, topics: true, category: true, updated_at: true },
   });
 
@@ -99,36 +100,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/para-organizadores`, lastModified: SITE_LAST_UPDATED },
   );
 
-  // ── b) City pages ───────────────────────────────────────────────────
+  // ── b) City pages — only if city has upcoming events ────────────────
   for (const city of cities) {
+    if (!lastmodByCity.has(city)) continue;
     entries.push({
       url: `${BASE}/eventos-marketing-${city}`,
-      lastModified: lastmodByCity.get(city) ?? SITE_LAST_UPDATED,
+      lastModified: lastmodByCity.get(city)!,
     });
   }
 
-  // ── c) Topic pages ──────────────────────────────────────────────────
+  // ── c) Topic pages — only if topic has upcoming events ───────────────
   for (const tema of topics) {
+    if (!lastmodByTopic.has(tema)) continue;
     entries.push({
       url: `${BASE}/eventos/${tema}`,
-      lastModified: lastmodByTopic.get(tema) ?? SITE_LAST_UPDATED,
+      lastModified: lastmodByTopic.get(tema)!,
     });
   }
 
-  // ── d) Category pages ───────────────────────────────────────────────
+  // ── d) Category pages — only if category has upcoming events ─────────
   for (const cat of categories) {
+    if (!lastmodByCategory.has(cat)) continue;
     entries.push({
       url: `${BASE}/eventos/${cat}`,
-      lastModified: lastmodByCategory.get(cat) ?? SITE_LAST_UPDATED,
+      lastModified: lastmodByCategory.get(cat)!,
     });
   }
 
   // ── e) Topic × City ─────────────────────────────────────────────────
   for (const tema of topics) {
     for (const city of cities) {
+      const key = `${tema}/${city}`;
+      if (!lastmodByTopicCity.has(key)) continue;
       entries.push({
         url: `${BASE}/eventos/${tema}/${city}`,
-        lastModified: lastmodByTopicCity.get(`${tema}/${city}`) ?? SITE_LAST_UPDATED,
+        lastModified: lastmodByTopicCity.get(key)!,
       });
     }
   }
@@ -136,9 +142,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── f) Topic × Category ─────────────────────────────────────────────
   for (const tema of topics) {
     for (const cat of categories) {
+      const key = `${tema}/${cat}`;
+      if (!lastmodByTopicCategory.has(key)) continue;
       entries.push({
         url: `${BASE}/eventos/${tema}/${cat}`,
-        lastModified: lastmodByTopicCategory.get(`${tema}/${cat}`) ?? SITE_LAST_UPDATED,
+        lastModified: lastmodByTopicCategory.get(key)!,
       });
     }
   }
@@ -146,9 +154,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── g) Category × City ──────────────────────────────────────────────
   for (const cat of categories) {
     for (const city of cities) {
+      const key = `${cat}/${city}`;
+      if (!lastmodByCategoryCity.has(key)) continue;
       entries.push({
         url: `${BASE}/eventos/${cat}/${city}`,
-        lastModified: lastmodByCategoryCity.get(`${cat}/${city}`) ?? SITE_LAST_UPDATED,
+        lastModified: lastmodByCategoryCity.get(key)!,
       });
     }
   }
@@ -157,9 +167,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const tema of topics) {
     for (const cat of categories) {
       for (const city of cities) {
+        const key = `${tema}/${cat}/${city}`;
+        if (!lastmodByTopicCategoryCity.has(key)) continue;
         entries.push({
           url: `${BASE}/eventos/${tema}/${cat}/${city}`,
-          lastModified: lastmodByTopicCategoryCity.get(`${tema}/${cat}/${city}`) ?? SITE_LAST_UPDATED,
+          lastModified: lastmodByTopicCategoryCity.get(key)!,
         });
       }
     }

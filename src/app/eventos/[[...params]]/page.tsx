@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import type { Prisma } from '@prisma/client';
 import EventListingPage from '@/components/events/EventListingPage';
 import { prisma } from '@/lib/prisma';
 import {
@@ -84,6 +85,22 @@ async function resolveCidadeLabel(slug: string): Promise<string> {
   return page?.city ?? slug;
 }
 
+// Helper: count upcoming published events for a combination of filters
+async function countListingEvents(
+  tema: string | undefined,
+  categoria: string | undefined,
+  cidade: string | undefined,
+): Promise<number> {
+  const where: Prisma.EventWhereInput = {
+    status: 'PUBLICADO',
+    start_date: { gte: new Date() },
+  };
+  if (tema) where.topics = { hasSome: [tema] };
+  if (categoria) where.category = CATEGORY_SLUG_MAP[categoria]?.singular;
+  if (cidade) where.city = await resolveCidadeLabel(cidade);
+  return prisma.event.count({ where });
+}
+
 export async function generateMetadata({ params, searchParams }: MetadataProps): Promise<Metadata> {
   const { params: segments } = await params;
   const sp = await searchParams;
@@ -102,7 +119,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
   const baseUrl = `https://www.eventosdemarketing.com.br${buildEventUrl({ tema, categoria, cidade })}`;
   const canonical = pagina > 1 ? `${baseUrl}?pagina=${pagina}` : baseUrl;
 
-  // /eventos
+  // /eventos — always indexable
   if (!tema && !categoria && !cidade) {
     return {
       title: 'Eventos de Marketing 2026 | Conferencias, Workshops e Meetups',
@@ -112,6 +129,10 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
     };
   }
 
+  // Filtered pages: noindex when no upcoming events
+  const eventCount = await countListingEvents(tema, categoria, cidade);
+  const noIndex = eventCount === 0 ? { robots: { index: false, follow: false } } : {};
+
   // /eventos/[categoria]
   if (catLabel && !temaLabel && !cidadeLabel) {
     const catPage = await prisma.categoryPage.findUnique({ where: { slug: categoria! } });
@@ -119,6 +140,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
       title: catPage?.meta_title ?? `${catLabel} de Marketing 2026`,
       description: catPage?.meta_description ?? `Encontre ${catLabel.toLowerCase()} de marketing no Brasil. Veja a agenda completa e inscreva-se.`,
       alternates: { canonical },
+      ...noIndex,
     };
   }
 
@@ -131,6 +153,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
         : `${catLabel} de Marketing em ${cidadeLabel} 2026`,
       description: cityPage?.meta_description ?? `${catLabel} de marketing em ${cidadeLabel} em 2026. Veja a agenda completa e inscreva-se.`,
       alternates: { canonical },
+      ...noIndex,
     };
   }
 
@@ -141,6 +164,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
       title: topicPage?.meta_title ?? `Eventos de ${temaLabel} 2026 - Conferencias, Workshops e Meetups`,
       description: topicPage?.meta_description ?? `Encontre eventos de ${temaLabel} no Brasil. Conferencias, workshops e meetups para profissionais de ${temaLabel}. Veja agenda completa e inscreva-se.`,
       alternates: { canonical },
+      ...noIndex,
     };
   }
 
@@ -150,6 +174,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
       title: `${catLabel} de ${temaLabel} 2026`,
       description: `${catLabel} de ${temaLabel} no Brasil em 2026. Veja a agenda completa e inscreva-se nos melhores ${catLabel.toLowerCase()} de ${temaLabel}.`,
       alternates: { canonical },
+      ...noIndex,
     };
   }
 
@@ -159,6 +184,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
       title: `Eventos de ${temaLabel} em ${cidadeLabel} 2026`,
       description: `Eventos de ${temaLabel} em ${cidadeLabel} em 2026. Veja a agenda completa de conferencias, workshops e meetups de ${temaLabel} em ${cidadeLabel}. Encontre o proximo evento e inscreva-se.`,
       alternates: { canonical },
+      ...noIndex,
     };
   }
 
@@ -167,6 +193,7 @@ export async function generateMetadata({ params, searchParams }: MetadataProps):
     title: `${catLabel} de ${temaLabel} em ${cidadeLabel} 2026`,
     description: `${catLabel} de ${temaLabel} em ${cidadeLabel} em 2026. Encontre os melhores ${catLabel?.toLowerCase()} de ${temaLabel} em ${cidadeLabel} e inscreva-se.`,
     alternates: { canonical },
+    ...noIndex,
   };
 }
 

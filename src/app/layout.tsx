@@ -38,10 +38,7 @@ export const metadata: Metadata = {
   },
   // TEMPORÁRIO — noindex até o lançamento público
   // Reverter para: index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
   alternates: { canonical: 'https://www.eventosdemarketing.com.br' },
 };
 

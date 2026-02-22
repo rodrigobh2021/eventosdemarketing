@@ -49,10 +49,15 @@ export async function generateMetadata({ params, searchParams }: MetadataProps) 
   const baseUrl = `https://www.eventosdemarketing.com.br/eventos-marketing-${cidade}`;
   const canonical = pagina > 1 ? `${baseUrl}?pagina=${pagina}` : baseUrl;
 
+  const eventCount = await prisma.event.count({
+    where: { status: 'PUBLICADO', city: cidadeLabel, start_date: { gte: new Date() } },
+  });
+
   return {
     title: pageData?.meta_title ?? `Eventos de Marketing em ${cidadeLabel} 2026`,
     description: pageData?.meta_description ?? `Encontre eventos de marketing em ${cidadeLabel}, ${state}. Conferencias, workshops, meetups e webinars. Veja a agenda completa e inscreva-se.`,
     alternates: { canonical },
+    ...(eventCount === 0 ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
