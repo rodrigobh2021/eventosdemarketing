@@ -23,6 +23,16 @@ body {
   color: var(--color-text);
 }
 
+/* iOS Safari: font-size < 16px em inputs aciona zoom automático no foco.
+   Garantir mínimo de 16px em telas pequenas previne esse comportamento. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* ── Prose (rich text display — páginas públicas) ──────────────── */
 .prose p            { margin-top: 1em; margin-bottom: 1em; line-height: 1.7; }
 .prose p:first-child { margin-top: 0; }
