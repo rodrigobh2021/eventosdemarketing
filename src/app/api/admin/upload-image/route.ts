@@ -20,6 +20,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Arquivo obrigatório' }, { status: 400 });
     }
 
+    // Ensure bucket exists — createBucket is idempotent (error ignored if already exists)
+    await supabaseAdmin.storage.createBucket(SUPABASE_BUCKET, { public: true }).catch(() => {});
+
     // Sanitize original filename (remove extension, slugify, truncate)
     const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
     const sanitized =

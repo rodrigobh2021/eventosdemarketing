@@ -7,6 +7,7 @@ import { EVENT_CATEGORIES, EVENT_FORMATS, EVENT_TOPICS, MAIN_CITIES, SITE_URL } 
 import type { ScrapedEventData } from '@/types';
 import RichTextEditor from '@/components/shared/RichTextEditor';
 import { maskCurrencyInput, parseCurrencyInput } from '@/lib/utils';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -1018,25 +1019,12 @@ export default function CadastrarEventoPage() {
             </div>
 
             <div>
-              <FieldLabel label="URL da imagem / banner" required aiActive={ai('image_url')} />
-              <input
-                type="url"
-                value={form.image_url}
-                onChange={(e) => set('image_url', e.target.value)}
-                placeholder="https://..."
-                className={inputCls('image_url')}
+              <FieldLabel label="Imagem / banner" required aiActive={ai('image_url')} />
+              <ImageUploadField
+                value={form.image_url || null}
+                onChange={(url) => set('image_url', url ?? '')}
               />
               <FieldError msg={err('image_url')} />
-              {form.image_url && /^https?:\/\//.test(form.image_url) && (
-                <div className="mt-2 w-48 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
-                  <img
-                    src={form.image_url}
-                    alt="Preview do banner"
-                    className="w-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
-                  />
-                </div>
-              )}
             </div>
           </SectionCard>
 
