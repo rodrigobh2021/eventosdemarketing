@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import type { Prisma } from '@/generated/prisma/client';
+import type { Prisma, EventCategory } from '@/generated/prisma/client';
 import EventListingPage from '@/components/events/EventListingPage';
 import { prisma } from '@/lib/prisma';
 import {
@@ -96,7 +96,7 @@ async function countListingEvents(
     start_date: { gte: new Date() },
   };
   if (tema) where.topics = { hasSome: [tema] };
-  if (categoria) where.category = CATEGORY_SLUG_MAP[categoria]?.singular;
+  if (categoria) where.category = CATEGORY_SLUG_MAP[categoria]?.singular as EventCategory | undefined;
   if (cidade) where.city = await resolveCidadeLabel(cidade);
   return prisma.event.count({ where });
 }
